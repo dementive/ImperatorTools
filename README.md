@@ -29,13 +29,11 @@ There are also autocompletions for some balancing effects and whole templates, l
 Autocompletion features are only for .txt files.
 
 Several commands have also been added to the context menu that is opened by simply right clicking the text area. A menu titled ```Imperator``` has been added with the following commands in it:
-```
 - Imperator Modding Index - Open the modding index your browser
 - Imperator Wiki - Open the imperator wiki in your browser
 - Localization Syntax Guide - Open the community made localization syntax guide in your browser
 - Imperator Effect - Opens a quick panel that is filled with each category of effect. Then quickly open a popup that shows all effects in a category. For example clicking State Effects in the quick panel will show all of the state effects that are in the game from the documentation.
 - Create Mission Tree - Creates mission tree localization, event, and mission files for you from quick panel input. All you need to know is the mission name, event namespace name, and number missions and your mission tree files will be automatically created.
-```
 
 # Other Packages
 
