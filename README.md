@@ -1,7 +1,3 @@
-# ImperatorTools
-Syntax, autocompletion, and several useful commands for Imperator Rome scripting.
-
-
 # How to Install
 
 Run the following script in the Sublime Text terminal ```(ctrl+` )``` which utilizes git clone for easy installation:
