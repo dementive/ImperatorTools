@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+random_trait_effect = yes
+]]></content>
+<tabTrigger>add_trait</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>

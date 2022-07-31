@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+add_state_loyalty = ${1:subtract_}state_province_loyalty_${2:small\medium\large\huge\gargantuan}
+]]></content>
+<tabTrigger>add_state_loyalty</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>

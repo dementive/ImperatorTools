@@ -1,0 +1,28 @@
+<snippet>
+    <content><![CDATA[
+${1:NAMESPACE} = {
+    potential = {
+
+    }
+
+    allow = {
+    
+    }
+
+    effect = {
+
+    }
+
+    ai_will_do = {
+        base = 1
+    }
+}
+]]></content>
+    <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+    <!-- <tabTrigger>hello</tabTrigger> -->
+    <!-- Optional: Set a scope to limit where the snippet will trigger -->
+    <!-- <scope>source.python</scope> -->
+
+<tabTrigger>Decision</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>

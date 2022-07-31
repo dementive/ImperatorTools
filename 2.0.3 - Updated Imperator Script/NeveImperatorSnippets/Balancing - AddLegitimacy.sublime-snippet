@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+add_legitimacy = ${1:subtract_}legitimacy_${2:small\medium\large\huge}
+]]></content>
+<tabTrigger>add_legitimacy</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>

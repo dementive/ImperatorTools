@@ -1,0 +1,36 @@
+<snippet>
+    <content><![CDATA[
+${1:NAMESPACE}.${2:NUM} = {
+    type = province_event
+    title = ${1:NAMESPACE}.${2:NUM}.t
+    desc = ${1:NAMESPACE}.${2:NUM}.desc
+    picture = aqueducts
+
+    goto_location = ROOT
+    
+    left_portrait = owner.current_ruler
+
+    trigger = {
+    
+    }
+
+    immediate = {
+
+    }
+
+    option = {      
+        name = ${1:NAMESPACE}.${2:NUM}.a
+    }
+    option = {      
+        name = ${1:NAMESPACE}.${2:NUM}.b
+    }
+}
+]]></content>
+    <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+    <!-- <tabTrigger>hello</tabTrigger> -->
+    <!-- Optional: Set a scope to limit where the snippet will trigger -->
+    <!-- <scope>source.python</scope> -->
+
+<tabTrigger>province_event</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>

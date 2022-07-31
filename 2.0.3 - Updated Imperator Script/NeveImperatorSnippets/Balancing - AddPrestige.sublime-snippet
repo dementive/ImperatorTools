@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+add_prestige = ${1:subtract_}prestige_${2:small\medium\large\huge}
+]]></content>
+<tabTrigger>add_prestige</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>

@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+add_corruption = ${1:subtract_}corruption_${2:small\medium\large\huge}
+]]></content>
+<tabTrigger>add_corruption</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>

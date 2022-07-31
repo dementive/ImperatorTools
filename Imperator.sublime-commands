@@ -1,0 +1,16 @@
+[
+	{
+		"caption": "Imperator: Rome - Effects",
+		"command": "imp_effect_input",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Imperator: Rome - Missions",
+		"command": "imp_mission_maker",
+		"args": {
+
+		},
+	}
+]

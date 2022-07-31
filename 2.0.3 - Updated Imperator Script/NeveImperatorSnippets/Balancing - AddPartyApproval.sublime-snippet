@@ -1,0 +1,10 @@
+<snippet>
+    <content><![CDATA[
+add_party_approval = {
+    party_type = ${1:\$PARTY\$}
+    value = party_${2:\$dis\$}approval_${3:small\medium\large}
+}
+]]></content>
+<tabTrigger>add_party_approval</tabTrigger>
+<scope>text.pdx</scope>
+</snippet>
