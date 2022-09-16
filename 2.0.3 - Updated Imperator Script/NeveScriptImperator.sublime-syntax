@@ -6,6 +6,9 @@ scope: text.pdx
 
 contexts:
   main:
+    # COMMENTS
+    - match: (#).*$\n?
+      scope: comment
     # Tooltips
     - match: \b(?i)(custom_label|text|custom_tooltip|custom|tooltip_type|tooltip|tooltip_parentanchor|tooltipwidget|tooltip_widgetanchor|tooltip_verticalbehavior|tooltip_horizontalbehavior|tooltip_offset|tooltip_enabled)(?-i)\b
       scope: keyword.type.name
@@ -48,44 +51,3 @@ contexts:
     # GUI DEFAULTS
     - match: \b(?i)(on_actions|dropDown|active_item|viewportwidget|message_window|glow|scrollbar_horizontal|marker|layer|fixedgridbox|texticon|dynamicgridbox|overlappingitembox|vbox|hbox|scrollbar_vertical|scrollwidget|modify_texture|buttonText|item|template|local_template|background|button|margin_widget|editbox|textbox|window|progressbar|checkbutton|scrollbar|scrollarea|container|flowcontainer|webwindow|mini_map|dragdropicon|widget|piechart|using)(?-i)\b
       scope: entity.name
-    # COMMENTS
-    - match: (#).*$\n?
-      scope: comment
-
-
-    - match: '"'
-      push: string
-    - include: number
-    - include: bracket-match
-
-  string:
-    - meta_scope: string.quoted.double
-    - match: \\.
-      scope: constant.character.escape
-    - match: '"'
-      pop: true
-
-  number:
-    # handles integer and decimal numbers
-    - match: (-?)((?:0|[1-9]\d*)(?:(?:(\.)\d+)(?:[eE][-+]?\d+)?|(?:[eE][-+]?\d+)))
-      scope: meta.number.float.decimal.vic
-      captures:
-        1: keyword.operator.arithmetic.vic
-        2: constant.numeric.value.vic
-        3: punctuation.separator.decimal.vic
-    - match: (-?)(0|[1-9]\d*)
-      scope: meta.number.integer.decimal.vic
-      captures:
-        1: keyword.operator.arithmetic.vic
-        2: constant.numeric.value.vic
-
-  bracket-match:
-    - match: '[(\[{]'
-      push: brackets
-    - match: '[)\]}]'
-      scope: invalid.illegal.stray-bracket-end
-
-  brackets:
-    - match: '[)\]}]'
-      pop: true
-    - include: main
