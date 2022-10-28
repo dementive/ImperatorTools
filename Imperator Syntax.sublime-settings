@@ -1,0 +1,10 @@
+// THESE ARE THE SETTINGS DEFAULT - ONLY EDIT THE USER SETTINGS
+{
+	"DocsHoverEnabled": true,
+
+	// What style should the documentation popups use?
+	// dark = grey border with black background
+	// none = no css styling
+	// dynamic = will change the border color based on what is being hovered over, for example effects = red. 
+	"DocsPopupStyle": "dynamic",
+}

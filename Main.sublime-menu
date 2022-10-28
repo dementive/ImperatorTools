@@ -1,0 +1,32 @@
+[
+	{
+		"caption": "Preferences",
+		"id": "preferences",
+		"children":
+		[
+			{
+				"caption": "Package Settings",
+				"id": "package-settings",
+				"children":
+				[
+					{
+						"caption": "Imperator Tools",
+						"id": "imp_tools",
+						"children":
+						[
+							{
+								"caption": "Settings",
+								"command": "edit_settings",
+								"args":
+								{
+									"base_file": "${packages}/ImperatorTools/Imperator Syntax.sublime-settings",
+									"user_file": "${packages}/User/Imperator Syntax.sublime-settings"
+								}
+							}
+						]
+					}
+				]
+			}
+		]
+	}
+]
