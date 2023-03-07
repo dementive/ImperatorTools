@@ -1,16 +1,44 @@
 [
 	{
-		"caption": "Imperator: Rome - Effects",
-		"command": "imp_effect_input",
+		"caption": "Imperator: Wiki",
+		"command": "imperator_wiki_search",
 		"args": {
 
 		},
 	},
 	{
-		"caption": "Imperator: Rome - Missions",
+		"caption": "Imperator: Localization Guide",
+		"command": "imperator_localization_guide",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Imperator: Modding Index",
+		"command": "imperator_modding_index",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Imperator: Create New Missions",
 		"command": "imp_mission_maker",
 		"args": {
 
 		},
-	}
+	},
+	{
+		"caption": "Imperator: Clear Image Cache",
+		"command": "imp_clear_image_cache",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Imperator: Reload plugin objects and regenerate syntax",
+		"command": "imp_reload_plugin",
+		"args": {
+
+		},
+	},
 ]

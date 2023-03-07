@@ -1,10 +1,45 @@
 // THESE ARE THE SETTINGS DEFAULT - ONLY EDIT THE USER SETTINGS
 {
-	"DocsHoverEnabled": true,
+	// The path to the Imperator Rome Game files, update if it is not correct. (must use double \\)
+	// This is necessary for several features to work
+	"ImperatorFilesPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ImperatorRome\\game",
+
+	// The path to your mods files. Should be a mod, not the mod folder (must use double \\)
+	// This is necessary for several features to work
+	// Mods are loaded in the order they are put here
+	// so if a key from vanilla is defined in mod1 and is also defined in mod2, the key from mod2 will be the one that gets used
+	// Note that this has to be a valid system path 
+	"PathsToModFiles":
+	[
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\Invictus"
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\Terra-Indomita"
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\imp19c"
+		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME",
+	],
+
+	// How should textures be opened when clicked in hover popups? 2 options:
+	// 1. default_program - open the texture in whatever the OS thinks it should be opened in
+	// 2. in_sublime - open the texture directly in sublime,
+	// the plugin will convert the dds texture to a png and display it in a sublime tab
+	// converted files will be cached so when opened a second time it is faster, the cache can be cleared with a command in the command pallete.
+	"OpenTextureMode": "in_sublime",
+
+	// Should on save validation for script files be enabled?
+	"ScriptValidator": true,
 
 	// What style should the documentation popups use?
 	// dark = grey border with black background
 	// none = no css styling
 	// dynamic = will change the border color based on what is being hovered over, for example effects = red. 
 	"DocsPopupStyle": "dynamic",
+
+	// Should documentation show up on hover for script files?
+	// true = will show docs
+	// false = won't show docs
+	"DocsHoverEnabled": true,
+
+	// Should hovering over a gfx file show a popup that will allow the file to be opened?
+	// Will open the file in it's default program
+	"TextureOpenPopup": true,
+
 }

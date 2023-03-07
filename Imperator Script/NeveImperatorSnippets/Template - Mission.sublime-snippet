@@ -1,0 +1,101 @@
+<snippet>
+    <content><![CDATA[
+${1:NAMESPACE} = {
+    header = "mission_image_general"
+    icon = "general_1"
+
+    repeatable = no
+
+    chance = {}
+
+    potential = {}
+
+    abort = {}
+
+    on_potential = {}
+
+    on_start = {}
+
+    on_abort = {}
+
+    ${1:NAMESPACE}_task_1 = {
+        icon = "task_political"
+
+        potential = {}
+
+        allow = {}
+
+        on_completion = {}
+    }
+
+    ${1:NAMESPACE}_task_2 = {
+        icon = "task_political"
+
+        potential = {}
+
+        allow = {}
+
+        on_completion = {}
+    }
+
+    ${1:NAMESPACE}_task_3 = {
+        icon = "task_political"
+
+        potential = {}
+
+        allow = {}
+
+        on_completion = {}
+    }
+
+    ${1:NAMESPACE}_task_4 = {
+        icon = "task_political"
+
+        potential = {}
+
+        allow = {}
+
+        on_completion = {}
+    }
+
+    ${1:NAMESPACE}_task_5 = {
+        icon = "task_political"
+
+        potential = {}
+
+        allow = {}
+
+        on_completion = {}
+    }
+
+    ${1:NAMESPACE}_task_6 = {
+        icon = "task_political"
+
+        potential = {}
+
+        allow = {}
+
+        on_completion = {}
+    }
+
+    ${1:NAMESPACE}_task_final = {
+        icon = "task_political"
+
+        final = yes
+
+        potential = {}
+
+        allow = {}
+
+        on_completion = {}
+    }
+}
+]]></content>
+    <!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+    <!-- <tabTrigger>hello</tabTrigger> -->
+    <!-- Optional: Set a scope to limit where the snippet will trigger -->
+    <!-- <scope>source.python</scope> -->
+
+<tabTrigger>mission</tabTrigger>
+<scope>text.imperator</scope>
+</snippet>

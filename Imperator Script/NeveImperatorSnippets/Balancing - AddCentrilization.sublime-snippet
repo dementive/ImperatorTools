@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+add_centralization = ${1:subtract_}centralization_${2:small\medium\large\huge\gargantuan}
+]]></content>
+<tabTrigger>add_centralization</tabTrigger>
+<scope>text.imperator</scope>
+</snippet>

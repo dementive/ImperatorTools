@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+${1:good\bad(martial is positive NOT good)}_${2:martial\finesse\zeal\popularity\loyalty}_trait_effect = yes
+]]></content>
+<tabTrigger>add_trait</tabTrigger>
+<scope>text.imperator</scope>
+</snippet>

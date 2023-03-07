@@ -1,7 +1,0 @@
-<snippet>
-    <content><![CDATA[
-add_political_influence = ${1:subtract_}influence_${2:small\medium\large\huge\gargantuan}
-]]></content>
-<tabTrigger>add_political_influence</tabTrigger>
-<scope>text.pdx</scope>
-</snippet>

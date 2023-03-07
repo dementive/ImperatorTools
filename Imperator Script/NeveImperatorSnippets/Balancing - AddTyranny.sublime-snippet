@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+add_tyranny = ${1:subtract_}tyranny_${2:small\medium\large\huge\(gargantuan - only add)}
+]]></content>
+<tabTrigger>add_tyranny</tabTrigger>
+<scope>text.imperator</scope>
+</snippet>

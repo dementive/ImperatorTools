@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Symbol List</string>
+	<key>scope</key>
+	<string>
+		text.imperator entity.name.function.var.declaration,
+		text.imperator entity.name.function.scope.declaration,
+		text.imperator variable.parameter.scope.usage,
+		text.imperator variable.parameter.remove.var,
+		text.imperator variable.parameter.trigger.usage,
+		text.imperator variable.parameter.var.usage
+	</string>
+	<key>settings</key>
+	<dict>
+		<key>showInSymbolList</key>
+		<integer>1</integer>
+		<key>showInIndexedSymbolList</key>
+		<integer>1</integer>
+	</dict>
+</dict>
+</plist>

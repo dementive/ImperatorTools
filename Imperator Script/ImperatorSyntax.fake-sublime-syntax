@@ -1,0 +1,560 @@
+%YAML 1.2
+---
+name: Imperator Script
+file_extensions: [txt]
+scope: text.imperator
+
+variables:
+  valid_variable: '[A-Za-z_0-9][A-Za-z_0-9]*'
+
+# IMPORTANT NOTE:
+# Any changes made to this file should actually be made in VictoriaScript.fake-sublime-syntax
+# This is so the plugin can generate the syntax file with dynamic content from mods/vanilla
+
+contexts:
+  main:
+    - include: trigger-block-start
+    - include: effect-block-start
+    - include: modifier-block-start
+    - include: ai-block-start
+
+    - include: opinion-mod-block-start
+    - include: party-block-start
+    - include: pop-type-block-start
+    - include: subject-type-block-start
+    - include: tech-table-block-start
+    - include: trade-good-block-start
+    - include: trait-block-start
+    - include: invention-block-start
+    - include: unit-block-start
+
+    - include: comments
+    - include: variable-definition-complex
+    - include: variable-usage-complex
+    - include: at-symbol
+    - include: at-symbol-expanded
+    - include: scripted-effect-arg
+    - include: scripted-effect-zone
+    - include: scope-usage
+    - include: remove-var
+    - include: save-scope
+    - include: one-line-var-trigger
+
+    - include: auto-generated-content
+    - include: manually-entered-content
+
+  comments:
+    - match: (#).*$\n?
+      scope: comment.line
+      pop: true
+
+  scripted-effect-arg:
+    - match: \$
+      scope: keyword.arg.start
+      push:
+        - match: ({{valid_variable}})
+          scope: variable.language.arg
+        - match: \$
+          scope: keyword.arg.start
+          pop: true
+        - include: line_ending
+
+  scripted-effect-zone:
+    - match: \$
+      scope: keyword.dolla
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: variable.language.at.parameter
+        - match: \$
+          scope: keyword.dolla
+          pop: 3
+
+
+  scope-usage:
+    - match: \bscope\b|\bvar\b|\blocal_var\b|\bglobal_var\b
+      scope: storage.type.scope
+      push:
+        - include: line_ending_space
+        - match: ':'
+          push:
+            - match: \n|\s
+              pop: 2
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
+            - match: ({{valid_variable}})
+              scope: variable.parameter.scope.usage
+              push:
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n|\s
+                  pop: 3
+
+  remove-var:
+    - match: remove_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - match: =
+          push:
+            - match: \n|\s
+              pop: 2
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
+            - match: ({{valid_variable}})
+              scope: variable.parameter.remove.var
+              push:
+                - include: auto-generated-content
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n|\s
+                  pop: 3
+
+  save-scope:
+    - match: save_scope_as
+      scope: keyword.effect
+      push:
+        - match: =
+          push:
+            - match: \n
+              pop: 2
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
+            - match: ({{valid_variable}})
+              scope: entity.name.function.scope.declaration
+              push:
+                - include: auto-generated-content
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n
+                  pop: 3
+
+  one-line-var-trigger:
+    - match: has_variable|has_global_variable
+      scope: string.trigger
+      push:
+        - match: =
+          push:
+            - match: \n
+              pop: 2
+            - match: (#).*$\n?
+              scope: comment.line
+              pop: 2
+            - match: \$
+              scope: keyword.dolla
+              push:
+                - include: line_ending
+                - match: ({{valid_variable}})
+                  scope: variable.language.at.parameter
+                - match: \$
+                  scope: keyword.dolla
+                  pop: 1
+            - match: ({{valid_variable}})
+              scope: variable.parameter.trigger.usage
+              push:
+                - include: auto-generated-content
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 4
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 4
+                - match: \n
+                  pop: 3
+
+  variable-definition-complex:
+    - match: set_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - match: =\s?\{
+          push:
+            - match: (#).*$\n?
+              scope: comment.line
+            - match: \}
+              pop: 3
+            - match: name
+              scope: constant.numeric
+              push:
+                - match: \n
+                  pop: 3
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 3
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 1
+                - match: ({{valid_variable}})
+                  scope: entity.name.function.var.declaration
+                  push:
+                    - include: auto-generated-content
+                    - match: (#).*$\n?
+                      scope: comment.line
+                      pop: 4
+                    - match: \$
+                      scope: keyword.dolla
+                      push:
+                        - include: line_ending
+                        - match: ({{valid_variable}})
+                          scope: variable.language.at.parameter
+                        - match: \$
+                          scope: keyword.dolla
+                          pop: 5
+                    - match: \n
+                      pop: 4
+        - match: =
+          push:
+            - match: \n
+              pop: 2
+            - include: scripted-effect-zone
+            - match: ({{valid_variable}})
+              scope: entity.name.function.var.declaration
+              pop: 2
+        - match: \n
+          pop: 2
+
+  variable-usage-complex:
+    - match: (change|round|clamp)_(local_|global_)?variable
+      scope: keyword.effect
+      push:
+        - include: line_ending
+        - match: = \{\n?+
+          push:
+            - match: (#).*$\n?
+              scope: comment.line
+            - match: \}
+              pop: 3
+            - match: name
+              scope: constant.numeric
+              push:
+                - match: \n
+                  pop: 3
+                - match: (#).*$\n?
+                  scope: comment.line
+                  pop: 3
+                - match: \$
+                  scope: keyword.dolla
+                  push:
+                    - include: line_ending
+                    - match: ({{valid_variable}})
+                      scope: variable.language.at.parameter
+                    - match: \$
+                      scope: keyword.dolla
+                      pop: 1
+                - match: ({{valid_variable}})
+                  scope: variable.parameter.trigger.usage
+                  push:
+                    - include: auto-generated-content
+                    - match: (#).*$\n?
+                      scope: comment.line
+                      pop: 4
+                    - match: \$
+                      scope: keyword.dolla
+                      push:
+                        - include: line_ending
+                        - match: ({{valid_variable}})
+                          scope: variable.language.at.parameter
+                        - match: \$
+                          scope: keyword.dolla
+                          pop: 5
+                    - match: \n
+                      pop: 4
+        - match: \n
+          pop: 2
+
+  at-symbol:
+    - match: (@)({{valid_variable}})
+      scope: keyword.numeric.at.symbol
+      push:
+        - match: (\[|\]|=|\s)
+          scope: punctuation.definition.end
+          pop: true
+
+  at-symbol-expanded:
+    - match: (@)\[
+      scope: keyword.numeric.at.symbol
+      push:
+        - meta_content_scope: variable.language
+        - match: \]
+          scope: keyword.numeric.at.symbol
+          pop: true
+
+  trigger-block-start:
+    - match: \b(finish_trigger|abort_trigger|ai_is_valid|is_valid|abort_when|can_character_belong|highlight|bypass|conditions|allow_on_setup|deification_trigger|natural_death_trigger|character_actor_trigger|character_target_trigger|province_actor_trigger|province_target_trigger|country_actor_trigger|country_target_trigger|potential_trigger|allowed_trigger|can_be_picked|finished_when|abort|interface_allow|allow|visible|cancellation_trigger|is_visible|enable|potential|trigger|limit|possible|happened|valid|is_shown)\b
+      scope: string.trigger.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.trigger.bracket
+          pop: true
+
+  effect-block-start:
+    - match: \b(on_in_power|start_effect|on_bypass|on_potential|on_completion|on_enact|on_start|on_finish|on_abort|on_monthly|effect|on_activate|on_timeout|on_fail|on_complete|on_enable|on_disable|when_taken|immediate|option)\b
+      scope: keyword.effect.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.effect.bracket
+          pop: true
+
+  # Modifier blocks for modifier GameObject autocompletions
+  modifier-block-start:
+    - match: \b(overlord_modifier|subject_modifier|rank_modifier|output_modifier|count_modifier|ruler_modifier|skill_modifier|personal_modifier|unit|modifier|country_modifier|bonus|passive_modifier|omen)\b
+      scope: string.modifier.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.modifier.bracket
+          pop: true
+
+  ai-block-start:
+    - match: \b(chance|weight|ai_will_do_low|ai_will_do_high|ai_will_do|ai_chance|ai_weight)\b
+      scope: string.ai.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.ai.bracket
+          pop: true
+
+  trait-block-start:
+    - match: \b(opposites)\b
+      scope: string.trait.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.trait.bracket
+          pop: true
+
+  unit-block-start:
+    - match: \b(num_of_unit_type)\b
+      scope: string.unit.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.unit.bracket
+          pop: true
+
+  opinion-mod-block-start:
+    - match: \b(remove_opinion|reverse_add_opinion|add_opinion)\b
+      scope: keyword.op.mod.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.op.mod.bracket
+          pop: true
+
+  party-block-start:
+    - match: \b(add_party_support|add_party_conviction)\b
+      scope: keyword.party.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.party.bracket
+          pop: true
+
+  pop-type-block-start:
+    - match: \b(define_pop)\b
+      scope: keyword.pop.type.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.pop.type.bracket
+          pop: true
+
+  subject-type-block-start:
+    - match: \b(make_subject)\b
+      scope: keyword.pop.type.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.subject.type.bracket
+          pop: true
+
+  tech-table-block-start:
+    - match: \b(add_research)\b
+      scope: keyword.pop.type.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.tech.table.bracket
+          pop: true
+
+  trade-good-block-start:
+    - match: \b(trade_good_surplus)\b
+      scope: string.trade.good.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.trade.good.bracket
+          pop: true
+
+  invention-block-start:
+    - match: \b(requires_or|requires)\b
+      scope: string.invention.block.start
+      push:
+        - include: line_ending
+        - match: \{
+          scope: meta.invention.bracket
+          pop: true
+
+  line_ending:
+    - include: comments
+    - match: $\n
+      pop: true
+
+  line_ending_space:
+    - include: comments
+    - match: $\n|\s
+      pop: 2
+
+  manually-entered-content:
+
+    # Math/Sound
+    - match: \b(sacrifice_sound|soundeffect|sound|range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|integer_range|clicksound)\b
+      scope: variable.language
+
+    # Essential Scipt Functions/textures/localization key field
+    - match: \b(goto_location|interface_lock|left_portrait|right_portrait|country_decisions|diplo_chance|confirm_title|confirm_text|sacrifice_icon|header|final|monthly_on_action|image|icon_override|technology|group|great_work_module|great_work_effect_tier|tier_modifier_tooltip_override|attachments|great_work_material|great_work_surface_materials|great_work_category_slots|key|theme|picture|template|deity_category|type|localization_key|graphical_culture|ethnicities|textured_emblem|colored_emblem|modification_display|item|initial_view|button_text|title|description|background|triggered_desc|namespace|chance|mode|default|base|weight|first_name|last_name|texture|icon|title|desc|duration|default_option|months|days|years|hidden|id|text|name|order_by)\b
+      scope: constant.numeric
+
+    # Effects
+    - match: \b(great_work_effect)\b
+      scope: keyword.effect
+
+    #Triggers/boolean values
+    - match: \b(alternative_limit|prevented_by|assault|fire_only_once|weight_multiplier|uses_civil_war_conquest|is_flank|legions|idle_entity_state|toggle|army_only|allow_unit_type|joins_overlord_in_war|protected_when_attacked|has_overlords_ruler|can_be_integrated|costs_diplomatic_slot|subject_can_cancel|has_limited_diplomacy|religion_category|is_established_city|is_slaves|block_colonization|is_linked_with_holdings|integrated_pop_type_right|is_citizen|score|levy_tier|can_promote_to|demotes_to|skill|repeatable|enable_tactic|requires_or|requires|keystone|can_build|great_work_tier_effect_modifiers|use_regnal_numbers|ruler_consort_benefits|revolt|has_co_ruler|can_deify_ruler|natural|random_valid|levy_template|primary|second|flank|primary_navy|secondary_navy|flank_navy|male_names|female_names|barbarian_names|use_as_default|navy|on_other_nation|on_own_nation|message|pure_weight|modifier|fallback|highlight_elements)\b
+      scope: string.trigger
+
+    # Scopes/value fields
+    - match: \b(count|innovations|subject_pays|attacker|conquer_cost|ticking_war_score|port_level|strength_damage_done|outside_of_naval_range_attrition|setup_fraction|attrition_weight|strength_damage_taken|morale_damage_taken|ai_max_percentage|attrition_loss|food_consumption|food_storage|maneuver|movement_speed|category|combat_width|defender|saved_scopes|holy_site_treasure_slots|conquest_demote_chance|base_happyness|political_weight|growing_pop|convert|assimilate|promote|demote|migrant|ui_tier|yearly_decay|great_work_uv_offset|great_work_category_slot|level|tier_threshold|tier_cost_factor|index|great_work_prestige|price|material_price|military_ideas|civic_ideas|oratory_ideas|religious_ideas|minimum_electable_age|election_delay|ruler_term|gene_cheek_height|gene_cheek_puffy|gene_chin_forward|gene_chin_height|gene_chin_width|gene_ear_angle|gene_ear_size|gene_eye_angle|gene_eye_height|gene_eye_fold_shape|gene_forehead_angle|gene_forehead_brow_forward|gene_forehead_roundness|gene_forehead_width|gene_head_height|gene_head_width|gene_head_profile|gene_head_top_height|gene_head_top_width|gene_jaw_angle|gene_jaw_height|gene_mouth_corner_depth|gene_mouth_corner_height|gene_mouth_forward|gene_mouth_height|gene_mouth_width|gene_mouth_lower_lip_pads|gene_mouth_lower_lip_shape|gene_mouth_upper_lip_shape|gene_mouth_upper_lip_width|gene_nose_height|gene_nose_nostril_height|gene_nose_ridge_angle|gene_nose_size|gene_neck_width|gene_neck_length|gene_bs_fat|gene_bs_cheek_def|gene_bs_chin_cleft|gene_bs_chin_def|gene_bs_chin_dimple|gene_bs_chin_sharp|gene_bs_eye_lLidDef|gene_bs_eye_socketDef|gene_bs_eye_socketLine|gene_bs_eye_uLidSize|gene_bs_foreh_browDef|gene_bs_foreh_browProm|gene_bs_foreh_templeDef|gene_bs_jaw_def|gene_bs_mouth_cornProm|gene_bs_mouth_lLipDef|gene_bs_mouth_lLipFlat|gene_bs_mouth_lLipFull|gene_bs_mouth_nasolabial|gene_bs_mouth_philDef|gene_bs_mouth_prom|gene_bs_mouth_uLipForm|gene_bs_mouth_uLipDef|gene_bs_mouth_uLipFull|gene_bs_nose_edgeDef|gene_bs_nose_nostrilDef|gene_bs_nose_tipDef|pose|gene_cheek_forward|gene_cheek_width|gene_ear_outward|gene_eye_depth|gene_eye_distance|gene_eye_shut|gene_eye_size|gene_forehead_brow_height|gene_forehead_brow_innerHeight|gene_forehead_brow_outerHeight|gene_forehead_height|gene_jaw_forward|gene_jaw_width|gene_mouth_lower_lip_width|gene_mouth_upper_lip_size|gene_mouth_lower_lip_size|gene_nose_forward|gene_nose_nostril_width|gene_nose_tip_angle|gene_bs_cheek_prom|gene_bs_nose_ridgeDef|gene_bs_nose_concavity|gene_bs_nose_hawk|gene_bs_nose_ridgeWidth|gene_bs_nose_tipWidth|gene_bs_nose_tipLength|hairstyles|eyebrows|beards|clothes|clothes_layer2|complexion|skin_color|eye_color|hair_color|province|effective_composition|special_selection|rotation|max_amount|cost|time|base_precision|ae_ceiling|migration_chance|aggressive|trustworthy|search_depth|interface_priority|savings|military|army|army_construction|navy_construction|opinion_diplomacy|colonization|gold|building_construction|max_advice|color1|color2|size|color3|pattern|color|priority|instance|scale|position|offset)\b
+      scope: storage.type
+
+    # Other Stuff
+    - match: \b(on_actions|events|random_events)\b
+      scope: entity.name
+
+  auto-generated-content:
+    # Scopes
+    - match: \b(?i)(and|nand|nor|not|or|character_party|employer|family|father|home_country|job|mother|next_in_family|preferred_heir|ruler|spouse|treasure_owner|color1|color2|color3|consort|current_co_ruler|current_heir|current_ruler|fam|overlord|party|primary_heir|secondary_heir|country|legion|religion|party_country|party_leader|color|siege_controller|area|governorship|country_culture|deified_ruler|holy_site|location|region|blue|brightness|green|hue|red|saturation|commander|unit_destination|unit_location|unit_next_location|unit_objective_destination|unit_owner|culture_group|owning_unit|personal_loyalty|character|owner|family_country|head_of_family|culture|governor|governor_or_ruler|job|job_holder|attacker_warleader|defender_warleader|controller|dominant_province_culture|dominant_province_culture_group|dominant_province_religion|holding_owner|province_deity|state|area|array_define|c|char|compare_value|culture|culture_group|custom|define|deity|flag|global_var|local_var|named_script_value|no|p|prev|region|religion|root|scope|this|treasure|value|var|yes|siege|capital_scope|)(?-i)\b
+      scope: storage.type.scope
+    # On Actions From Code
+    - match: \b(yearly_country_pulse|yearly_culture_religion_switch_pulse|character_traits_pulse|on_command_gained|on_culture_reduced_right|on_office_lost|on_being_imprisoned|on_diplomatic_annex|on_military_annex|yearly_debt_pulse|on_move_country|on_reign_ending|on_culture_increased_right|yearly_province_pulse|on_battle_lost|on_deficit_pulse|on_state_secession|in_land_battle|on_great_work_destroyed|on_becoming_adult|on_province_colonized|on_change_pantheon|on_culture_integration_0|biyearly_country_pulse|on_policy_change|on_rebellion_in_country|on_ruler_change|on_disband_legion_unit|on_game_initialized|on_great_battle_won_country|on_command_lost|on_battle_won_country|on_gw_construction_job_completed|disease_possibilities|monthly_job_pulse|on_great_work_completed|on_reign_ending_successor|on_civil_war_annex|on_deified_ruler_death|on_office_gained|on_great_work_anniversary|on_siege_won|on_legion_raised|monthly_head_of_family_pulse|on_province_occupied|on_being_captured|on_culture_integration_25|on_being_born|on_great_battle_lost_country|on_character_death|on_holding_lost|monthly_ruler_pulse|yearly_character_murder_pulse|monthly_country_pulse|yearly_financial_support_pulse|on_invention|on_action_requiring_senate_approval|on_civil_war_lost|on_civil_war_won|on_being_released|yearly_medical_pulse|monthly_province_pulse|on_ownership_change|on_legion_dissolved|on_being_ransomed_back|treatment_pulse|on_battle_lost_country|on_subject_defect|on_character_created|on_culture_integration_75|on_battle_won|on_culture_integration_100|on_giving_birth|yearly_character_pulse|on_bastard_birth|in_naval_battle|on_tenth_birthday|yearly_disloyal_generals_delay_pulse|on_enacting_omen|on_ending_war|on_losing_war|decade_country_pulse|on_winning_war|on_zero_health|character_story_events|)\b
+      scope: keyword.onaction
+    # Effects
+    - match: \b(death_reason|add_state_food|add_state_modifier|every_state_province|ordered_state_province|random_state_province|remove_state_modifier|set_state_capital|adapt_family_name|add_as_governor|add_character_experience|add_character_modifier|add_corruption|add_friend|add_gold|add_health|add_holding|add_loyal_veterans|add_loyalty|add_nickname|add_party_conviction|add_popularity|add_prominence|add_rival|add_ruler_conviction|add_trait|add_triggered_character_modifier|adopt|banish|change_mercenary_employer|clear_ambition|death|deify_character|divorce_character|end_pregnancy|every_character_treasure|every_character_unit|every_child|every_friend|every_governor_state|every_holdings|every_parent|every_rival|every_sibling|every_support_as_heir|force_add_trait|give_office|marry_character|move_country|move_country_with_message|ordered_character_treasure|ordered_character_unit|ordered_child|ordered_friend|ordered_governor_state|ordered_holdings|ordered_rival|ordered_sibling|ordered_support_as_heir|pay_gold|random_character_treasure|random_character_unit|random_child|random_friend|random_governor_state|random_holdings|random_parent|random_rival|random_sibling|random_support_as_heir|remove_all_offices|remove_as_governor|remove_as_mercenary|remove_as_researcher|remove_character_modifier|remove_command|remove_friend|remove_holding|remove_loyalty|remove_office|remove_rival|remove_trait|remove_triggered_character_modifier|set_ambition|set_as_minor_character|set_character_religion|set_culture|set_culture_same_as|set_family|set_firstname|set_home_country|set_party_leader|update_character|add_legion_history|add_to_legion|disband_legion|every_governorship_state|ordered_governorship_state|raise_legion|random_governorship_state|destroy_treasure|transfer_treasure_to_character|transfer_treasure_to_country|transfer_treasure_to_province|add_aggressive_expansion|add_alliance|add_centralization|add_country_modifier|add_guarantee|add_innovation|add_legitimacy|add_manpower|add_military_access|add_military_experience|add_new_family|add_opinion|add_party_approval|add_political_influence|add_research|add_stability|add_to_war|add_treasury|add_truce|add_tyranny|add_war_exhaustion|change_country_adjective|change_country_color|change_country_flag|change_country_name|change_country_tag|change_government|change_law|create_character|create_country_treasure|create_family|declare_war_with_wargoal|every_allied_country|every_army|every_available_deity|every_character|every_commander|every_countries_at_war_with|every_country_culture|every_country_state|every_country_sub_unit|every_country_treasure|every_current_war|every_family|every_governorships|every_integrated_culture|every_legion|every_navy|every_neighbour_country|every_owned_holy_site|every_owned_province|every_pantheon_deity|every_party|every_subject|every_successor|every_unit|imprison|integrate_country_culture|make_subject|ordered_allied_country|ordered_army|ordered_available_deity|ordered_character|ordered_commander|ordered_countries_at_war_with|ordered_country_culture|ordered_country_state|ordered_country_sub_unit|ordered_country_treasure|ordered_current_war|ordered_family|ordered_governorships|ordered_integrated_culture|ordered_legion|ordered_navy|ordered_neighbour_country|ordered_owned_holy_site|ordered_owned_province|ordered_pantheon_deity|ordered_party|ordered_subject|ordered_successor|ordered_unit|pay_price|random_allied_country|random_army|random_available_deity|random_character|random_commander|random_countries_at_war_with|random_country_culture|random_country_state|random_country_sub_unit|random_country_treasure|random_current_war|random_family|random_governorships|random_integrated_culture|random_legion|random_navy|random_neighbour_country|random_owned_holy_site|random_owned_province|random_pantheon_deity|random_party|random_subject|random_successor|random_unit|recalc_succession|refund_price|release_prisoner|release_subject|remove_country_modifier|remove_gurantee|remove_opinion|remove_party_leadership|reverse_add_opinion|set_as_coruler|set_as_ruler|set_capital|set_country_heritage|set_country_religion|set_gender_equality|set_graphical_culture|set_ignore_senate_approval|set_legion_recruitment|set_primary_culture|start_civil_war|update_allowed_parties|every_party_member|ordered_party_member|pick_random_agenda|)\b
+      scope: keyword.effect
+    # Effects part 2
+    - match: \b(random_party_member|set_party_agenda|add_commander|add_distinction|add_legion_unit|every_legion_commander|every_legion_unit|move_legion|ordered_legion_commander|ordered_legion_unit|random_legion_commander|random_legion_unit|remove_commander|remove_distinction|remove_legion_unit|add_breach|every_neighbor_region|every_region_area|every_region_province|every_region_province_including_unownable|every_region_state|ordered_neighbor_region|ordered_region_area|ordered_region_province|ordered_region_province_including_unownable|ordered_region_state|random_neighbor_region|random_region_area|random_region_province|random_region_province_including_unownable|random_region_state|every_area_including_unownable_province|every_area_province|every_area_state|every_neighbor_area|ordered_area_including_unownable_province|ordered_area_province|ordered_area_state|ordered_neighbor_area|random_area_including_unownable_province|random_area_province|random_area_state|random_neighbor_area|create_unit|add_food|add_loyal_subunit|add_morale|add_subunit|add_unit_modifier|change_unit_owner|damage_unit_morale_percent|damage_unit_percent|destroy_unit|every_sub_unit|lock_unit|ordered_sub_unit|random_sub_unit|remove_unit_loyalty|remove_unit_modifier|set_as_commander|set_unit_size|split_migrants_to|unlock_unit|kill_pop|move_pop|set_pop_culture|set_pop_culture_same_as|set_pop_religion|set_pop_religion_same_as|set_pop_type|add_subunit_morale|add_subunit_strength|destroy_subunit|remove_subunit_loyalty|set_personal_loyalty|add_prestige|every_family_member|move_family|ordered_family_member|random_family_member|remove_family|force_white_peace|every_war_attacker|every_war_defender|every_war_participant|ordered_war_attacker|ordered_war_defender|ordered_war_participant|random_war_attacker|random_war_defender|random_war_participant|remove_from_war|add_building_level|add_civilization_value|add_claim|add_permanent_province_modifier|add_province_modifier|add_road_towards|add_state_loyalty|add_vfx|begin_great_work_construction|change_province_name|create_country|create_pop|create_state_pop|define_pop|every_great_work_in_province|every_neighbor_province|every_pops_in_province|every_province_treasure|every_unit_in_province|finish_great_work_construction|hide_model|ordered_great_work_in_province|ordered_neighbor_province|ordered_pops_in_province|ordered_province_treasure|ordered_unit_in_province|random_great_work_in_province|random_neighbor_province|random_pops_in_province|random_province_treasure|random_unit_in_province|remove_building_level|remove_claim|remove_province_deity|remove_province_modifier|remove_vfx|set_as_governor|set_city_status|set_conquered_by|set_controller|set_owned_by|set_province_deity|set_trade_goods|show_animated_text|show_model|add_country_culture_modifier|add_integration_progress|remove_country_culture_modifier|set_country_culture_right|add_charisma|add_finesse|add_martial|add_to_global_variable_list|add_to_list|add_to_local_variable_list|add_to_temporary_list|add_to_variable_list|add_zeal|assert_if|assert_read|break|break_alliance|break_if|change_global_variable|change_local_variable|change_variable|clamp_global_variable|clamp_local_variable|clamp_variable|clear_global_variable_list|clear_local_variable_list|clear_saved_scope|clear_variable_list|custom_label|custom_tooltip|debug_log|debug_log_scopes|else|else_if|every_active_war|every_area|every_country|every_deity|every_ended_war|every_holy_site|every_in_global_list|every_in_list|every_in_local_list|every_living_character|every_ownable_province|every_province|every_region|every_sea_and_river_zone|hidden_effect|if|make_pregnant|ordered_active_war|ordered_area|ordered_country|ordered_deity|ordered_ended_war|ordered_holy_site|ordered_in_global_list|ordered_in_list|ordered_in_local_list|ordered_ownable_province|ordered_region|ordered_sea_and_river_zone|random|random_active_war|random_area|random_country|random_deity|random_ended_war|random_holy_site|random_in_global_list|random_in_list|random_in_local_list|random_list|random_living_character|random_ownable_province|random_province|random_region|random_sea_and_river_zone|remove_from_list|remove_global_variable|remove_list_global_variable|remove_list_local_variable|remove_list_variable|remove_local_variable|remove_variable|reset_scoring|round_global_variable|round_local_variable|round_variable|save_scope_as|save_temporary_scope_as|set_global_variable|set_local_variable|set_variable|show_as_tooltip|switch|trigger_event|while|)\b
+      scope: keyword.effect
+    # Triggers
+    - match: \b(debug_log=yes|any_area_including_unownable_province|any_area_province|any_area_state|any_neighbor_area|any_state_province|can_change_governor_policy|can_import_trade_good|has_any_great_work_state|has_governor|has_state_food|has_state_food_capacity|has_state_modifier|incoming_trade_routes|is_capital_state|outgoing_trade_routes|state_commerce_income|state_level_loyalty|state_monthly_food_income|trade_good_exports|trade_good_imports|trade_good_surplus|trade_routes|unused_trade_routes|any_sub_unit|days_since_last_unit_victory|experience_percentage|food_percentage|has_commander|has_reduced_roadbuilding_cost|has_siege_impact|has_unit_modifier|in_combat|in_siege|is_army|is_carrying_troops|is_dominant_unit|is_exiled|is_idle|is_movement_locked|is_moving|is_navy|is_unit_ability_used|is_unit_locked|morale_percentage|num_of_loyal_cohorts|num_of_migrants|strength_percentage|unit_size|unit_size_rank|unit_size_rank_percentage|unit_threat|great_work_any_material|great_work_builder|great_work_category|great_work_min_effect_tier|great_work_only_material|is_ancient_wonder|age|any_character_treasure|any_character_unit|any_child|any_friend|any_governor_state|any_holdings|any_parent|any_rival|any_sibling|any_support_as_heir|boni_party_conviction|can_add_entire_loyalty_bonus|can_get_friends|can_get_rivals|can_hold_office|character_experience|charisma|corruption|current_party_conviction|days_since_last_victory|democratic_party_conviction|fertility|finesse|from_ruler_family|has_ambition|has_any_office|has_character_modifier|has_culture|has_culture_group|has_father|has_holding_in|has_job|has_loyalty|has_mother|has_nickname|has_office|has_religion|has_same_culture_as|has_same_culture_group_as|has_same_family|has_same_religion_as|has_tech_office|has_tech_office_of|has_trait|has_triggered_character_modifier|health|highest_skill|in_command|is_admiral|is_adult|is_alive|is_at_location|is_at_same_location|is_banished|is_bastard|is_child_of|is_clan_chief|is_close_relative|is_co_ruler|is_courtier|is_deified|is_female|is_friend|is_general|is_governor|is_head_of_family|is_leader_of_party|is_leader_of_party_type|is_male|is_married|is_mercenary|is_minor_character|is_parent_of|is_party_leader|is_pregnant|is_pretender|is_previous_ruler|is_primary_heir|is_rival|is_ruler|is_same_gender|is_same_party_as|is_sibling_of|is_spouse_of|is_successor|loyalty|martial|num_character_treasures|num_holdings_owned|num_loyal_cohorts|num_loyal_veterans|num_of_children|num_of_friends|num_of_rivals|num_of_supporters|number_of_health_traits|number_of_military_traits|number_of_personality_traits|number_of_status_traits|number_of_traits|oligarchic_party_conviction|optimates_party_conviction|party|party_type|populares_party_conviction|popularity|power_base|prisoner|prominence|relative_power_base|title_importance|traditionalist_party_conviction|wealth|zeal|pop_can_move|pop_culture|pop_culture_group|pop_hapiness|pop_religion|pop_type|any_governorship_state|treasure_count|alliance_with|any_allied_country|any_army|any_available_deity|any_character|any_commander|any_countries_at_war_with|any_country_culture|any_country_state|any_country_sub_unit|any_country_treasure|any_current_war|any_family|any_governorships|any_integrated_culture|any_legion|any_navy|any_neighbour_country|any_owned_holy_site|any_owned_province|any_pantheon_deity|any_party|any_subject|any_successor|any_unit|biggest_party|boni_party_support|can_activate|can_change_idea|can_pay_price|centralization|civic_tech|civil_war_with|country_culture_group|country_population|country_trade_good_exports|country_trade_good_imports|cultural_unity|days_since_last_war|democratic_party_support|diplomatic_stance|distress_level|exports_to|gender_equality|government|has_aggressive_expansion|has_any_great_work_country|has_any_omen|has_civil_war|has_co_ruler_government|has_coasts|has_completed_mission|has_completed_mission_task|has_country_great_work_effect|has_country_modifier|has_deity_in_pantheon|has_high_economic_policy|has_land|has_law|has_low_economic_policy|has_mid_economic_policy|has_military_access|has_military_bonus|has_monthly_balance|has_monthly_income|has_opinion|has_party_type|has_primary_heir|has_senate_approval|has_subject_loyalty|has_this_omen|has_truce_with|has_war_exhaustion|healthy_economy_percentage|heritage|idea|imports_from|in_diplomatic_range|invention|is_ai|is_antagonist|is_guaranteed_by|is_monarchy|is_monotheist_deity|is_overlord|is_republic|is_subject|is_subject_of|is_subject_type|is_tradition_tree_allowed|is_tribal|is_tutorial_active|legitimacy|)\b
+      scope: string.trigger
+    # Triggers part 2
+    - match: \b(manpower|manpower_percentage|max_diplomatic_relations|max_manpower|migration_strategy|military_experience|military_tech|months_to_war|naval_dominance|non_loyal_power_base|num_active_relations|num_allowed_families|num_of_cities|num_of_civic_ideas|num_of_cohorts|num_of_controlled_cities|num_of_deified_rulers_in_pantheon|num_of_families|num_of_military_ideas|num_of_oratory_ideas|num_of_ports|num_of_provinces|num_of_religious_ideas|num_of_ships|num_of_unit_type|office_is_empty|oligarchic_party_support|opinion|optimates_party_support|oratory_tech|owns|owns_area|owns_or_subject_owns|owns_or_subject_owns_area|owns_or_subject_owns_region|owns_region|percentage_characters_below_max_loyalty|political_influence|populares_party_support|possible_holdings|primary_culture|rank|religion|religious_tech|religious_unity|safety|stability|tag|threat_in_owned_land|total_holdings|total_power_base|towards_civil_war|traditionalist_party_support|treasury|tyranny|war|war_with|cohort_food_consumption|cohort_food_storage_capacity|has_personal_loyalty|is_cohort|is_migration|is_ship|ship_category|sub_unit_type|subunit_morale_percentage|subunit_strength_percentage|has_legion_trigger|any_party_member|has_active_agenda|has_power_percentage|is_party_type|party_approval|any_family_member|is_grateful|is_scorned|num_of_expected_jobs|num_of_jobs|num_of_members|prestige|any_legion_commander|any_legion_unit|can_add_commander|commander_count|distinction_count|has_distinction|unit_count|has_breach|any_war_attacker|any_war_defender|any_war_participant|is_civil_war|is_war_leader|is_war_over|war_score|deity_religion|has_active_modifier|has_holy_site|has_passive_modifier|ai_wants_road|any_great_work_in_province|any_neighbor_province|any_pops_in_province|any_province_treasure|any_unit_in_province|can_build_building|can_have_port|can_use_unit_ability|citizen_happiness|civilization_value|control_range|distance_to_migration_target|dominant_province_culture|dominant_province_religion|fort_level|free_building_slots|freemen_happiness|governor_policy|great_work_locator_is_free|has_ancient_wonder|has_building|has_city_status|has_construction|has_enemy_army|has_enemy_navy|has_great_work|has_minor_river|has_owner|has_province_modifier|has_province_rank|has_road_towards|has_siege|has_specific_construction|has_winter|is_adjacent_to_major_river|is_capital|is_coastal|is_colonizer|is_core_of|is_holy_site|is_importing_trade_good|is_in_area|is_in_region|is_inhabitable|is_model_shown|is_neighbor|is_port|is_previous_controller|is_previous_owner|is_sea|is_state_capital|is_uninhabitable|nobles_happiness|num_foreign_culture|num_goods_produced|num_of_academy_building|num_of_aqueduct_building|num_of_barracks_building|num_of_basic_settlement_infratructure_building|num_of_citizen|num_of_commerce_building|num_of_court_building|num_of_fortress_building|num_of_fortress_ramparts_building|num_of_forum_building|num_of_foundry_building|num_of_freemen|num_of_hill_fort|num_of_latifundia_building|num_of_library_building|num_of_local_forum_building|num_of_military_building|num_of_nobles|num_of_population_building|num_of_port_building|num_of_slave_mine_building|num_of_slaves|num_of_temple_building|num_of_theathre_building|num_of_total_building_slots|num_of_town_hall_building|num_of_tribesmen|num_of_used_building_slots|num_of_workshop_building|num_other_religion|num_province_treasures|owned_or_subject_owned|population_cap|province_dominant_culture_group|province_id|province_income|province_manpower_income|province_tax_income|province_unrest|slaves_happiness|state_loyalty|terrain|total_population|trade_goods|tribesmen_happiness|country_culture_pop_count|has_country_culture_modifier|has_pop_type_right|integration_progress|is_culture|is_integrated|any_neighbor_region|any_region_area|any_region_province|any_region_province_including_unownable|any_region_state|add_to_temporary_list|all_false|always|any_active_war|any_area|any_country|any_deity|any_ended_war|any_false|any_holy_site|any_in_global_list|any_in_list|any_in_local_list|any_living_character|any_ownable_province|any_province|any_region|any_sea_and_river_zone|assert_if|assert_read|calc_true_if|culture_pops_in_country|current_date|custom_tooltip|debug_only|exists|game_start_date|gender_rules|global_variable_list_size|has_agenda|has_dlc|has_global_variable|has_global_variable_list|has_local_variable|has_local_variable_list|has_variable|has_variable_list|is_dynamic_tag|is_in_list|is_iron_man|is_monotheist_religion|is_target_alive|is_target_in_global_variable_list|is_target_in_local_variable_list|is_target_in_variable_list|list_size|local_variable_list_size|religion_pops_in_country|save_temporary_scope_as|switch|target_is_valid_character|trigger_else|trigger_else_if|trigger_if|variable_list_size|weighted_calc_true_if|in_color_list|is_color|is_pop_type_right|)\b
+      scope: string.trigger
+    # Modifiers
+    - match: \b(build_cost|build_time|minimum_unrest|local_unrest|global_unrest|tax_income|global_tax_income|local_tax_modifier|global_tax_modifier|local_population_growth|global_population_growth|local_population_capacity|local_population_capacity_modifier|global_population_capacity_modifier|total_population_capacity_modifier|local_building_slot|global_building_slot|global_monthly_state_loyalty|local_monthly_state_loyalty|city_monthly_state_loyalty|happiness_for_wrong_culture_modifier|happiness_for_wrong_culture_group_modifier|happiness_for_same_culture_modifier|local_happiness_for_same_culture_modifier|happiness_for_same_religion_modifier|local_happiness_for_same_religion_modifier|global_population_happiness|local_population_happiness|land_morale|naval_morale|land_morale_modifier|naval_morale_modifier|non_retinue_morale_modifier|local_manpower|global_manpower|local_manpower_modifier|global_manpower_modifier|manpower_recovery_speed|attrition|land_unit_attrition|naval_unit_attrition|army_weight_modifier|navy_weight_modifier|max_attrition|supply_limit|supply_limit_modifier|global_supply_limit_modifier|war_exhaustion|max_war_exhaustion|fort_level|blockade_efficiency|monthly_centralization|monthly_legitimacy|agressive_expansion_impact|agressive_expansion_monthly_change|agressive_expansion_monthly_decay|local_ship_recruit_speed|local_cohort_recruit_speed|global_ship_recruit_speed|global_cohort_recruit_speed|garrison_size|garrison_growth|technology_investment|movement_cost|army_movement_speed|navy_movement_speed|movement_speed_if_no_road|local_state_trade_routes|global_capital_trade_routes|global_state_trade_routes|research_points|research_points_modifier|local_research_points_modifier|omen_power|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(omen_duration|discipline|local_defensive|global_defensive|commerce_value|local_commerce_value_modifier|global_commerce_modifier|global_export_commerce_modifier|global_import_commerce_modifier|state_commerce_modifier|tribute_income_modifier|ruler_popularity_gain|max_loyalty|integrate_speed|fabricate_claim_speed|monthly_wage_for_character|monthly_wage_modifier|monthly_wage_on_character_modifier|monthly_governor_wage|monthly_local_governor_wage|monthly_character_popularity|monthly_character_popularity_decay|monthly_character_prominence|monthly_character_fam_prestige|cohort_reinforcement_speed|land_morale_recovery|naval_morale_recovery|siege_ability|assault_ability|siege_engineers|diplomatic_reputation|diplomatic_relations|max_rivals|max_friends|current_corruption|monthly_corruption|subject_opinions|subject_loyalty|loyalty_to_overlord|fort_maintenance_cost|army_maintenance_cost|navy_maintenance_cost|mercenary_land_maintenance_cost|mercenary_naval_maintenance_cost|country_civilization_value|local_country_civilization_value|local_monthly_civilization|global_monthly_civilization|global_start_experience|local_start_experience|global_cohort_start_experience|local_cohort_start_experience|global_ship_start_experience|local_ship_start_experience|experience_decay|monthly_experience_gain|martial|finesse|charisma|zeal|fertility|health|barbarian_growth|barbarian_spawn_chance|loyalty_gain_chance|loyalty_gain_chance_modifier|prominence|senate_influence|monthly_party_approval|monthly_tyranny|monthly_political_influence|monthly_political_influence_modifier|retreat_delay|improve_relation_impact|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(hostile_attrition|local_hostile_attrition|election_term_duration|ship_repair_at_sea|war_score_cost|base_resources|local_goods_from_slaves|global_goods_from_slaves|disallow_job|disallow_office|disallow_command|show_3d_fort|control_range_modifier|diplomatic_range_modifier|monthly_character_wealth|primary_heir_attraction|support_for_character_as_heir|next_ruler_legitimacy|num_of_clan_chiefs|clan_retinue_size|enslavement_efficiency|local_output_modifier|holdings_possible_for_character|available_holdings|holding_income_modifier|stability_monthly_change|stability_monthly_decay|civil_war_threshold|ship_capture_chance|naval_damage_done|naval_damage_taken|ship_cost|cohort_cost|pirate_haven|pirate_plunder|anti_piracy_cb|naval_range|monthly_military_experience|monthly_military_experience_modifier|local_pop_promotion_speed|global_pop_promotion_speed|local_pop_promotion_speed_modifier|global_pop_promotion_speed_modifier|local_pop_demotion_speed|global_pop_demotion_speed|local_pop_demotion_speed_modifier|global_pop_demotion_speed_modifier|local_migration_attraction|local_migration_speed|global_migration_speed|local_migration_speed_modifier|global_migration_speed_modifier|local_pop_conversion_speed|global_pop_conversion_speed|local_pop_conversion_speed_modifier|global_pop_conversion_speed_modifier|local_pop_assimilation_speed|global_pop_assimilation_speed|local_pop_assimilation_speed_modifier|global_pop_assimilation_speed_modifier|cultural_integration_speed_modifier|culture_happiness_modifier|local_monthly_food|global_monthly_food_modifier|global_food_capacity|local_food_capacity|local_monthly_food_modifier|local_hostile_food_multiplier|pop_food_consumption|monthly_character_experience|monthly_character_experience_decay|monthly_conviction_for_head_of_family_party|local_base_trade_routes|local_base_trade_routes_modifier|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(enable_intervene|character_loyalty|general_loyalty|admiral_loyalty|governor_loyalty|clan_chief_loyalty|levy_size_multiplier|great_work_total_workrate_character_modifier|great_work_slaves_workrate_character_modifier|great_work_tribals_workrate_character_modifier|great_work_freemen_workrate_character_modifier|great_work_fixed_prestige_character_modifier|local_combat_width_modifier|watercrossing_enabled_for_river|watercrossing_enabled_for_strait|watercrossing_enabled_for_shore|succession_value|fort_limit|local_fort_limit|global_settlement_building_slot|max_research_efficiency|max_mercenary_stacks|local_citizen_output|global_citizen_output|local_citizen_happyness|culture_citizen_output|global_citizen_happyness|culture_citizen_happiness|local_citizen_desired_pop_ratio|global_citizen_desired_pop_ratio|global_citizen_city_desired_pop_ratio|local_freemen_output|global_freemen_output|local_freemen_happyness|culture_freemen_output|global_freemen_happyness|culture_freemen_happiness|local_freemen_desired_pop_ratio|global_freemen_desired_pop_ratio|global_freemen_city_desired_pop_ratio|local_nobles_output|global_nobles_output|local_nobles_happyness|culture_nobles_output|global_nobles_happyness|culture_nobles_happiness|local_nobles_desired_pop_ratio|global_nobles_desired_pop_ratio|global_nobles_city_desired_pop_ratio|local_slaves_output|global_slaves_output|local_slaves_happyness|culture_slaves_output|global_slaves_happyness|culture_slaves_happiness|local_slaves_desired_pop_ratio|global_slaves_desired_pop_ratio|global_slaves_city_desired_pop_ratio|local_tribesmen_output|global_tribesmen_output|local_tribesmen_happyness|culture_tribesmen_output|global_tribesmen_happyness|culture_tribesmen_happiness|local_tribesmen_desired_pop_ratio|global_tribesmen_desired_pop_ratio|global_tribesmen_city_desired_pop_ratio|appoint_dictator_cost_modifier|hold_triumph_cost_modifier|hold_games_price_cost_modifier|smear_character_cost_modifier|assassinate_attempt_cost_modifier|assassinate_attempt_foreign_cost_modifier|inspire_disloyalty_cost_modifier|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(build_roads_engineers_cost_modifier|build_roads_cost_modifier|build_expensive_roads_cost_modifier|raid_cost_modifier|citizen_move_cost_modifier|freemen_move_cost_modifier|tribesmen_move_cost_modifier|slaves_move_cost_modifier|desecrate_cost_modifier|build_border_fort_cost_modifier|create_military_colony_cost_modifier|raise_levies_cost_modifier|recruit_character_cost_modifier|recruit_general_cost_modifier|secude_governor_cost_modifier|price_imprison_cost_modifier|price_execute_cost_modifier|price_sacrifice_cost_modifier|subject_pays_tributary_cost_modifier|subject_pays_feudatory_cost_modifier|subject_pays_vassal_cost_modifier|subject_pays_satrapy_cost_modifier|subject_client_state_pays_cost_modifier|subject_colony_pays_cost_modifier|subject_merc_city_state_cost_modifier|price_convert_religion_cost_modifier|price_propose_marriage_cost_modifier|price_support_primary_heir_cost_modifier|price_grant_laurels_cost_modifier|price_tutor_heir_cost_modifier|price_stipends_cost_modifier|price_arena_match_cost_modifier|price_reward_veterans_cost_modifier|price_optimates_party_action_cost_modifier|price_populares_party_action_cost_modifier|price_boni_party_action_cost_modifier|price_oligarchic_party_action_cost_modifier|price_democratic_party_action_cost_modifier|price_traditionalist_party_action_cost_modifier|price_state_investment_military_cost_modifier|price_state_investment_civic_cost_modifier|price_state_investment_oratory_cost_modifier|price_state_investment_religious_cost_modifier|price_oaths_of_allegiance_button_cost_modifier|price_patron_of_arts_button_cost_modifier|price_assemble_raiding_party_button_cost_modifier|price_bring_to_trial_cost_modifier|price_root_out_pirates_cost_modifier|price_anabasis_cost_modifier|price_local_civ_button_cost_modifier|price_scheme_abort_cost_modifier|price_found_city_cost_modifier|price_found_metropolis_cost_modifier|price_revoke_city_status_cost_modifier|price_revoke_metropolis_status_cost_modifier|bribe_pi_cost_modifier|recruit_character_mg_syr_cost_modifier|create_merc_state_price_cost_modifier|seek_spouse_price_cost_modifier|stability_cost_modifier|enact_law_cost_modifier|enact_holy_site_cost_modifier|remove_treasure_cost_modifier|buy_invention_cost_modifier|buy_idea_cost_modifier|call_omen_cost_modifier|change_pantheon_cost_modifier|deify_ruler_cost_modifier|fabricate_claim_cost_modifier|support_rebels_cost_modifier|endorse_party_cost_modifier|send_gift_cost_modifier|improve_relation_cost_modifier|insult_cost_modifier|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(inspire_devotio_cost_modifier|recruit_mercenary_cost_modifier|start_migration_cost_modifier|buy_military_tradition_cost_modifier|change_governor_policy_cost_modifier|increase_legitimacy_cost_modifier|change_diplomatic_stance_cost_modifier|force_through_senate_cost_modifier|change_pop_type_right_cost_modifier|monarchy_new_ruler_cost_modifier|tribe_new_ruler_cost_modifier|same_party_re_elected_cost_modifier|new_ruling_party_cost_modifier|war_breaking_truce_cost_modifier|war_breaking_truce_with_guarantor_cost_modifier|war_great_relations_cost_modifier|war_good_relations_cost_modifier|war_when_military_acces_cost_modifier|war_no_cb_cost_modifier|war_on_subject_cost_modifier|raise_legion_cost_modifier|price_tribal_duel_cost_modifier|price_force_divorce_cost_modifier|seduce_governor_cost_modifier|price_force_retirement_cost_modifier|offer_citizenship_price_cost_modifier|offer_protection_price_cost_modifier|ruler_retire_price_cost_modifier|training_price_cost_modifier|establish_bithynian_city_price_cost_modifier|new_establish_bithynian_city_price_cost_modifier|establish_sogdian_emporium_price_cost_modifier|new_establish_sogdian_emporium_price_cost_modifier|archers_discipline|archers_morale|archers_offensive|archers_defensive|archers_cost|archers_maintenance_cost|archers_movement_speed|camels_discipline|camels_morale|camels_offensive|camels_defensive|camels_cost|camels_maintenance_cost|camels_movement_speed|chariots_discipline|chariots_morale|chariots_offensive|chariots_defensive|chariots_cost|chariots_maintenance_cost|chariots_movement_speed|engineer_cohort_discipline|engineer_cohort_morale|engineer_cohort_offensive|engineer_cohort_defensive|engineer_cohort_cost|engineer_cohort_maintenance_cost|engineer_cohort_movement_speed|heavy_cavalry_discipline|heavy_cavalry_morale|heavy_cavalry_offensive|heavy_cavalry_defensive|heavy_cavalry_cost|heavy_cavalry_maintenance_cost|heavy_cavalry_movement_speed|heavy_infantry_discipline|heavy_infantry_morale|heavy_infantry_offensive|heavy_infantry_defensive|heavy_infantry_cost|heavy_infantry_maintenance_cost|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(heavy_infantry_movement_speed|horse_archers_discipline|horse_archers_morale|horse_archers_offensive|horse_archers_defensive|horse_archers_cost|horse_archers_maintenance_cost|horse_archers_movement_speed|light_cavalry_discipline|light_cavalry_morale|light_cavalry_offensive|light_cavalry_defensive|light_cavalry_cost|light_cavalry_maintenance_cost|light_cavalry_movement_speed|light_infantry_discipline|light_infantry_morale|light_infantry_offensive|light_infantry_defensive|light_infantry_cost|light_infantry_maintenance_cost|light_infantry_movement_speed|spearmen_discipline|spearmen_morale|spearmen_offensive|spearmen_defensive|spearmen_cost|spearmen_maintenance_cost|spearmen_movement_speed|supply_train_discipline|supply_train_morale|supply_train_offensive|supply_train_defensive|supply_train_cost|supply_train_maintenance_cost|supply_train_movement_speed|warelephant_discipline|warelephant_morale|warelephant_offensive|warelephant_defensive|warelephant_cost|warelephant_maintenance_cost|warelephant_movement_speed|liburnian_discipline|liburnian_morale|liburnian_offensive|liburnian_defensive|liburnian_cost|liburnian_maintenance_cost|liburnian_movement_speed|trireme_discipline|trireme_morale|trireme_offensive|trireme_defensive|trireme_cost|trireme_maintenance_cost|trireme_movement_speed|tetrere_discipline|tetrere_morale|tetrere_offensive|tetrere_defensive|tetrere_cost|tetrere_maintenance_cost|tetrere_movement_speed|hexere_discipline|hexere_morale|hexere_offensive|hexere_defensive|hexere_cost|hexere_maintenance_cost|hexere_movement_speed|octere_discipline|octere_morale|octere_offensive|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(octere_defensive|octere_cost|octere_maintenance_cost|octere_movement_speed|mega_galley_discipline|mega_galley_morale|mega_galley_offensive|mega_galley_defensive|mega_galley_cost|mega_galley_maintenance_cost|mega_galley_movement_speed|oasis_combat_bonus|archers_oasis_combat_bonus|camels_oasis_combat_bonus|chariots_oasis_combat_bonus|engineer_cohort_oasis_combat_bonus|heavy_cavalry_oasis_combat_bonus|heavy_infantry_oasis_combat_bonus|horse_archers_oasis_combat_bonus|light_cavalry_oasis_combat_bonus|light_infantry_oasis_combat_bonus|spearmen_oasis_combat_bonus|supply_train_oasis_combat_bonus|warelephant_oasis_combat_bonus|liburnian_oasis_combat_bonus|trireme_oasis_combat_bonus|tetrere_oasis_combat_bonus|hexere_oasis_combat_bonus|octere_oasis_combat_bonus|mega_galley_oasis_combat_bonus|desert_hills_combat_bonus|archers_desert_hills_combat_bonus|camels_desert_hills_combat_bonus|chariots_desert_hills_combat_bonus|engineer_cohort_desert_hills_combat_bonus|heavy_cavalry_desert_hills_combat_bonus|heavy_infantry_desert_hills_combat_bonus|horse_archers_desert_hills_combat_bonus|light_cavalry_desert_hills_combat_bonus|light_infantry_desert_hills_combat_bonus|spearmen_desert_hills_combat_bonus|supply_train_desert_hills_combat_bonus|warelephant_desert_hills_combat_bonus|liburnian_desert_hills_combat_bonus|trireme_desert_hills_combat_bonus|tetrere_desert_hills_combat_bonus|hexere_desert_hills_combat_bonus|octere_desert_hills_combat_bonus|mega_galley_desert_hills_combat_bonus|flood_plain_combat_bonus|archers_flood_plain_combat_bonus|camels_flood_plain_combat_bonus|chariots_flood_plain_combat_bonus|engineer_cohort_flood_plain_combat_bonus|heavy_cavalry_flood_plain_combat_bonus|heavy_infantry_flood_plain_combat_bonus|horse_archers_flood_plain_combat_bonus|light_cavalry_flood_plain_combat_bonus|light_infantry_flood_plain_combat_bonus|spearmen_flood_plain_combat_bonus|supply_train_flood_plain_combat_bonus|warelephant_flood_plain_combat_bonus|liburnian_flood_plain_combat_bonus|trireme_flood_plain_combat_bonus|tetrere_flood_plain_combat_bonus|hexere_flood_plain_combat_bonus|octere_flood_plain_combat_bonus|mega_galley_flood_plain_combat_bonus|plains_combat_bonus|archers_plains_combat_bonus|camels_plains_combat_bonus|chariots_plains_combat_bonus|engineer_cohort_plains_combat_bonus|heavy_cavalry_plains_combat_bonus|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(heavy_infantry_plains_combat_bonus|horse_archers_plains_combat_bonus|light_cavalry_plains_combat_bonus|light_infantry_plains_combat_bonus|spearmen_plains_combat_bonus|supply_train_plains_combat_bonus|warelephant_plains_combat_bonus|liburnian_plains_combat_bonus|trireme_plains_combat_bonus|tetrere_plains_combat_bonus|hexere_plains_combat_bonus|octere_plains_combat_bonus|mega_galley_plains_combat_bonus|mountain_combat_bonus|archers_mountain_combat_bonus|camels_mountain_combat_bonus|chariots_mountain_combat_bonus|engineer_cohort_mountain_combat_bonus|heavy_cavalry_mountain_combat_bonus|heavy_infantry_mountain_combat_bonus|horse_archers_mountain_combat_bonus|light_cavalry_mountain_combat_bonus|light_infantry_mountain_combat_bonus|spearmen_mountain_combat_bonus|supply_train_mountain_combat_bonus|warelephant_mountain_combat_bonus|liburnian_mountain_combat_bonus|trireme_mountain_combat_bonus|tetrere_mountain_combat_bonus|hexere_mountain_combat_bonus|octere_mountain_combat_bonus|mega_galley_mountain_combat_bonus|hills_combat_bonus|archers_hills_combat_bonus|camels_hills_combat_bonus|chariots_hills_combat_bonus|engineer_cohort_hills_combat_bonus|heavy_cavalry_hills_combat_bonus|heavy_infantry_hills_combat_bonus|horse_archers_hills_combat_bonus|light_cavalry_hills_combat_bonus|light_infantry_hills_combat_bonus|spearmen_hills_combat_bonus|supply_train_hills_combat_bonus|warelephant_hills_combat_bonus|liburnian_hills_combat_bonus|trireme_hills_combat_bonus|tetrere_hills_combat_bonus|hexere_hills_combat_bonus|octere_hills_combat_bonus|mega_galley_hills_combat_bonus|desert_combat_bonus|archers_desert_combat_bonus|camels_desert_combat_bonus|chariots_desert_combat_bonus|engineer_cohort_desert_combat_bonus|heavy_cavalry_desert_combat_bonus|heavy_infantry_desert_combat_bonus|horse_archers_desert_combat_bonus|light_cavalry_desert_combat_bonus|light_infantry_desert_combat_bonus|spearmen_desert_combat_bonus|supply_train_desert_combat_bonus|warelephant_desert_combat_bonus|liburnian_desert_combat_bonus|trireme_desert_combat_bonus|tetrere_desert_combat_bonus|hexere_desert_combat_bonus|octere_desert_combat_bonus|mega_galley_desert_combat_bonus|marsh_combat_bonus|archers_marsh_combat_bonus|camels_marsh_combat_bonus|chariots_marsh_combat_bonus|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(engineer_cohort_marsh_combat_bonus|heavy_cavalry_marsh_combat_bonus|heavy_infantry_marsh_combat_bonus|horse_archers_marsh_combat_bonus|light_cavalry_marsh_combat_bonus|light_infantry_marsh_combat_bonus|spearmen_marsh_combat_bonus|supply_train_marsh_combat_bonus|warelephant_marsh_combat_bonus|liburnian_marsh_combat_bonus|trireme_marsh_combat_bonus|tetrere_marsh_combat_bonus|hexere_marsh_combat_bonus|octere_marsh_combat_bonus|mega_galley_marsh_combat_bonus|jungle_combat_bonus|archers_jungle_combat_bonus|camels_jungle_combat_bonus|chariots_jungle_combat_bonus|engineer_cohort_jungle_combat_bonus|heavy_cavalry_jungle_combat_bonus|heavy_infantry_jungle_combat_bonus|horse_archers_jungle_combat_bonus|light_cavalry_jungle_combat_bonus|light_infantry_jungle_combat_bonus|spearmen_jungle_combat_bonus|supply_train_jungle_combat_bonus|warelephant_jungle_combat_bonus|liburnian_jungle_combat_bonus|trireme_jungle_combat_bonus|tetrere_jungle_combat_bonus|hexere_jungle_combat_bonus|octere_jungle_combat_bonus|mega_galley_jungle_combat_bonus|farmland_combat_bonus|archers_farmland_combat_bonus|camels_farmland_combat_bonus|chariots_farmland_combat_bonus|engineer_cohort_farmland_combat_bonus|heavy_cavalry_farmland_combat_bonus|heavy_infantry_farmland_combat_bonus|horse_archers_farmland_combat_bonus|light_cavalry_farmland_combat_bonus|light_infantry_farmland_combat_bonus|spearmen_farmland_combat_bonus|supply_train_farmland_combat_bonus|warelephant_farmland_combat_bonus|liburnian_farmland_combat_bonus|trireme_farmland_combat_bonus|tetrere_farmland_combat_bonus|hexere_farmland_combat_bonus|octere_farmland_combat_bonus|mega_galley_farmland_combat_bonus|forest_combat_bonus|archers_forest_combat_bonus|camels_forest_combat_bonus|chariots_forest_combat_bonus|engineer_cohort_forest_combat_bonus|heavy_cavalry_forest_combat_bonus|heavy_infantry_forest_combat_bonus|horse_archers_forest_combat_bonus|light_cavalry_forest_combat_bonus|light_infantry_forest_combat_bonus|spearmen_forest_combat_bonus|supply_train_forest_combat_bonus|warelephant_forest_combat_bonus|liburnian_forest_combat_bonus|trireme_forest_combat_bonus|tetrere_forest_combat_bonus|hexere_forest_combat_bonus|octere_forest_combat_bonus|mega_galley_forest_combat_bonus|ocean_combat_bonus|archers_ocean_combat_bonus|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(camels_ocean_combat_bonus|chariots_ocean_combat_bonus|engineer_cohort_ocean_combat_bonus|heavy_cavalry_ocean_combat_bonus|heavy_infantry_ocean_combat_bonus|horse_archers_ocean_combat_bonus|light_cavalry_ocean_combat_bonus|light_infantry_ocean_combat_bonus|spearmen_ocean_combat_bonus|supply_train_ocean_combat_bonus|warelephant_ocean_combat_bonus|liburnian_ocean_combat_bonus|trireme_ocean_combat_bonus|tetrere_ocean_combat_bonus|hexere_ocean_combat_bonus|octere_ocean_combat_bonus|mega_galley_ocean_combat_bonus|coastal_terrain_combat_bonus|archers_coastal_terrain_combat_bonus|camels_coastal_terrain_combat_bonus|chariots_coastal_terrain_combat_bonus|engineer_cohort_coastal_terrain_combat_bonus|heavy_cavalry_coastal_terrain_combat_bonus|heavy_infantry_coastal_terrain_combat_bonus|horse_archers_coastal_terrain_combat_bonus|light_cavalry_coastal_terrain_combat_bonus|light_infantry_coastal_terrain_combat_bonus|spearmen_coastal_terrain_combat_bonus|supply_train_coastal_terrain_combat_bonus|warelephant_coastal_terrain_combat_bonus|liburnian_coastal_terrain_combat_bonus|trireme_coastal_terrain_combat_bonus|tetrere_coastal_terrain_combat_bonus|hexere_coastal_terrain_combat_bonus|octere_coastal_terrain_combat_bonus|mega_galley_coastal_terrain_combat_bonus|riverine_terrain_combat_bonus|archers_riverine_terrain_combat_bonus|camels_riverine_terrain_combat_bonus|chariots_riverine_terrain_combat_bonus|engineer_cohort_riverine_terrain_combat_bonus|heavy_cavalry_riverine_terrain_combat_bonus|heavy_infantry_riverine_terrain_combat_bonus|horse_archers_riverine_terrain_combat_bonus|light_cavalry_riverine_terrain_combat_bonus|light_infantry_riverine_terrain_combat_bonus|spearmen_riverine_terrain_combat_bonus|supply_train_riverine_terrain_combat_bonus|warelephant_riverine_terrain_combat_bonus|liburnian_riverine_terrain_combat_bonus|trireme_riverine_terrain_combat_bonus|tetrere_riverine_terrain_combat_bonus|hexere_riverine_terrain_combat_bonus|octere_riverine_terrain_combat_bonus|mega_galley_riverine_terrain_combat_bonus|impassable_terrain_combat_bonus|archers_impassable_terrain_combat_bonus|camels_impassable_terrain_combat_bonus|chariots_impassable_terrain_combat_bonus|engineer_cohort_impassable_terrain_combat_bonus|heavy_cavalry_impassable_terrain_combat_bonus|heavy_infantry_impassable_terrain_combat_bonus|horse_archers_impassable_terrain_combat_bonus|light_cavalry_impassable_terrain_combat_bonus|light_infantry_impassable_terrain_combat_bonus|spearmen_impassable_terrain_combat_bonus|supply_train_impassable_terrain_combat_bonus|warelephant_impassable_terrain_combat_bonus|liburnian_impassable_terrain_combat_bonus|trireme_impassable_terrain_combat_bonus|tetrere_impassable_terrain_combat_bonus|hexere_impassable_terrain_combat_bonus|octere_impassable_terrain_combat_bonus|mega_galley_impassable_terrain_combat_bonus|)\b
+      scope: string.modifier
+    # Modifiers
+    - match: \b(monthly_optimates_party_conviction|optimates_party_influence|monthly_boni_party_conviction|boni_party_influence|monthly_populares_party_conviction|populares_party_influence|monthly_oligarchic_party_conviction|oligarchic_party_influence|monthly_traditionalist_party_conviction|traditionalist_party_influence|monthly_democratic_party_conviction|democratic_party_influence|military_tech_investment|civic_tech_investment|oratory_tech_investment|religious_tech_investment|fortress_building_cost|fortress_ramparts_building_cost|port_building_cost|barracks_building_cost|foundry_building_cost|aqueduct_building_cost|temple_building_cost|population_building_cost|theathre_building_cost|library_building_cost|academy_building_cost|commerce_building_cost|court_building_cost|military_building_cost|forum_building_cost|town_hall_building_cost|workshop_building_cost|latifundia_building_cost|slave_mine_building_cost|basic_settlement_infratructure_building_cost|hill_fort_cost|local_forum_building_cost|)\b
+      scope: string.modifier

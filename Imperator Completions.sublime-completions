@@ -1,0 +1,594 @@
+{
+	"scope": "text.imperator",
+	"completions":
+	[
+		{
+			"trigger": "character_party",
+			"contents": "character_party",
+			"details": "Input Scopes: character ⇨ Output Scopes: party",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "employer",
+			"contents": "employer",
+			"details": "Input Scopes: character ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "family",
+			"contents": "family",
+			"details": "Input Scopes: character ⇨ Output Scopes: family",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "father",
+			"contents": "father",
+			"details": "Input Scopes: character ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "home_country",
+			"contents": "home_country",
+			"details": "Input Scopes: character ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "job",
+			"contents": "job",
+			"details": "Input Scopes: character ⇨ Output Scopes: job",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "mother",
+			"contents": "mother",
+			"details": "Input Scopes: character ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "next_in_family",
+			"contents": "next_in_family",
+			"details": "Input Scopes: character ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "preferred_heir",
+			"contents": "preferred_heir",
+			"details": "Input Scopes: character ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "ruler",
+			"contents": "ruler",
+			"details": "Input Scopes: character ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "spouse",
+			"contents": "spouse",
+			"details": "Input Scopes: character ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "treasure_owner",
+			"contents": "treasure_owner",
+			"details": "Input Scopes: treasure ⇨ Output Scopes: country, character, province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "color1",
+			"contents": "color1",
+			"details": "Input Scopes: country ⇨ Output Scopes: color",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "color2",
+			"contents": "color2",
+			"details": "Input Scopes: country ⇨ Output Scopes: color",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "color3",
+			"contents": "color3",
+			"details": "Input Scopes: country ⇨ Output Scopes: color",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "consort",
+			"contents": "consort",
+			"details": "Input Scopes: country ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "current_co_ruler",
+			"contents": "current_co_ruler",
+			"details": "Input Scopes: country ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "current_heir",
+			"contents": "current_heir",
+			"details": "Input Scopes: country ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "current_ruler",
+			"contents": "current_ruler",
+			"details": "Input Scopes: country ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "fam",
+			"contents": "fam",
+			"details": "Requires Data: yes ⇨ Input Scopes: country ⇨ Output Scopes: family",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "overlord",
+			"contents": "overlord",
+			"details": "Input Scopes: country ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "party",
+			"contents": "party",
+			"details": "Requires Data: yes ⇨ Input Scopes: country ⇨ Output Scopes: party",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "primary_heir",
+			"contents": "primary_heir",
+			"details": "Input Scopes: country ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "secondary_heir",
+			"contents": "secondary_heir",
+			"details": "Input Scopes: country ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "country",
+			"contents": "country",
+			"details": "Input Scopes: character, pop, job ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "legion",
+			"contents": "legion",
+			"details": "Input Scopes: character, unit, governorship ⇨ Output Scopes: legion",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "religion",
+			"contents": "religion",
+			"details": "Input Scopes: country, character, province, pop, deity ⇨ Output Scopes: religion",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "party_country",
+			"contents": "party_country",
+			"details": "Input Scopes: party ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "party_leader",
+			"contents": "party_leader",
+			"details": "Input Scopes: party ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "color",
+			"contents": "color",
+			"details": "Input Scopes: country, religion, culture group ⇨ Output Scopes: color",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "siege_controller",
+			"contents": "siege_controller",
+			"details": "Input Scopes: siege ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "area",
+			"contents": "area",
+			"details": "Input Scopes: province, state ⇨ Output Scopes: area",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "governorship",
+			"contents": "governorship",
+			"details": "Input Scopes: province, state ⇨ Output Scopes: governorship",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "country_culture",
+			"contents": "country_culture",
+			"details": "Input Scopes: country, province, pop ⇨ Output Scopes: country culture",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "deified_ruler",
+			"contents": "deified_ruler",
+			"details": "Input Scopes: deity ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "holy_site",
+			"contents": "holy_site",
+			"details": "Input Scopes: deity ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "location",
+			"contents": "location",
+			"details": "Input Scopes: character, siege, pop ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "region",
+			"contents": "region",
+			"details": "Input Scopes: province, area, state ⇨ Output Scopes: region",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "blue",
+			"contents": "blue",
+			"details": "The blue value of a color ⇨ Input Scopes: color ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "brightness",
+			"contents": "brightness",
+			"details": "The brightness value of a color ⇨ Input Scopes: color ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "green",
+			"contents": "green",
+			"details": "The green value of a color ⇨ Input Scopes: color ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "hue",
+			"contents": "hue",
+			"details": "The hue value of a color ⇨ Input Scopes: color ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "red",
+			"contents": "red",
+			"details": "The red value of a color ⇨ Input Scopes: color ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "saturation",
+			"contents": "saturation",
+			"details": "The saturation value of a color ⇨ Input Scopes: color ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "commander",
+			"contents": "commander",
+			"details": "Input Scopes: unit ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "unit_destination",
+			"contents": "unit_destination",
+			"details": "Input Scopes: unit ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "unit_location",
+			"contents": "unit_location",
+			"details": "Input Scopes: unit ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "unit_next_location",
+			"contents": "unit_next_location",
+			"details": "Input Scopes: unit ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "unit_objective_destination",
+			"contents": "unit_objective_destination",
+			"details": "Input Scopes: unit ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "unit_owner",
+			"contents": "unit_owner",
+			"details": "Input Scopes: unit ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "culture_group",
+			"contents": "culture_group",
+			"details": "Input Scopes: country, character, province, pop, culture ⇨ Output Scopes: culture group",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "owning_unit",
+			"contents": "owning_unit",
+			"details": "Input Scopes: subunit ⇨ Output Scopes: unit",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "personal_loyalty",
+			"contents": "personal_loyalty",
+			"details": "Input Scopes: subunit ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "character",
+			"contents": "character",
+			"details": "Input Scopes: job ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "owner",
+			"contents": "owner",
+			"details": "Input Scopes: province, state, governorship, legion ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "family_country",
+			"contents": "family_country",
+			"details": "Input Scopes: family ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "head_of_family",
+			"contents": "head_of_family",
+			"details": "Input Scopes: family ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "culture",
+			"contents": "culture",
+			"details": "Input Scopes: country, character, province, pop, country culture ⇨ Output Scopes: culture",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "governor",
+			"contents": "governor",
+			"details": "Input Scopes: province, state, governorship ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "governor_or_ruler",
+			"contents": "governor_or_ruler",
+			"details": "Input Scopes: province, state, governorship ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "job",
+			"contents": "job",
+			"details": "Requires Data: yes ⇨ Input Scopes: country, province, state, governorship ⇨ Output Scopes: job",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "job_holder",
+			"contents": "job_holder",
+			"details": "Requires Data: yes ⇨ Input Scopes: country, province, state, governorship ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "attacker_warleader",
+			"contents": "attacker_warleader",
+			"details": "Input Scopes: war ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "defender_warleader",
+			"contents": "defender_warleader",
+			"details": "Input Scopes: war ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "controller",
+			"contents": "controller",
+			"details": "Input Scopes: province ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "dominant_province_culture",
+			"contents": "dominant_province_culture",
+			"details": "Input Scopes: province ⇨ Output Scopes: culture",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "dominant_province_culture_group",
+			"contents": "dominant_province_culture_group",
+			"details": "Input Scopes: province ⇨ Output Scopes: culture group",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "dominant_province_religion",
+			"contents": "dominant_province_religion",
+			"details": "Input Scopes: province ⇨ Output Scopes: religion",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "holding_owner",
+			"contents": "holding_owner",
+			"details": "Input Scopes: province ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "province_deity",
+			"contents": "province_deity",
+			"details": "Input Scopes: province ⇨ Output Scopes: deity",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "state",
+			"contents": "state",
+			"details": "Input Scopes: province ⇨ Output Scopes: state",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "area",
+			"contents": "area",
+			"details": "Requires Data: yes ⇨ Output Scopes: area",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "array_define",
+			"contents": "array_define",
+			"details": "Reference the value of a numeric value in an array define: array_define:Namespace|Name|Index. Index is 0-based. ⇨ Requires Data: yes ⇨ Global Link: yes ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "c",
+			"contents": "c",
+			"details": "Requires Data: yes ⇨ Output Scopes: country",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "char",
+			"contents": "char",
+			"details": "Requires Data: yes ⇨ Output Scopes: character",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "compare_value",
+			"contents": "compare_value",
+			"details": "A comparison trigger that will return its value in the context it is used eg: root.gold ⇨ Wild Card: yes ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "culture",
+			"contents": "culture",
+			"details": "Requires Data: yes ⇨ Output Scopes: culture",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "culture_group",
+			"contents": "culture_group",
+			"details": "Requires Data: yes ⇨ Output Scopes: culture group",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "custom",
+			"contents": "custom",
+			"details": "Adds custom text between scope changes ⇨ Requires Data: yes",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "define",
+			"contents": "define",
+			"details": "Reference the value of a numeric define: define:Namespace|Name ⇨ Requires Data: yes ⇨ Global Link: yes ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "deity",
+			"contents": "deity",
+			"details": "Requires Data: yes ⇨ Output Scopes: deity",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "flag",
+			"contents": "flag",
+			"details": "Flag literals eg: flag:the_boss ⇨ Requires Data: yes ⇨ Global Link: yes ⇨ Output Scopes: flag",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "global_var",
+			"contents": "global_var",
+			"details": "Reference a previous set global variable via its name eg: global_var:important_thing ⇨ Requires Data: yes ⇨ Global Link: yes",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "local_var",
+			"contents": "local_var",
+			"details": "Reference a previous set local variable via its name eg: local_var:person_of_interest ⇨ Requires Data: yes ⇨ Global Link: yes",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "named_script_value",
+			"contents": "named_script_value",
+			"details": "A script value that will calculate and returns its value in the context it is used ⇨ Wild Card: yes ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "no",
+			"contents": "no",
+			"details": "Boolean literal for false values ⇨ Global Link: yes ⇨ Output Scopes: bool",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "p",
+			"contents": "p",
+			"details": "Requires Data: yes ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "prev",
+			"contents": "prev",
+			"details": "The previous scope",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "region",
+			"contents": "region",
+			"details": "Requires Data: yes ⇨ Output Scopes: region",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "root",
+			"contents": "root",
+			"details": "The head of the current top scope eg: reciever of an event, taker of a decision ⇨ Global Link: yes",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "scope",
+			"contents": "scope",
+			"details": "Reference a previously saved scope via its name eg: scope:target ⇨ Requires Data: yes ⇨ Global Link: yes",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "this",
+			"contents": "this",
+			"details": "The current scope",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "treasure",
+			"contents": "treasure",
+			"details": "Requires Data: yes ⇨ Output Scopes: treasure",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "value",
+			"contents": "value",
+			"details": "A numeric literal value eg: 1, 5.2, -6 ⇨ Wild Card: yes ⇨ Global Link: yes ⇨ Output Scopes: value",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "var",
+			"contents": "var",
+			"details": "Reference a previous set variable via its name eg: var:mortal_enemy ⇨ Requires Data: yes",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "yes",
+			"contents": "yes",
+			"details": "Boolean literal for true values ⇨ Global Link: yes ⇨ Output Scopes: bool",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "siege",
+			"contents": "siege",
+			"details": "Input Scopes: province, unit ⇨ Output Scopes: siege",
+			"kind": ["namespace", "S", "Scope"]
+		},
+		{
+			"trigger": "capital_scope",
+			"contents": "capital_scope",
+			"details": "Input Scopes: country, state, governorship ⇨ Output Scopes: province",
+			"kind": ["namespace", "S", "Scope"]
+		},
+	]
+}

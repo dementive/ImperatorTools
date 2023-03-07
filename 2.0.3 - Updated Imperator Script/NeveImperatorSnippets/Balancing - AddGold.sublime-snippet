@@ -1,7 +1,0 @@
-<snippet>
-    <content><![CDATA[
-add_gold = ${1:add\subtract}_gold_${2:small\medium\large\huge\vast}
-]]></content>
-<tabTrigger>add_gold</tabTrigger>
-<scope>text.pdx</scope>
-</snippet>

@@ -1,0 +1,7 @@
+<snippet>
+    <content><![CDATA[
+add_prominence = ${1:subtract_}prominence_${2:small\medium\large\huge}
+]]></content>
+<tabTrigger>add_prominence</tabTrigger>
+<scope>text.imperator</scope>
+</snippet>
