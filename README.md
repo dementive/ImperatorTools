@@ -41,3 +41,10 @@ Several commands have also been added to the context menu that is opened by simp
 - Create Mission Tree - Creates mission tree localization, event, and mission files for you from quick panel input. All you need to know is the mission name, event namespace name, and number missions and your mission tree files will be automatically created.
 - Reload Plugin - Will reload all game objects and plugin features
 - Clear Image Cache - If you have images set to open in sublime they get cached so they open faster, this command clears the cache
+
+
+![Script Screenshot](/assets/image1.png)
+
+![Script Screenshot 2](/assets/image2.png)
+
+![Script Screenshot 3](/assets/image3.png)

@@ -2693,9 +2693,9 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		word_line_num = view.rowcol(point)[0] + 1
 		word_file = view.file_name().rpartition("\\")[2]
 		definition = ""
+		definitions = []
 
 		if header == "Saved Scope" or header == "Saved Variable":
-			definitions = []
 			for win in sublime.windows():
 				for i in [v for v in win.views() if v.file_name().endswith(".txt")]:
 					variables = [x for x in i.find_by_selector("entity.name.function.var.declaration") if i.substr(x) == PdxObject.key]

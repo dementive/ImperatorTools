@@ -116,7 +116,7 @@ contexts:
       push:
         - match: =
           push:
-            - match: \n|\s
+            - match: \n
               pop: 2
             - match: (#).*$\n?
               scope: comment.line
@@ -146,7 +146,7 @@ contexts:
                     - match: \$
                       scope: keyword.dolla
                       pop: 4
-                - match: \n|\s
+                - match: \n
                   pop: 3
 
   save-scope:

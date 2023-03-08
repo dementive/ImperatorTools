@@ -116,7 +116,7 @@ contexts:
       push:
         - match: =
           push:
-            - match: \n|\s
+            - match: \n
               pop: 2
             - match: (#).*$\n?
               scope: comment.line
@@ -146,7 +146,7 @@ contexts:
                     - match: \$
                       scope: keyword.dolla
                       pop: 4
-                - match: \n|\s
+                - match: \n
                   pop: 3
 
   save-scope:
@@ -353,7 +353,8 @@ contexts:
     - match: \b(finish_trigger|abort_trigger|ai_is_valid|is_valid|abort_when|can_character_belong|highlight|bypass|conditions|allow_on_setup|deification_trigger|natural_death_trigger|character_actor_trigger|character_target_trigger|province_actor_trigger|province_target_trigger|country_actor_trigger|country_target_trigger|potential_trigger|allowed_trigger|can_be_picked|finished_when|abort|interface_allow|allow|visible|cancellation_trigger|is_visible|enable|potential|trigger|limit|possible|happened|valid|is_shown)\b
       scope: string.trigger.block.start
       push:
-        - include: line_ending
+        - match: =\s?.|\n
+          pop: true
         - match: \{
           scope: meta.trigger.bracket
           pop: true
@@ -478,6 +479,9 @@ contexts:
       pop: 2
 
   manually-entered-content:
+
+    - match: highlight = yes
+      scope: scope.trigger.highlight
 
     # Math/Sound
     - match: \b(sacrifice_sound|soundeffect|sound|range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|integer_range|clicksound)\b
