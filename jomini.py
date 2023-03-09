@@ -35,6 +35,7 @@ import os
 		• sort() - Sort the list of PdxScriptObjects by their key -> void
 		• get_list() - Returns a list of PdxScriptObjects for the GameObject -> list[PdxScriptObject]
 		• remove() - Remove a PdxScriptObject or string -> void
+		• clear() - Remove all PdxScriptObjects from the list  -> void
 		• add() - Add a new PdxScriptObject to the object
 
 	To implement custom parsing for a GameObject:
@@ -173,8 +174,13 @@ class GameObjectBase:
 		return self.main.objects
 
 	def remove(self, key) -> None:
-		""" Remove the specified PdxScriptObjectType or string"""
+		""" Remove the specified PdxScriptObject or string"""
 		if key in self.main.objects:
+			self.main.objects.remove(key)
+
+	def clear(self) -> None:
+		""" Clear all objects from the list """
+		for key in self.keys():
 			self.main.objects.remove(key)
 
 	def add(self, obj):

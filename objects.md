@@ -1,6 +1,6 @@
 # Imperator Game Objects
 
-# TODO - add scripted_lists and treasure game objects
+# TODO - add treasure game objects
 
 ### area
 

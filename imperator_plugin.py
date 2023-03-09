@@ -233,6 +233,11 @@ class ImperatorRegion(GameObjectBase):
 		super().__init__(file_paths, included_files=["regions.txt"])
 		self.get_data("map_data")
 
+class ImperatorScriptedList(GameObjectBase):
+	def __init__(self):
+		super().__init__(file_paths)
+		self.get_data("common\\scripted_lists")
+
 # Game Data class
 GameData = GameData()
 
@@ -242,7 +247,7 @@ event_pic = event_theme = government = governor_policy = heritage = idea = inven
 law = legion_distinction = levy_template = loyalty = mil_tradition = modifier = opinion = ""
 office = party = pop = price = province_rank = religion = script_value = scripted_effect = ""
 scripted_modifier = scripted_trigger = subject_type = tech_table = terrain = trade_good = trait = ""
-unit = war_goal = mission = mission_task = area = region = ""
+unit = war_goal = mission = mission_task = area = region = scripted_list_triggers = scripted_list_effects = ""
 
 
 # Function to fill all global game objects that get set in non-blocking async function on plugin_loaded
@@ -276,7 +281,7 @@ def load_game_objects():
 		legion_distinction = ImperatorLegionDistinction()
 
 	def load_third():
-		global levy_template, loyalty, mil_tradition, modifier, opinion, office, party, pop
+		global levy_template, loyalty, mil_tradition, modifier, opinion, office, party, pop, scripted_list_triggers, scripted_list_effects
 		levy_template = ImperatorLevyTemplate()
 		loyalty = ImperatorLoyalty()
 		mil_tradition = ImperatorMilitaryTradition()
@@ -285,6 +290,27 @@ def load_game_objects():
 		office = ImperatorOffice()
 		party = ImperatorParty()
 		pop = ImperatorPop()
+		scripted_list_triggers = ImperatorScriptedList()
+		scripted_list_effects = ImperatorScriptedList()
+		
+		tri_list = []
+		for obj in scripted_list_triggers.get_list():
+			tri_list.append(PdxScriptObject("any_" + obj.key, obj.path, obj.line))
+		scripted_list_triggers.clear()
+		for i in tri_list:
+			scripted_list_triggers.add(i)
+		ef_list = []
+		for obj in scripted_list_effects.get_list():
+			ef_list.append(PdxScriptObject(f"random_{obj.key}", obj.path, obj.line))
+			ef_list.append(PdxScriptObject(f"every_{obj.key}", obj.path, obj.line))
+			ef_list.append(PdxScriptObject(f"ordered_{obj.key}", obj.path, obj.line))
+		scripted_list_effects.clear()
+		for i in ef_list:
+			scripted_list_effects.add(i)
+		for i in scripted_list_effects.keys():
+			GameData.EffectsList[i] = "Scripted list effect"
+		for i in scripted_list_triggers.keys():
+			GameData.TriggersList[i] = "Scripted list trigger"
 
 	def load_fourth():
 		global price, province_rank, religion, script_value, scripted_effect, scripted_modifier, scripted_trigger, subject_type
@@ -341,51 +367,53 @@ def write_data_to_syntax():
 	# Append all game objects to auto-generated-content section
 	lines += write_syntax(scripted_trigger.keys(), "Scripted Triggers", "string.scripted.trigger")
 	lines += write_syntax(scripted_modifier.keys(), "Scripted Triggers", "string.scripted.modifier")
+	lines += write_syntax(scripted_list_triggers.keys(), "Scripted List", "string.scripted.list")
 	lines += write_syntax(scripted_effect.keys(), "Scripted Effects", "keyword.scripted.effect")
+	lines += write_syntax(scripted_list_effects.keys(), "Scripted Effects", "keyword.scripted.list")
 	lines += write_syntax(script_value.keys(), "Scripted Values", "storage.type.script.value")
 
 	# All GameObjects get entity.name scope
-	lines += write_syntax(ambition.keys(), "Ambition", "entity.name.ambition")
-	lines += write_syntax(building.keys(), "Building", "entity.name.building")
-	lines += write_syntax(culture.keys(), "Culture", "entity.name.culture")
-	lines += write_syntax(culture_group.keys(), "Culture Group", "entity.name.culture.group")
-	lines += write_syntax(death_reason.keys(), "Death Reason", "entity.name.death.reason")
-	lines += write_syntax(deity.keys(), "Deity", "entity.name.deity")
-	lines += write_syntax(diplo_stance.keys(), "Diplomatic Stance", "entity.name.diplo.stance")
-	lines += write_syntax(econ_policy.keys(), "Economic Policy", "entity.name.econ.policy")
-	lines += write_syntax(event_pic.keys(), "Event Picture", "entity.name.event.pic")
-	lines += write_syntax(event_theme.keys(), "Event Theme", "entity.name.event.theme")
-	
-	lines += write_syntax(government.keys(), "Government", "entity.name.government")
-	lines += write_syntax(governor_policy.keys(), "Governor Policy", "entity.name.governor.policy")
-	lines += write_syntax(heritage.keys(), "Heritage", "entity.name.heritage")
-	lines += write_syntax(idea.keys(), "Idea", "entity.name.idea")
-	lines += write_syntax(invention.keys(), "Invention", "entity.name.invention")
-	lines += write_syntax(law.keys(), "Law", "entity.name.law")
-	lines += write_syntax(legion_distinction.keys(), "Legion Distinction", "entity.name.legion.distinction")
-	lines += write_syntax(levy_template.keys(), "Levy Template", "entity.name.levy.template")
-	lines += write_syntax(loyalty.keys(), "Loyalty", "entity.name.loyalty")
-	lines += write_syntax(mil_tradition.keys(), "Military Tradition", "entity.name.mil.tradition")
-	lines += write_syntax(modifier.keys(), "Modifier", "entity.name.modifier")
-	lines += write_syntax(opinion.keys(), "Opinion", "entity.name.opinion")
-	lines += write_syntax(office.keys(), "Office", "entity.name.office")
-	lines += write_syntax(party.keys(), "Party", "entity.name.party")
-	lines += write_syntax(pop.keys(), "Pop Type", "entity.name.pop")
-	lines += write_syntax(price.keys(), "Price", "entity.name.price")
-	lines += write_syntax(province_rank.keys(), "Province Rank", "entity.name.province.rank")
-	lines += write_syntax(religion.keys(), "Religion", "entity.name.religion")
-	lines += write_syntax(subject_type.keys(), "Subject Type", "entity.name.subject.type")
-	lines += write_syntax(tech_table.keys(), "Technology Table", "entity.name.tech.table")
-	lines += write_syntax(terrain.keys(), "Terrain", "entity.name.terrain")
-	lines += write_syntax(trade_good.keys(), "Trade Good", "entity.name.trade.good")
-	lines += write_syntax(trait.keys(), "Trait", "entity.name.trait")
-	lines += write_syntax(unit.keys(), "Unit", "entity.name.unit")
-	lines += write_syntax(war_goal.keys(), "War Goal", "entity.name.war.goal")
-	lines += write_syntax(mission.keys(), "Mission", "entity.name.mission")
-	lines += write_syntax(mission_task.keys(), "Mission Task", "entity.name.mission.task")
-	lines += write_syntax(mission.keys(), "Mission", "entity.name.mission")
-	lines += write_syntax(area.keys(), "Area", "entity.name.area")
-	lines += write_syntax(region.keys(), "Region", "entity.name.region")
+	lines += write_syntax(ambition.keys(), "Ambition", "entity.name.imperator.ambition")
+	lines += write_syntax(building.keys(), "Building", "entity.name.imperator.building")
+	lines += write_syntax(culture.keys(), "Culture", "entity.name.imperator.culture")
+	lines += write_syntax(culture_group.keys(), "Culture Group", "entity.name.imperator.culture.group")
+	lines += write_syntax(death_reason.keys(), "Death Reason", "entity.name.imperator.death.reason")
+	lines += write_syntax(deity.keys(), "Deity", "entity.name.imperator.deity")
+	lines += write_syntax(diplo_stance.keys(), "Diplomatic Stance", "entity.name.imperator.diplo.stance")
+	lines += write_syntax(econ_policy.keys(), "Economic Policy", "entity.name.imperator.econ.policy")
+	lines += write_syntax(event_pic.keys(), "Event Picture", "entity.name.imperator.event.pic")
+	lines += write_syntax(event_theme.keys(), "Event Theme", "entity.name.imperator.event.theme")
+
+	lines += write_syntax(government.keys(), "Government", "entity.name.imperator.government")
+	lines += write_syntax(governor_policy.keys(), "Governor Policy", "entity.name.imperator.governor.policy")
+	lines += write_syntax(heritage.keys(), "Heritage", "entity.name.imperator.heritage")
+	lines += write_syntax(idea.keys(), "Idea", "entity.name.imperator.idea")
+	lines += write_syntax(invention.keys(), "Invention", "entity.name.imperator.invention")
+	lines += write_syntax(law.keys(), "Law", "entity.name.imperator.law")
+	lines += write_syntax(legion_distinction.keys(), "Legion Distinction", "entity.name.imperator.legion.distinction")
+	lines += write_syntax(levy_template.keys(), "Levy Template", "entity.name.imperator.levy.template")
+	lines += write_syntax(loyalty.keys(), "Loyalty", "entity.name.imperator.loyalty")
+	lines += write_syntax(mil_tradition.keys(), "Military Tradition", "entity.name.imperator.mil.tradition")
+	lines += write_syntax(modifier.keys(), "Modifier", "entity.name.imperator.modifier")
+	lines += write_syntax(opinion.keys(), "Opinion", "entity.name.imperator.opinion")
+	lines += write_syntax(office.keys(), "Office", "entity.name.imperator.office")
+	lines += write_syntax(party.keys(), "Party", "entity.name.imperator.party")
+	lines += write_syntax(pop.keys(), "Pop Type", "entity.name.imperator.pop")
+	lines += write_syntax(price.keys(), "Price", "entity.name.imperator.price")
+	lines += write_syntax(province_rank.keys(), "Province Rank", "entity.name.imperator.province.rank")
+	lines += write_syntax(religion.keys(), "Religion", "entity.name.imperator.religion")
+	lines += write_syntax(subject_type.keys(), "Subject Type", "entity.name.imperator.subject.type")
+	lines += write_syntax(tech_table.keys(), "Technology Table", "entity.name.imperator.tech.table")
+	lines += write_syntax(terrain.keys(), "Terrain", "entity.name.imperator.terrain")
+	lines += write_syntax(trade_good.keys(), "Trade Good", "entity.name.imperator.trade.good")
+	lines += write_syntax(trait.keys(), "Trait", "entity.name.imperator.trait")
+	lines += write_syntax(unit.keys(), "Unit", "entity.name.imperator.unit")
+	lines += write_syntax(war_goal.keys(), "War Goal", "entity.name.imperator.war.goal")
+	lines += write_syntax(mission.keys(), "Mission", "entity.name.imperator.mission")
+	lines += write_syntax(mission_task.keys(), "Mission Task", "entity.name.imperator.mission.task")
+	lines += write_syntax(mission.keys(), "Mission", "entity.name.imperator.mission")
+	lines += write_syntax(area.keys(), "Area", "entity.name.imperator.area")
+	lines += write_syntax(region.keys(), "Region", "entity.name.imperator.region")
 
 	with open(real_syntax_path, "w", encoding="utf-8") as file:
 	    file.write(lines)
@@ -2239,7 +2267,7 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 	def quote_check(self):
 		# Check for mismatched quotes and shows an error message at the line of the error
 		lines = self.view_str.splitlines()
-
+		line_num = ""
 		total_quote_count = 0
 		potential_errors = []
 		for index, line in enumerate(lines, start=1):
@@ -2254,20 +2282,20 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 
 		# NOTE: If quotes on separate lines is actually allowed change the 'or' to an 'and'
 		try:
-			if total_quote_count % 2 == 1 or potential_errors[0] is not None:
+			if total_quote_count % 2 == 1 and potential_errors[0] is not None:
 				line_num = potential_errors[0]
 		except IndexError:
 			return
+		if line_num:
+			self.view.run_command("goto_line", {"line": line_num})
+			line_a = int(len(str(line_num)))
+			error_message = f"QuoteError: There is an extra quotation near line {line_num}"
 
-		self.view.run_command("goto_line", {"line": line_num})
-		line_a = int(len(str(line_num)))
-		error_message = f"QuoteError: There is an extra quotation near line {line_num}"
-
-		panel = self.create_error_panel()
-		panel.set_read_only(False)
-		panel.run_command("append", {"characters": error_message})
-		panel.add_regions("line_num", [sublime.Region(len(panel) - line_a, len(panel))], "region.redish", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE  ))
-		panel.set_read_only(True)
+			panel = self.create_error_panel()
+			panel.set_read_only(False)
+			panel.run_command("append", {"characters": error_message})
+			panel.add_regions("line_num", [sublime.Region(len(panel) - line_a, len(panel))], "region.redish", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE  ))
+			panel.set_read_only(True)
 
 	def create_error_panel(self):
 		window = sublime.active_window()
@@ -2495,7 +2523,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
 		if culture_group.contains(word):
 			cg = culture_group.access(word)
-			self.show_popup_default(view, point, word, culture_group.access(word), "Culture Group")		
+			self.show_popup_default(view, point, word, cg, "Culture Group")		
 			return	
 
 		if death_reason.contains(word):
@@ -2545,7 +2573,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		
 		if idea.contains(word):
 			ide = idea.access(word)
-			self.show_popup_default(view, point, word, idea.access(word), "Idea")
+			self.show_popup_default(view, point, word, ide, "Idea")
 			return
 
 		if invention.contains(word):
@@ -2595,7 +2623,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
 		if pop.contains(word):
 			po = pop.access(word)
-			self.show_popup_default(view, point, word, po.access(word), "Pop Type")
+			self.show_popup_default(view, point, word, po, "Pop Type")
 			return
 
 		if price.contains(word):
@@ -2688,6 +2716,16 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			self.show_popup_default(view, point, word, reg, "Region")
 			return
 
+		if scripted_list_triggers.contains(word):
+			lit = scripted_list_triggers.access(word)
+			self.show_popup_default(view, point, word, lit, "Scripted List")
+			return
+
+		if scripted_list_effects.contains(word):
+			lie = scripted_list_effects.access(word)
+			self.show_popup_default(view, point, word, lie, "Scripted List")
+			return
+
 	def show_popup_default(self, view, point, word, PdxObject, header):
 
 		word_line_num = view.rowcol(point)[0] + 1
@@ -2697,16 +2735,17 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
 		if header == "Saved Scope" or header == "Saved Variable":
 			for win in sublime.windows():
-				for i in [v for v in win.views() if v.file_name().endswith(".txt")]:
-					variables = [x for x in i.find_by_selector("entity.name.function.var.declaration") if i.substr(x) == PdxObject.key]
-					variables.extend([x for x in i.find_by_selector("entity.name.function.scope.declaration") if i.substr(x) == PdxObject.key])
-					for r in variables:
-						line = i.rowcol(r.a)[0] + 1
-						path = i.file_name()
-						if line == word_line_num and path == PdxObject.path:
-							continue
-						else:
-							definitions.append(PdxScriptObject(PdxObject.key, path, line))
+				for i in [v for v in win.views() if v and v.file_name()]:
+					if i.file_name().endswith(".txt"):
+						variables = [x for x in i.find_by_selector("entity.name.function.var.declaration") if i.substr(x) == PdxObject.key]
+						variables.extend([x for x in i.find_by_selector("entity.name.function.scope.declaration") if i.substr(x) == PdxObject.key])
+						for r in variables:
+							line = i.rowcol(r.a)[0] + 1
+							path = i.file_name()
+							if line == word_line_num and path == PdxObject.path:
+								continue
+							else:
+								definitions.append(PdxScriptObject(PdxObject.key, path, line))
 
 			if len(definitions) == 1:
 				definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
@@ -2733,27 +2772,28 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		references = []
 		ref = ""
 		for win in sublime.windows():
-			for i in [v for v in win.views() if v.file_name().endswith(".txt")]:
-				view_region = sublime.Region(0, i.size())
-				view_str = i.substr(view_region)
-				for j, line in enumerate(view_str.splitlines()):
-					definition_found = False
-					if PdxObject.key in line and "#" not in line:
-						filename = i.file_name().rpartition("\\")[2]
-						line_num = j+1
-						if definitions:
-							# Don't do definitions for scopes and variables
-							for obj in definitions:
-								if obj.line == line_num and obj.path == i.file_name():
-									definition_found = True
-						if word_line_num == line_num and word_file == filename:
-							# Don't do current word
-							continue
-						elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
-							# Don't do definition
-							continue
-						if not definition_found:
-							references.append(f"{i.file_name()}|{line_num}")
+			for i in [v for v in win.views() if v and v.file_name()]:
+				if i.file_name().endswith(".txt"):
+					view_region = sublime.Region(0, i.size())
+					view_str = i.substr(view_region)
+					for j, line in enumerate(view_str.splitlines()):
+						definition_found = False
+						if PdxObject.key in line and "#" not in line:
+							filename = i.file_name().rpartition("\\")[2]
+							line_num = j+1
+							if definitions:
+								# Don't do definitions for scopes and variables
+								for obj in definitions:
+									if obj.line == line_num and obj.path == i.file_name():
+										definition_found = True
+							if word_line_num == line_num and word_file == filename:
+								# Don't do current word
+								continue
+							elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
+								# Don't do definition
+								continue
+							if not definition_found:
+								references.append(f"{i.file_name()}|{line_num}")
 		if references:
 			ref = f"<p><b>References to&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
 			for i in references:
