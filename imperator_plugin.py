@@ -1472,7 +1472,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 					],
 					flags=sublime.INHIBIT_WORD_COMPLETIONS
 				)
-			if self.modifier_field or "common\\modifiers" in fname:
+			if self.modifier_field or re.search("common\\\s?(modifiers|traits|buildings|governor_policies)", fname):
 				return sublime.CompletionList(
 					[
 						sublime.CompletionItem(
