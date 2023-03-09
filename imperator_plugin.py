@@ -1456,8 +1456,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 							details=GameData.TriggersList[key].split("<br>")[0]
 						)
 						for key in sorted(GameData.TriggersList)
-					],
-					flags=sublime.INHIBIT_WORD_COMPLETIONS
+					]
 				)
 			if self.effect_field or "scripted_effects" in fname or "script_values" in fname:
 				return sublime.CompletionList(
@@ -1469,8 +1468,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 							details=GameData.EffectsList[key].split("<br>")[0]
 						)
 						for key in sorted(GameData.EffectsList)
-					],
-					flags=sublime.INHIBIT_WORD_COMPLETIONS
+					]
 				)
 			if self.modifier_field or re.search("common\\\s?(modifiers|traits|buildings|governor_policies)", fname):
 				return sublime.CompletionList(

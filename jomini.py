@@ -66,9 +66,9 @@ class PdxScriptObject:
 		if isinstance(other, PdxScriptObject):
 			return (self.key == other.key)
 		elif isinstance(other, str):
-			return self.key == other
+			return (self.key == other)
 		else:
-			raise AttributeError("Only PdxScriptObject or String types can be compared with a PdxScriptObject type.\n")
+			return False
 
 	def __lt__(self, other):
 		if isinstance(other, PdxScriptObject):
@@ -76,7 +76,7 @@ class PdxScriptObject:
 		elif isinstance(other, str):
 			return (self.key < other)
 		else:
-			raise AttributeError("Only PdxScriptObject or String types can be compared with a PdxScriptObject type.\n")
+			return False
 	    
 	def __gt__(self, other):
 	    if isinstance(other, PdxScriptObject):
@@ -84,7 +84,7 @@ class PdxScriptObject:
 	    elif isinstance(other, str):
 	    	return (self.key > other)
 	    else:
-	    	raise AttributeError("Only PdxScriptObject or String types can be compared with a PdxScriptObject type.\n")
+	    	return False
 
 class PdxScriptObjectType:
 	"""
