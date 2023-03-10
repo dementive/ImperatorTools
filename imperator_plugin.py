@@ -2614,6 +2614,11 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			self.show_popup_default(view, point, word, op, "Opinion")
 			return
 
+		if office.contains(word):
+			of = office.access(word)
+			self.show_popup_default(view, point, word, of, "Office")
+			return
+
 		if party.contains(word):
 			pa = party.access(word)
 			self.show_popup_default(view, point, word, pa, "Party")
