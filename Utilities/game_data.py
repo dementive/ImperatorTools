@@ -1,3 +1,30 @@
+import sublime
+
+country_event = """
+${1:NAMESPACE}.${2:NUM} = {
+    type = country_event
+    title = ${1:NAMESPACE}.${2:NUM}.t
+    desc = ${1:NAMESPACE}.${2:NUM}.desc
+    picture = aqueducts
+    
+    left_portrait = current_ruler
+
+    trigger = {
+    
+    }
+
+    immediate = {
+
+    }
+
+    option = {      
+        name = ${1:NAMESPACE}.${2:NUM}.a
+    }
+    option = {      
+        name = ${1:NAMESPACE}.${2:NUM}.b
+    }
+}
+"""
 
 class GameData:
 	""" Class to hold all data generated from the base game logs """
@@ -30,6 +57,136 @@ class GameData:
 			"military_experience": "Ex: military_experience = 50",
 			"war_exhaustion": "Ex: war_exhaustion = 10",
 		}
+		self.EventsList = [
+			sublime.CompletionItem(
+				trigger="country_event",
+				completion=country_event,
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_SNIPPET, "S", "Country Event"),
+				annotation="Event Template",
+				details="Create a basic country event"
+			),
+			sublime.CompletionItem(
+				trigger="type",
+				completion="type" + " = ${1:country_event}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Event Type",
+				details="Defines the root scope the event fires in"
+			),
+			sublime.CompletionItem(
+				trigger="title",
+				completion="title" + " = ${1:event_title}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Title",
+				details="The title to show in the event window"
+			),
+			sublime.CompletionItem(
+				trigger="desc",
+				completion="desc" + " = ${1:event_desc}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Description",
+				details="The description to show in the event window"
+			),
+			sublime.CompletionItem(
+				trigger="desc_extended",
+				completion="desc = {\n\t" + "first_valid = {\n\t\t" + "triggered_desc = {\n\t\t\ttrigger = { always = yes }\n\t\t\tdesc = \"desc_1\"\n\t\t}\n\t\ttriggered_desc = {\n\t\t\ttrigger = { treasury > 50 }\n\t\t\tdesc = \"desc_2\"\n\t\t}\n\t}\n}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Multiple Descriptions",
+				details="Show 1 description from many descriptions based on a trigger"
+			),
+			sublime.CompletionItem(
+				trigger="picture",
+				completion="picture" + " = ${1:aqueducts}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Picture",
+				details="Picture to show in the event window, keys from event_pictures"
+			),
+			sublime.CompletionItem(
+				trigger="hidden",
+				completion="hidden" + " = ${1:yes}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Hidden",
+				details="Hides an event from the player"
+			),
+			sublime.CompletionItem(
+				trigger="goto_location",
+				completion="goto_location" + " = ${1:capital_scope}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Goto Location",
+				details="Adds a button that pans to a location to an event"
+			),
+			sublime.CompletionItem(
+				trigger="left_portrait",
+				completion="left_portrait" + " = ${1:current_ruler}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Left Portrait",
+				details="Shows a character in an event on the left"
+			),
+			sublime.CompletionItem(
+				trigger="right_portrait",
+				completion="right_portrait" + " = ${1:current_ruler}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Right Portrait",
+				details="Shows a character in an event on the right"
+			),
+			sublime.CompletionItem(
+				trigger="fire_only_once",
+				completion="fire_only_once" + " = ${1:yes}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Fire Only Once",
+				details="Makes it so an event can only fire one time"
+			),
+			sublime.CompletionItem(
+				trigger="weight_multiplier",
+				completion="weight_multiplier" + " = {\n\t${1:}\n}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Weight",
+				details="Weight for a event to fire, uses MTTH syntax"
+			),
+			sublime.CompletionItem(
+				trigger="trigger",
+				completion="trigger" + " = {\n\t${1:}\n}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Trigger",
+				details="Trigger that is checked to see if event should be fired"
+			),
+			sublime.CompletionItem(
+				trigger="immediate",
+				completion="immediate" + " = {\n\t${1:}\n}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Immediate",
+				details="Effects to run as soon as the event fires, save scopes and set variables here."
+			),
+			sublime.CompletionItem(
+				trigger="option",
+				completion="option" + " = {\n\t${1:}\n}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="Option",
+				details="Option that the player can pick to resolve an event"
+			),
+			sublime.CompletionItem(
+				trigger="after",
+				completion="after" + " = {\n\t${1:}\n}",
+				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
+				annotation="After",
+				details="Effects to run after an option has been picked"
+			),
+		]
 		# Everything below this is generated, don't change without scripts
 		self.EffectsList = {
 			"add_state_food": "adds food to a State<br>Supported Scopes: state",

@@ -350,7 +350,7 @@ contexts:
           pop: true
 
   trigger-block-start:
-    - match: \b(finish_trigger|abort_trigger|ai_is_valid|is_valid|abort_when|can_character_belong|highlight|bypass|conditions|allow_on_setup|deification_trigger|natural_death_trigger|character_actor_trigger|character_target_trigger|province_actor_trigger|province_target_trigger|country_actor_trigger|country_target_trigger|potential_trigger|allowed_trigger|can_be_picked|finished_when|abort|interface_allow|allow|visible|cancellation_trigger|is_visible|enable|potential|trigger|limit|possible|happened|valid|is_shown)\b
+    - match: \b(filter|finish_trigger|abort_trigger|ai_is_valid|is_valid|abort_when|can_character_belong|highlight|bypass|conditions|allow_on_setup|deification_trigger|natural_death_trigger|character_actor_trigger|character_target_trigger|province_actor_trigger|province_target_trigger|country_actor_trigger|country_target_trigger|potential_trigger|allowed_trigger|can_be_picked|finished_when|abort|interface_allow|allow|visible|cancellation_trigger|is_visible|enable|potential|trigger|limit|possible|happened|valid|is_shown)\b
       scope: string.trigger.block.start
       push:
         - include: line_ending

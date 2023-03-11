@@ -1431,6 +1431,27 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS|sublime.INHIBIT_WORD_COMPLETIONS
 			)
 		else:
+			if "script_values" in fname:
+				e_list = []
+				for i in GameData.EffectsList:
+					e_list.append(sublime.CompletionItem(
+						trigger=i,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_FUNCTION, "E", "Effect"),
+						details=GameData.EffectsList[i].split("<br>")[0]
+						)
+					)
+				t_list = []
+				for i in GameData.TriggersList:
+					t_list.append(sublime.CompletionItem(
+						trigger=i,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_NAVIGATION, "T", "Trigger"),
+						details=GameData.TriggersList[i].split("<br>")[0]
+						)
+					)
+
+				return sublime.CompletionList(e_list + t_list)
 			if "common\\prices" in fname:
 				return sublime.CompletionList(
 					[
@@ -1458,7 +1479,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 						for key in sorted(GameData.TriggersList)
 					]
 				)
-			if self.effect_field or "scripted_effects" in fname or "script_values" in fname:
+			if self.effect_field or "scripted_effects" in fname:
 				return sublime.CompletionList(
 					[
 						sublime.CompletionItem(
@@ -1483,6 +1504,11 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 						for key in sorted(GameData.ModifersList)
 					],
 					flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS|sublime.INHIBIT_WORD_COMPLETIONS
+				)
+			if "\\events\\" in fname:
+				return sublime.CompletionList(
+					GameData.EventsList,
+					flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS|sublime.INHIBIT_WORD_COMPLETIONS|sublime.INHIBIT_REORDER
 				)
 			return None
 
