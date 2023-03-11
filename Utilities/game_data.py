@@ -148,7 +148,7 @@ class GameData:
 			),
 			sublime.CompletionItem(
 				trigger="weight_multiplier",
-				completion="weight_multiplier" + " = {\n\t${1:}\n}",
+				completion="weight_multiplier" + " = {\n\tmodifier = {\n\t\tfactor = 2\n\t\tnum_of_cities >= 20\n\t}\n\tmodifier = {\n\t\tfactor = 2\n\t\tnum_of_cities >= 30\n\t}\n}",
 				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
 				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
 				annotation="Weight",
@@ -172,7 +172,7 @@ class GameData:
 			),
 			sublime.CompletionItem(
 				trigger="option",
-				completion="option" + " = {\n\t${1:}\n}",
+				completion="option" + " = {\n\tname = ${1:option_name.a}\n}",
 				completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
 				kind=(sublime.KIND_ID_TYPE, "E", "Event Parameter"),
 				annotation="Option",
