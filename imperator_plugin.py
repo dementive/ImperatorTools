@@ -251,7 +251,7 @@ unit = war_goal = mission = mission_task = area = region = scripted_list_trigger
 
 
 # Function to fill all global game objects that get set in non-blocking async function on plugin_loaded
-# Setting all the objects can be slow and doing it on every hover (when they are actually used) is even slower, 
+# Setting all the objects can be slow and doing it on every hover (when they are actually used) is even slower,
 # so loading it all in on plugin init makes popups actually responsive
 
 def load_game_objects():
@@ -292,7 +292,7 @@ def load_game_objects():
 		pop = ImperatorPop()
 		scripted_list_triggers = ImperatorScriptedList()
 		scripted_list_effects = ImperatorScriptedList()
-		
+
 		tri_list = []
 		for obj in scripted_list_triggers.get_list():
 			tri_list.append(PdxScriptObject("any_" + obj.key, obj.path, obj.line))
@@ -334,7 +334,7 @@ def load_game_objects():
 		mission = ImperatorMission()
 		mission_task = ImperatorMissionTask()
 		area = ImperatorArea()
-		region = ImperatorRegion()		
+		region = ImperatorRegion()
 
 	thread1 = threading.Thread(target=load_first); thread2 = threading.Thread(target=load_second)
 	thread3 = threading.Thread(target=load_third); thread4 = threading.Thread(target=load_fourth)
@@ -362,7 +362,7 @@ def write_data_to_syntax():
 	fake_syntax_path = sublime.packages_path() + "\\ImperatorTools\\Imperator Script\\ImperatorSyntax.fake-sublime-syntax"
 	real_syntax_path = sublime.packages_path() + "\\ImperatorTools\\Imperator Script\\ImperatorSyntax.sublime-syntax"
 	with open(fake_syntax_path, "r") as file:
-	    lines = file.read()
+		lines = file.read()
 
 	# Append all game objects to auto-generated-content section
 	lines += write_syntax(scripted_trigger.keys(), "Scripted Triggers", "string.scripted.trigger")
@@ -415,8 +415,12 @@ def write_data_to_syntax():
 	lines += write_syntax(area.keys(), "Area", "entity.name.imperator.area")
 	lines += write_syntax(region.keys(), "Region", "entity.name.imperator.region")
 
-	with open(real_syntax_path, "w", encoding="utf-8") as file:
-	    file.write(lines)
+	with open(real_syntax_path, "r") as file:
+		real_lines = file.read()
+
+	if real_lines != lines:
+		with open(real_syntax_path, "w", encoding="utf-8") as file:
+			file.write(lines)
 
 def write_syntax(li, header, scope):
 	string = ""
@@ -469,8 +473,8 @@ css_basic_style = """
 		padding: 0.1rem;
 	}
 	.icon {
-	    text-decoration: none;
-	    font-size: 1em;
+		text-decoration: none;
+		font-size: 1em;
 	}
 	.variable {
 		font-size: 1.0rem;
@@ -577,9 +581,9 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 
 	def on_deactivated_async(self, view):
 		"""
-			Remove field states when view loses focus 
-			if cursor was in a field in the old view but not the new view the completions will still accurate
-			save the ide of the view so it can be readded when it regains focus
+			Remove field states when view loses focus
+			if cursor was in a field in the old view but not the new view the completions will still be accurate
+			save the id of the view so it can be readded when it regains focus
 		"""
 		vid = view.id()
 		if self.trigger_field:
@@ -845,7 +849,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 			self.regions_views.remove(vid)
 
 	def on_query_completions(self, view, prefix, locations):
-		
+
 		if not view:
 			return None
 
@@ -1701,7 +1705,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 		region_list = ["region", "owns_or_subject_owns_region", "owns_region", "is_in_region"]
 
 		# Ambition
-		for i in a_list: 
+		for i in a_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1711,7 +1715,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 					#if len([x for x in ai_strats.keys() if x in line]) == 0:
 					self.show_ambitions= True; view.run_command("auto_complete"); break
 		# Building
-		for i in b_list: 
+		for i in b_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1719,7 +1723,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.show_buildings= True; view.run_command("auto_complete"); break
 		# Culture
-		for i in c_list: 
+		for i in c_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1727,7 +1731,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.show_cultures= True; view.run_command("auto_complete"); break
 		# Death Reasons
-		for i in death_list: 
+		for i in death_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1735,7 +1739,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.death_reasons= True; view.run_command("auto_complete"); break
 		# Diplomatic Stances
-		for i in diplo_list: 
+		for i in diplo_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1743,7 +1747,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.diplo_stances= True; view.run_command("auto_complete"); break
 		# Economic Policies
-		for i in econ_list: 
+		for i in econ_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1751,7 +1755,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.economic_policies= True; view.run_command("auto_complete"); break
 		# Event Pictures
-		for i in event_pic_list: 
+		for i in event_pic_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1759,7 +1763,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.event_pics= True; view.run_command("auto_complete"); break
 		# Event Themes
-		for i in event_theme_list: 
+		for i in event_theme_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1767,7 +1771,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.event_themes= True; view.run_command("auto_complete"); break
 		# Governments
-		for i in gov_list: 
+		for i in gov_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1775,7 +1779,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.governements= True; view.run_command("auto_complete"); break
 		# Governor Policies
-		for i in gov_policy_list: 
+		for i in gov_policy_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1783,7 +1787,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.governor_policies= True; view.run_command("auto_complete"); break
 		# Heritages
-		for i in heritage_list: 
+		for i in heritage_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1791,7 +1795,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.heritages= True; view.run_command("auto_complete"); break
 		# Ideas
-		for i in idea_list: 
+		for i in idea_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1799,7 +1803,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.ideas= True; view.run_command("auto_complete"); break
 		# Inventions
-		for i in invention_list: 
+		for i in invention_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1807,7 +1811,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.inventions= True; view.run_command("auto_complete"); break
 		# Laws
-		for i in law_list: 
+		for i in law_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1815,7 +1819,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.laws= True; view.run_command("auto_complete"); break
 		# Legion Distinctions
-		for i in distinction_list: 
+		for i in distinction_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1823,7 +1827,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.distinctions= True; view.run_command("auto_complete"); break
 		# Loyalties
-		for i in loyalty_list: 
+		for i in loyalty_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1831,7 +1835,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.loyalties= True; view.run_command("auto_complete"); break
 		# Military Traditions
-		for i in tradition_list: 
+		for i in tradition_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1839,7 +1843,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.traditions= True; view.run_command("auto_complete"); break
 		# Missions
-		for i in mission_list: 
+		for i in mission_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1847,7 +1851,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.missions= True; view.run_command("auto_complete"); break
 		# Mission Tasks
-		for i in mission_task_list: 
+		for i in mission_task_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1855,7 +1859,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.mission_tasks= True; view.run_command("auto_complete"); break
 		# Modifiers
-		for i in modifiers_list: 
+		for i in modifiers_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1863,7 +1867,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.modifiers= True; view.run_command("auto_complete"); break
 		# Opinions
-		for i in opinion_list: 
+		for i in opinion_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1871,7 +1875,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.op_mods= True; view.run_command("auto_complete"); break
 		# Offices
-		for i in office_list: 
+		for i in office_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1879,7 +1883,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.offices= True; view.run_command("auto_complete"); break
 		# Parties
-		for i in party_list: 
+		for i in party_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1887,7 +1891,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.parties= True; view.run_command("auto_complete"); break
 		# Pop Types
-		for i in pop_list: 
+		for i in pop_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1895,7 +1899,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.pop_types= True; view.run_command("auto_complete"); break
 		# Prices
-		for i in price_list: 
+		for i in price_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1903,7 +1907,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.prices= True; view.run_command("auto_complete"); break
 		# Province Ranks
-		for i in prov_rank_list: 
+		for i in prov_rank_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1911,7 +1915,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.prov_ranks= True; view.run_command("auto_complete"); break
 		# Religions
-		for i in religion_list: 
+		for i in religion_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1919,7 +1923,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.religions= True; view.run_command("auto_complete"); break
 		# Subject Types
-		for i in subjects_list: 
+		for i in subjects_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1927,7 +1931,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.subjects= True; view.run_command("auto_complete"); break
 		# Tech Tables
-		for i in tech_table_list: 
+		for i in tech_table_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1935,7 +1939,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.tech_tables= True; view.run_command("auto_complete"); break
 		# Terrain
-		for i in terrain_list: 
+		for i in terrain_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1943,7 +1947,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.terrains= True; view.run_command("auto_complete"); break
 		# Trade Goods
-		for i in goods_list: 
+		for i in goods_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1951,7 +1955,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.goods= True; view.run_command("auto_complete"); break
 		# Traits
-		for i in traits_list: 
+		for i in traits_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -1959,7 +1963,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 				if idx == point or idx + y == point or idx + 1 == point:
 					self.traits= True; view.run_command("auto_complete"); break
 		# Units
-		for i in unit_list: 
+		for i in unit_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
 			if r:
 				y = 0; idx = line.index(i) + view.line(point).a + len(i) + 2
@@ -2016,7 +2020,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 			idx = line.index("region:") + view.line(point).a + len("region:")
 			if idx == point: self.regions = True; view.run_command("auto_complete")
 
-	
+
 	def check_for_complex_completions(self, view, point):
 		view_str = view.substr(sublime.Region(0, view.size()))
 
@@ -2106,92 +2110,92 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 # ----------------------------------
 
 class ImpMissionNameInputHandler(sublime_plugin.TextInputHandler):
-    def name(self):
-        return 'name'
+	def name(self):
+		return 'name'
 
-    def next_input(self, args):
-        if 'event_name' not in args:
-            return ImpEventNameInputHandler()
+	def next_input(self, args):
+		if 'event_name' not in args:
+			return ImpEventNameInputHandler()
 
-    def placeholder(self):
-        return "Mission Name"
+	def placeholder(self):
+		return "Mission Name"
 
 class ImpEventNameInputHandler(sublime_plugin.TextInputHandler):
-    def name(self):
-        return 'event_name'
+	def name(self):
+		return 'event_name'
 
-    def placeholder(self):
-        return "Event Name"
+	def placeholder(self):
+		return "Event Name"
 
 class ImpMissionCountInputHandler(sublime_plugin.TextInputHandler):
-    def name(self):
-        return 'mission_count'
+	def name(self):
+		return 'mission_count'
 
-    def placeholder(self):
-        return "Number of Missions"
+	def placeholder(self):
+		return "Number of Missions"
 
-    def validate(self, text):
-        try:
-            text = int(text)
-            return True
-        except ValueError:
-            sublime.set_timeout(lambda: sublime.status_message( 'Number of Missions must be an Integer!'), 0)
-            return False
+	def validate(self, text):
+		try:
+			text = int(text)
+			return True
+		except ValueError:
+			sublime.set_timeout(lambda: sublime.status_message( 'Number of Missions must be an Integer!'), 0)
+			return False
 
 class ImpMissionMakerCommand(sublime_plugin.TextCommand):
-    def run(self, edit, name, event_name, mission_count):
-        sublime.run_command('new_file')
-        window = sublime.active_window()
-        event_view = window.active_view()
-        event_view.set_name("Events")
-        text = "namespace = {}\n\n".format(event_name)
-        event_view.insert(edit, len(event_view), text)
-        for i in range(int(mission_count)):
-           i += 1
-           text = "{event_name}.{i} = {{\n    type = country_event\n\n    title = {event_name}_{i}_title\n    desc = {event_name}_{i}_desc\n    picture = great_library\n\n    option = {{\n        name = \"{event_name}_{i}.a\"\n        custom_tooltip = {event_name}_{i}_tooltip\n\n    }}\n}}\n".format(event_name=event_name,i=i)
-           event_view.insert(edit, len(event_view), text)
+	def run(self, edit, name, event_name, mission_count):
+		sublime.run_command('new_file')
+		window = sublime.active_window()
+		event_view = window.active_view()
+		event_view.set_name("Events")
+		text = "namespace = {}\n\n".format(event_name)
+		event_view.insert(edit, len(event_view), text)
+		for i in range(int(mission_count)):
+		   i += 1
+		   text = "{event_name}.{i} = {{\n    type = country_event\n\n    title = {event_name}_{i}_title\n    desc = {event_name}_{i}_desc\n    picture = great_library\n\n    option = {{\n        name = \"{event_name}_{i}.a\"\n        custom_tooltip = {event_name}_{i}_tooltip\n\n    }}\n}}\n".format(event_name=event_name,i=i)
+		   event_view.insert(edit, len(event_view), text)
 
-        window.run_command('new_file')
-        loc_view = window.active_view()
-        loc_view.set_name("Localization")
-        capital_input = name.replace("_", " ").title()
-        text = "l_english:\n\n{name}:0 \"{capital_input}\"\n{name}_DESCRIPTION:0 \"Mission description\"\n{name}_CRITERIA_DESCRIPTION:0 \"This mission will be completed when\"\n{name}_BUTTON_TOOLTIP:0 \"\"\n\n#Missions\n\n".format(name=name,capital_input=capital_input)
-        loc_view.insert(edit, len(loc_view), text)
-        for i in range(int(mission_count)):
-           i += 1
-           text = "{name}_task_{i}:0 \"\"\n{name}_DESC:0 \"\"\n\n".format(i=i, name=name)
-           loc_view.insert(edit, len(loc_view), text)
-        text = "\n#Tooltips\n\n\n"
-        loc_view.insert(edit, len(loc_view), text)
-        text = "\n#Modifiers\n\n\n"
-        loc_view.insert(edit, len(loc_view), text)
-        text = "\n#Events\n"
-        loc_view.insert(edit, len(loc_view), text)
-        for i in range(int(mission_count)):
-            i += 1
-            text = "{event_name}_{i}_title:0 \"${name}_task_{i}$\"\n{event_name}_{i}_desc:0 \"\"\n{event_name}_{i}.a:0 \"\"\n{event_name}_{i}_tooltip:0 \"The mission task '#Y ${name}_task_{i}$#!' has now been #G Completed#!!\"\n\n".format(name=name,i=i,event_name=event_name)
-            loc_view.insert(edit, len(loc_view), text)
+		window.run_command('new_file')
+		loc_view = window.active_view()
+		loc_view.set_name("Localization")
+		capital_input = name.replace("_", " ").title()
+		text = "l_english:\n\n{name}:0 \"{capital_input}\"\n{name}_DESCRIPTION:0 \"Mission description\"\n{name}_CRITERIA_DESCRIPTION:0 \"This mission will be completed when\"\n{name}_BUTTON_TOOLTIP:0 \"\"\n\n#Missions\n\n".format(name=name,capital_input=capital_input)
+		loc_view.insert(edit, len(loc_view), text)
+		for i in range(int(mission_count)):
+		   i += 1
+		   text = "{name}_task_{i}:0 \"\"\n{name}_DESC:0 \"\"\n\n".format(i=i, name=name)
+		   loc_view.insert(edit, len(loc_view), text)
+		text = "\n#Tooltips\n\n\n"
+		loc_view.insert(edit, len(loc_view), text)
+		text = "\n#Modifiers\n\n\n"
+		loc_view.insert(edit, len(loc_view), text)
+		text = "\n#Events\n"
+		loc_view.insert(edit, len(loc_view), text)
+		for i in range(int(mission_count)):
+			i += 1
+			text = "{event_name}_{i}_title:0 \"${name}_task_{i}$\"\n{event_name}_{i}_desc:0 \"\"\n{event_name}_{i}.a:0 \"\"\n{event_name}_{i}_tooltip:0 \"The mission task '#Y ${name}_task_{i}$#!' has now been #G Completed#!!\"\n\n".format(name=name,i=i,event_name=event_name)
+			loc_view.insert(edit, len(loc_view), text)
 
-        window.run_command('new_file')
-        mission_view = window.active_view()
-        mission_view.set_name("Mission Tree")
-        text = '{name} = {{\n    header = "mission_image_general"\n    icon = "general_1"\n\n    repeatable = no\n    chance = 1000\n\n    potential = {{\n        NOT = {{ has_variable = mission_cooldown_var }}\n    }}\n\n    abort = {{}}\n    on_start = {{\n        start_mission_ai_effect = yes\n    }}\n    on_abort = {{\n        custom_tooltip = general_mission_cooldown_tt\n        set_variable = {{\n            name = mission_cooldown_var\n            days = 7300\n        }}\n    }}\n    on_completion = {{}}'.format(name=name)
-        mission_view.insert(edit, len(mission_view), text)
-        for i in range(int(mission_count)):
-            i += 1
-            text = "\n    {name}_task_{i} = {{\n        icon = \"task_political\"\n        allow = {{}}\n        on_completion = {{\n            trigger_event = {event_name}.{i}\n            show_as_tooltip = {{\n\n            }}\n        }}\n    }}".format(name=name, i=i, event_name=event_name)
-            mission_view.insert(edit, len(mission_view), text)
+		window.run_command('new_file')
+		mission_view = window.active_view()
+		mission_view.set_name("Mission Tree")
+		text = '{name} = {{\n    header = "mission_image_general"\n    icon = "general_1"\n\n    repeatable = no\n    chance = 1000\n\n    potential = {{\n        NOT = {{ has_variable = mission_cooldown_var }}\n    }}\n\n    abort = {{}}\n    on_start = {{\n        start_mission_ai_effect = yes\n    }}\n    on_abort = {{\n        custom_tooltip = general_mission_cooldown_tt\n        set_variable = {{\n            name = mission_cooldown_var\n            days = 7300\n        }}\n    }}\n    on_completion = {{}}'.format(name=name)
+		mission_view.insert(edit, len(mission_view), text)
+		for i in range(int(mission_count)):
+			i += 1
+			text = "\n    {name}_task_{i} = {{\n        icon = \"task_political\"\n        allow = {{}}\n        on_completion = {{\n            trigger_event = {event_name}.{i}\n            show_as_tooltip = {{\n\n            }}\n        }}\n    }}".format(name=name, i=i, event_name=event_name)
+			mission_view.insert(edit, len(mission_view), text)
 
-    def input(self, args):
-        if 'name' not in args:
-            return ImpMissionNameInputHandler()
-        elif 'event_name' not in args:
-            return ImpEventNameInputHandler()
-        elif 'mission_count' not in args:
-            return ImpMissionCountInputHandler()
+	def input(self, args):
+		if 'name' not in args:
+			return ImpMissionNameInputHandler()
+		elif 'event_name' not in args:
+			return ImpEventNameInputHandler()
+		elif 'mission_count' not in args:
+			return ImpMissionCountInputHandler()
 
-    def input_description(self):
-        return "Mission Creator"
+	def input_description(self):
+		return "Mission Creator"
 
 class ImperatorWikiSearchCommand(sublime_plugin.WindowCommand):
 	def run(self):
@@ -2523,7 +2527,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			   self.show_popup_default(view, point, word, PdxScriptObject(word, fname, current_line_num), "Saved Scope")
 			else:
 				self.show_popup_default(view, point, word, PdxScriptObject(word, fname, current_line_num), "Saved Variable")
-				
+
 		if view.match_selector(point, "entity.name.function.var.declaration"):
 			self.show_popup_default(view, point, word, PdxScriptObject(word, fname, current_line_num), "Saved Variable")
 		if view.match_selector(point, "entity.name.function.scope.declaration"):
@@ -2547,8 +2551,8 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
 		if culture_group.contains(word):
 			cg = culture_group.access(word)
-			self.show_popup_default(view, point, word, cg, "Culture Group")		
-			return	
+			self.show_popup_default(view, point, word, cg, "Culture Group")
+			return
 
 		if death_reason.contains(word):
 			dea = death_reason.access(word)
@@ -2594,7 +2598,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			her = heritage.access(word)
 			self.show_popup_default(view, point, word, her, "Heritage")
 			return
-		
+
 		if idea.contains(word):
 			ide = idea.access(word)
 			self.show_popup_default(view, point, word, ide, "Idea")
@@ -2781,7 +2785,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			elif len(definitions) > 1:
 				definition = f"<p><b>Definitions of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
 			for obj in definitions:
-				goto_args = { "path": obj.path, "line": obj.line}
+				goto_args = {"path": obj.path, "line": obj.line}
 				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
 				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""%(goto_url, obj.path.rpartition("\\")[2], obj.line, obj.path.rpartition("\\")[2], obj.line)
 				goto_right_args = {"path": obj.path, "line": obj.line}
@@ -2790,14 +2794,14 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		else:
 			if word_line_num != PdxObject.line and view.file_name() != PdxObject.path:
 				definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
-				
-				goto_args = { "path": PdxObject.path, "line": PdxObject.line}
+
+				goto_args = {"path": PdxObject.path, "line": PdxObject.line}
 				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
 				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""%(goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line, PdxObject.path.rpartition("\\")[2], PdxObject.line)
 				goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
 				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
 				definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""%(goto_right_url)
-		
+
 		references = []
 		ref = ""
 		for win in sublime.windows():
@@ -2854,6 +2858,8 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		open_texture_url = sublime.command_url("open_imperator_texture ", args)
 		folder_args = { "path": full_texture_path, "folder": True}
 		open_folder_url = sublime.command_url("open_imperator_texture ", folder_args)
+		in_sublime_args = { "path": full_texture_path, "mode": "in_sublime"}
+		open_in_sublime_url = sublime.command_url("open_imperator_texture ", in_sublime_args)
 		hoverBody = """
 			<body id=\"vic-body\">
 				<style>%s</style>
@@ -2861,9 +2867,11 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				<div></div>
 				<a href="%s" title="Open folder containing the texture.">Open Folder</a>
 				<br>
-				<a href="%s" title="Convert to PNG and open or open cached png file.">Open %s.dds</a>
+				<a href="%s" title="Open %s.dds in the default program">Open in default program</a>
+				<br>
+				<a href="%s" title="Convert %s.dds to PNG and open in sublime">Open in sublime</a>
 			</body>
-		""" %(css_basic_style, open_folder_url, open_texture_url, texture_name)
+		""" %(css_basic_style, open_folder_url, open_texture_url, texture_name, open_in_sublime_url, texture_name)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY
 						|sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
@@ -2876,8 +2884,8 @@ class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
 			self.open_location(self.window, file_path)
 
 	def open_location(self, window, l):
-	    flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
-	    view = window.open_file(l, flags)
+		flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
+		view = window.open_file(l, flags)
 
 class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 	def run(self, path, line):
@@ -2886,27 +2894,27 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 			self.open_location(self.window, file_path, side_by_side=True, clear_to_right=True)
 
 	def open_location(self, window, l, side_by_side=False, replace=False, clear_to_right=False):
-	    flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
+		flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
 
-	    if side_by_side:
-	        flags |= sublime.ADD_TO_SELECTION | sublime.SEMI_TRANSIENT
-	        if clear_to_right:
-	            flags |= sublime.CLEAR_TO_RIGHT
+		if side_by_side:
+			flags |= sublime.ADD_TO_SELECTION | sublime.SEMI_TRANSIENT
+			if clear_to_right:
+				flags |= sublime.CLEAR_TO_RIGHT
 
-	    elif replace:
-	        flags |= sublime.REPLACE_MRU | sublime.SEMI_TRANSIENT
-	    view = window.open_file(l, flags)
+		elif replace:
+			flags |= sublime.REPLACE_MRU | sublime.SEMI_TRANSIENT
+		view = window.open_file(l, flags)
 
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
-	def run(self, path, folder=False):
+	def run(self, path, folder=False, mode="default_program"):
 		if folder:
 			end = path.rfind("\\")
 			path = path[0:end:]
 			os.startfile(path)
 		else:
-			if settings.get("OpenTextureMode") == "default_program":
+			if mode == "default_program":
 				os.startfile(path)
-			elif settings.get("OpenTextureMode") == "in_sublime":
+			elif mode == "in_sublime":
 				simple_path = path.rpartition("\\")[2].replace(".dds", ".png")
 				output_file = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\" + simple_path
 				exe_path = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\src\\ConvertDDS.exe"
@@ -2919,14 +2927,15 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
 					# File is already in cache, don't need to convert
 					sublime.active_window().open_file(output_file)
 
-class ImpReloadPluginCommand(sublime_plugin.WindowCommand):
-	def run(self):
-		plugin_loaded()
-
 class ImpClearImageCacheCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		dir_name = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\"
 		ld = os.listdir(dir_name)
 		for item in ld:
-		    if item.endswith(".png"):
-		        os.remove(os.path.join(dir_name, item))
+			if item.endswith(".png"):
+				os.remove(os.path.join(dir_name, item))
+		sublime.status_message("Cleared Image Cache")
+
+class ImpReloadPluginCommand(sublime_plugin.WindowCommand):
+	def run(self):
+		plugin_loaded()

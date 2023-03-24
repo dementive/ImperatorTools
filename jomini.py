@@ -14,7 +14,7 @@ import os
 		def __init__(self):
 			super().__init__(file_paths, level=1, ignored_files=["test.txt"])
 			self.get_data("common\\building")
-	
+
 	buildings = V3Building(file_paths)
 	buildings.print()
 
@@ -43,9 +43,10 @@ import os
 		2. Fill self.main with data in another way, all that should have to be changed is the should_read(line) part
 		3. If more information than key, path, and line number are needed:
 		4. implement a new PdxScriptObject class that has more attributes but keeps the same methods as PdxScriptObject
-		5. Make sure self.main is filled with the new attributes when parsing 
+		5. Make sure self.main is filled with the new attributes when parsing
 		6. Change PdxScriptObject() to your new class name in get_pdx_object_list()
 """
+
 
 class PdxScriptObject:
 	"""
@@ -55,6 +56,7 @@ class PdxScriptObject:
 		2. The path to the file the key is found in
 		3. The line number the key is found at
 	"""
+
 	def __init__(self, key, path, line):
 		self.key = key
 		self.path = path
@@ -77,19 +79,21 @@ class PdxScriptObject:
 			return (self.key < other)
 		else:
 			return False
-	    
+
 	def __gt__(self, other):
-	    if isinstance(other, PdxScriptObject):
-	    	return (self.key > other.key)
-	    elif isinstance(other, str):
-	    	return (self.key > other)
-	    else:
-	    	return False
+		if isinstance(other, PdxScriptObject):
+			return (self.key > other.key)
+		elif isinstance(other, str):
+			return (self.key > other)
+		else:
+			return False
+
 
 class PdxScriptObjectType:
 	"""
 		Class to hold a list of PdxScriptObject types (or similar types)
 	"""
+
 	def __init__(self, obj_list):
 		self.objects = obj_list
 
@@ -108,29 +112,32 @@ class PdxScriptObjectType:
 				self.objects.append(j)
 		return self
 
+
 class GameObjectBase:
 	"""
 		Base Class that all GameObject classes should inherit
 		paths is a list of paths to base game and mods, the last element in paths should be the basegame path
 	"""
+
 	def __init__(self, paths: list(), level=0, ignored_files=[], included_files=[]):
 		self.paths = paths
 		self.vanilla_path = paths[-1]
 		self.logged_vanilla = False
 		self.main = PdxScriptObjectType([PdxScriptObject("", "", 0)])
-		self.level = level # How many tabs in should the file be parsed?
+		self.level = level  # How many tabs in should the file be parsed?
 		self.ignored_files = ignored_files
 		self.included_files = included_files
 		# Keys that should not be added to objects when parsing
 		self.exclusion_keys = {
 			"#", "@", "modifier", "character_modifier", "if", "else", "elseif", "else_if", "\n", "can_have",
 			"can_keep", "can_pass", "on_pass", "on_revoke", "should_start_with", "graphical_cultures", "pass_cost",
-		    "desc", "compatibility", "name", "opposites", "triggered_opinion", "icon", "random_list","limit", "random", 
-		    "potential", "abort", "chance", "on_potential", "on_start", "on_abort", "on_completion", "requires", "highlight",
-		    "allow", "bypass", "ai_chance", "trigger", "family", "male_names", "female_names", "stability", "raise_legion",
-		    "alternative_limit", "hidden_effect", "OR", "or", "prevented_by", "trigger_event", "current_ruler", "value"
+			"desc", "compatibility", "name", "opposites", "triggered_opinion", "icon", "random_list", "limit", "random",
+			"potential", "abort", "chance", "on_potential", "on_start", "on_abort", "on_completion", "requires", "highlight",
+			"allow", "bypass", "ai_chance", "trigger", "family", "male_names", "female_names", "stability", "raise_legion",
+			"alternative_limit", "hidden_effect", "OR", "or", "prevented_by", "trigger_event", "current_ruler", "value", "bg"
 		}
 	# Utility Functions shared between all GameObjects
+
 	def length(self) -> int:
 		""" Return the length of the object list """
 		return len(self.main.objects)
@@ -185,7 +192,7 @@ class GameObjectBase:
 
 	def add(self, obj):
 		""" Add a new PdxScriptObject to the object list """
-		self.main += PdxScriptObjectType([obj]) # Make a new PdxScriptObjectType so conflicts with the new object are resolved when inserted
+		self.main += PdxScriptObjectType([obj])  # Make a new PdxScriptObjectType so conflicts with the new object are resolved when inserted
 
 	# Class Functions needed to initialize data, don't need to be use anything below this after initilization of class #
 
@@ -210,16 +217,18 @@ class GameObjectBase:
 				vanilla_files.add(i.path.rpartition("\\")[2])
 			else:
 				mod_files.add(i.path.rpartition("\\")[2])
-		
+
 		conflicting_files = [x for x in vanilla_files if x in mod_files]
 		to_remove = []
 		for i in self.main.objects:
-			if i.key == "": to_remove.append(i)
+			if i.key == "":
+				to_remove.append(i)
 			if self.vanilla_path in i.path:
 				if i.path.rpartition("\\")[2] in conflicting_files:
 					to_remove.append(i)
 
-		for i in to_remove: self.main.objects.remove(i)
+		for i in to_remove:
+			self.main.objects.remove(i)
 
 	def fill_object(self, filenames: list(), dirpath: str) -> None:
 		# Do 2 passes of this function:
@@ -235,21 +244,23 @@ class GameObjectBase:
 	# Override this function for custom parsing of GameObjects
 	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
 		"""
-			Return a PdxScriptObjectType
-			path = path to directory with GameObjects in it
+				Return a PdxScriptObjectType
+				path = path to directory with GameObjects in it
 		"""
 		obj_list = list()
 		for dirpath, dirnames, filenames in os.walk(path):
 			for filename in [f for f in filenames if f.endswith(".txt")]:
-				if filename in self.ignored_files: continue
+				if filename in self.ignored_files:
+					continue
 				file_path = os.path.join(dirpath, filename)
 				if self.included_files:
-					if filename not in self.included_files: continue
+					if filename not in self.included_files:
+						continue
 				with open(file_path, "r", encoding='utf-8-sig') as file:
 					for i, line in enumerate(file):
 						if self.should_read(line):
 							found_item = line.split("=").pop(0).replace(" ", "").replace("\t", "")
-							obj_list.append(PdxScriptObject(found_item, file_path, i+1))
+							obj_list.append(PdxScriptObject(found_item, file_path, i + 1))
 		return PdxScriptObjectType(obj_list)
 
 	def should_read(self, x: str) -> bool:
@@ -258,7 +269,7 @@ class GameObjectBase:
 		z = y.split("=")[0]
 		r = False
 		# The long set is exclusion keys to not read when looking for top level keys
-		if ("= {" in y and z.count("\t")+z.count("    ") == self.level and not z.strip() in self.exclusion_keys):
+		if ("= {" in y and z.count("\t") + z.count("    ") == self.level and not z.strip() in self.exclusion_keys):
 			r = True
 		w = y.find("=")
 		if w != -1 and self.level == 0:
@@ -267,4 +278,3 @@ class GameObjectBase:
 				r = True
 
 		return r
-		
