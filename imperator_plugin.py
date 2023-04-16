@@ -1,5 +1,5 @@
 import sublime, sublime_plugin
-import os, re, time, webbrowser, threading, subprocess
+import os, re, time, webbrowser, threading
 from collections import deque
 from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 from .Utilities.game_data import GameData
@@ -294,13 +294,13 @@ def load_game_objects():
 		scripted_list_effects = ImperatorScriptedList()
 
 		tri_list = []
-		for obj in scripted_list_triggers.get_list():
+		for obj in scripted_list_triggers:
 			tri_list.append(PdxScriptObject("any_" + obj.key, obj.path, obj.line))
 		scripted_list_triggers.clear()
 		for i in tri_list:
 			scripted_list_triggers.add(i)
 		ef_list = []
-		for obj in scripted_list_effects.get_list():
+		for obj in scripted_list_effects:
 			ef_list.append(PdxScriptObject(f"random_{obj.key}", obj.path, obj.line))
 			ef_list.append(PdxScriptObject(f"every_{obj.key}", obj.path, obj.line))
 			ef_list.append(PdxScriptObject(f"ordered_{obj.key}", obj.path, obj.line))
@@ -357,6 +357,19 @@ def plugin_loaded():
 	out_file_paths.append(imperator_files_path)
 	file_paths = out_file_paths
 	sublime.set_timeout_async(lambda: load_game_objects(), 0)
+	add_color_scheme_scopes()
+
+def add_color_scheme_scopes():
+	# Add scopes for yml text formatting to color scheme
+	DEFAULT_CS = "Packages/Color Scheme - Default/Monokai.sublime-color-scheme"
+	prefs = sublime.load_settings("Preferences.sublime-settings")
+	cs = prefs.get("color_scheme", DEFAULT_CS)
+	scheme_cache_path = os.path.join(sublime.packages_path(), "User", "PdxTools", cs).replace("tmTheme", "sublime-color-scheme")
+	if not os.path.exists(scheme_cache_path):
+		os.makedirs(os.path.dirname(scheme_cache_path), exist_ok=True)
+		rules = """{"variables": {}, "globals": {},"rules": [{"scope": "text.format.white.yml","foreground": "rgb(250, 250, 250)",},{"scope": "text.format.grey.yml","foreground": "rgb(173, 165, 160)",},{"scope": "text.format.red.yml","foreground": "rgb(210, 40, 40)",},{"scope": "text.format.green.yml","foreground": "rgb(40, 210, 40)",},{"scope": "text.format.yellow.yml","foreground": "rgb(255, 255, 0)",},{"scope": "text.format.blue.yml","foreground": "rgb(51, 214, 255)",},{"scope": "text.format.gold.yml","foreground": "#ffb027",},{"scope": "text.format.bold.yml","font_style": "bold"},{"scope": "text.format.italic.yml","font_style": "italic"}]}"""
+		with open(scheme_cache_path, "w") as f:
+			f.write(rules)
 
 def write_data_to_syntax():
 	fake_syntax_path = sublime.packages_path() + "\\ImperatorTools\\Imperator Script\\ImperatorSyntax.fake-sublime-syntax"
@@ -2921,7 +2934,8 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
 
 				if not os.path.exists(output_file):
 					# Run dds to png converter
-					subprocess.call([exe_path, path, output_file])
+					self.window.run_command("exec", {"cmd": [exe_path, path, output_file], "quiet": True})
+					self.window.destroy_output_panel("exec")
 					sublime.active_window().open_file(output_file)
 				else:
 					# File is already in cache, don't need to convert

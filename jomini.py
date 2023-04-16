@@ -1,4 +1,5 @@
 import os
+from json import dumps
 
 """
 	All of this code is not game specific, any Jomini based paradox game can use this to parse game files and create GameObjects.
@@ -18,6 +19,8 @@ import os
 	buildings = V3Building(file_paths)
 	buildings.print()
 
+	Note that creating game objects is IO bound so using threading to create several objects will greatly increase the speed
+
 	GameObjects (V3Building for example) are basically PdxScriptObjectTypes, and PdxScriptObjectTypes are basically a list of PdxScriptObjects
 	PdxScriptObjects are everything that needs to be known about a game object
 
@@ -28,15 +31,16 @@ import os
 
 	When inheriting from GameObjectBase the following methods are available:
 		• length() - Return the length of the list of PdxScriptObjects -> int
-		• print() - Print a breakdown of all the PdxScriptObjects, showing the key, path and line number -> void
+		• print() - Print a breakdown of all the PdxScriptObjects, showing the key, path and line number -> None
 		• contains(key) - Check if a PdxScriptObjectType contains a specific string or PdxScriptObject -> bool
 		• keys() - Return a list of keys of all the PdxScriptObjects -> list[str]
 		• access(key) - Return a PdxScriptObject given a string or a PdxScriptObject, returns False if not found -> PdxScriptObject
-		• sort() - Sort the list of PdxScriptObjects by their key -> void
-		• get_list() - Returns a list of PdxScriptObjects for the GameObject -> list[PdxScriptObject]
-		• remove() - Remove a PdxScriptObject or string -> void
-		• clear() - Remove all PdxScriptObjects from the list  -> void
-		• add() - Add a new PdxScriptObject to the object
+		• sort() - Sort the list of PdxScriptObjects by their key -> None
+		• remove() - Remove a PdxScriptObject or string -> None
+		• clear() - Remove all PdxScriptObjects from the list  -> None
+		• add() - Add a new PdxScriptObject to the object -> None
+		• to_dict() - Return a dictionary of PdxScriptObjects -> dict
+		• to_json() - Return a json formatted string of PdxScriptObjects -> str
 
 	To implement custom parsing for a GameObject:
 		1. override the get_pdx_object_list() function
@@ -116,17 +120,19 @@ class PdxScriptObjectType:
 class GameObjectBase:
 	"""
 		Base Class that all GameObject classes should inherit
-		paths is a list of paths to base game and mods, the last element in paths should be the basegame path
+		paths is a list of paths mod directories, load order of mods will depend on their order in the paths list
+		vanilla_path is the path to the vanilla game folder.
 	"""
 
-	def __init__(self, paths: list(), level=0, ignored_files=[], included_files=[]):
+	def __init__(self, paths=[], vanilla_path="", level=0, ignored_files=[], included_files=[]):
 		self.paths = paths
-		self.vanilla_path = paths[-1]
-		self.logged_vanilla = False
-		self.main = PdxScriptObjectType([PdxScriptObject("", "", 0)])
+		self.vanilla_path = vanilla_path
+		self.main = PdxScriptObjectType([PdxScriptObject(" ", "", 0)])
 		self.level = level  # How many tabs in should the file be parsed?
 		self.ignored_files = ignored_files
 		self.included_files = included_files
+		self.start = 0
+		self.end = 0
 		# Keys that should not be added to objects when parsing
 		self.exclusion_keys = {
 			"#", "@", "modifier", "character_modifier", "if", "else", "elseif", "else_if", "\n", "can_have",
@@ -136,22 +142,40 @@ class GameObjectBase:
 			"allow", "bypass", "ai_chance", "trigger", "family", "male_names", "female_names", "stability", "raise_legion",
 			"alternative_limit", "hidden_effect", "OR", "or", "prevented_by", "trigger_event", "current_ruler", "value", "bg"
 		}
-	# Utility Functions shared between all GameObjects
 
-	def length(self) -> int:
-		""" Return the length of the object list """
-		return len(self.main.objects)
+	# Utility Functions shared between all GameObjects
 
 	def print(self) -> None:
 		""" Print a breakdown of all the PdxScriptObjects in the PdxScriptObjectType """
 		for i in self.main.objects:
 			print(f"Key: {i.key} -- File: {i.path} -- Line: {i.line}")
 
+	def add(self, obj) -> None:
+		"""
+			Add a new PdxScriptObject to the object list
+			Make a new PdxScriptObjectType so potential conflicts with the new object are resolved when inserted
+		"""
+		self.main += PdxScriptObjectType([obj])
+
+	def remove(self, key) -> None:
+		""" Remove the specified PdxScriptObject or string"""
+		if key in self.main.objects:
+			self.main.objects.remove(key)
+
+	def clear(self) -> None:
+		""" Clear all objects from the list """
+		for key in self.keys():
+			self.main.objects.remove(key)
+
 	def sort(self) -> None:
 		"""
 			Sort PdxScriptObjects by key
 		"""
 		self.main.objects = sorted(self.main.objects)
+
+	def length(self) -> int:
+		""" Return the length of the object list """
+		return len(self.main.objects)
 
 	def contains(self, key) -> bool:
 		""" Check if the PdxScriptObjectType contains a specified PdxScriptObject or a string"""
@@ -174,39 +198,47 @@ class GameObjectBase:
 		else:
 			return False
 
-	def get_list(self) -> PdxScriptObjectType:
+	def to_dict(self) -> dict:
 		"""
-			Return the list of PdxScriptObjects that self.main holds
+			Return a dictionary with the keys being the keys of the PdxScriptObject and the value being a list of the file and line
 		"""
-		return self.main.objects
+		d = dict()
+		for i in self.main.objects:
+			d[i.key] = [i.path, i.line]
+		return d
 
-	def remove(self, key) -> None:
-		""" Remove the specified PdxScriptObject or string"""
-		if key in self.main.objects:
-			self.main.objects.remove(key)
+	def to_json(self) -> str:
+		"""
+			Return a json formatted string of PdxScriptObjects
+		"""
+		return dumps(self.to_dict())
 
-	def clear(self) -> None:
-		""" Clear all objects from the list """
-		for key in self.keys():
-			self.main.objects.remove(key)
+	# Iterator methods so objects can be used in for loops
+	def __iter__(self):
+		return self
 
-	def add(self, obj):
-		""" Add a new PdxScriptObject to the object list """
-		self.main += PdxScriptObjectType([obj])  # Make a new PdxScriptObjectType so conflicts with the new object are resolved when inserted
+	def __next__(self):
+		if self.start >= self.end:
+			# Reset and stop iteration so it can be looped over again like a normal list
+			self.start = 0
+			self.end = self.length() - 1
+			raise StopIteration
+		current = self.main.objects[self.start]
+		self.start += 1
+		return current
 
-	# Class Functions needed to initialize data, don't need to be use anything below this after initilization of class #
-
+	# Class Functions needed to initialize data, don't need to be use anything below this after initilization of class
 	def get_data(self, objpath: str) -> None:
 		# Fill collections with vanilla data
 		for dirpath, dirnames, filenames in os.walk(self.vanilla_path):
 			if objpath in dirpath:
-				self.fill_object(filenames, dirpath)
-
+				self.main += self.get_pdx_object_list(dirpath)
+		self.remove(" ")
 		# Fill collections with mod data
-		for path in [x for x in self.paths if x is not self.vanilla_path]:
+		for path in self.paths:
 			for dirpath, dirnames, filenames in os.walk(path):
 				if objpath in dirpath:
-					self.fill_object(filenames, dirpath)
+					self.main += self.get_pdx_object_list(dirpath)
 
 		# Remove vanilla objects when mod file overrides vanilla file but the mod file doens't include that object
 		vanilla_files = set()
@@ -218,63 +250,63 @@ class GameObjectBase:
 			else:
 				mod_files.add(i.path.rpartition("\\")[2])
 
-		conflicting_files = [x for x in vanilla_files if x in mod_files]
-		to_remove = []
-		for i in self.main.objects:
-			if i.key == "":
-				to_remove.append(i)
-			if self.vanilla_path in i.path:
-				if i.path.rpartition("\\")[2] in conflicting_files:
-					to_remove.append(i)
+		conflicting_files = (x for x in vanilla_files if x in mod_files)
+		if sum(1 for _ in conflicting_files) > 0:
+			to_remove = (x for x in self.main.objects if x.key == "" or (self.vanilla_path in i.path and i.path.rpartition("\\")[2] in conflicting_files))
+			for i in to_remove:
+				self.main.objects.remove(i)
 
-		for i in to_remove:
-			self.main.objects.remove(i)
-
-	def fill_object(self, filenames: list(), dirpath: str) -> None:
-		# Do 2 passes of this function:
-		# on the first pass create a new PdxScriptObjectType and fill it with base game data for that GameObject
-		# on the second pass, add mod data to the base game data and resolve conflicts, += resolves conflicts
-
-		if self.logged_vanilla:
-			self.main += self.get_pdx_object_list(dirpath)
-		else:
-			self.main = self.get_pdx_object_list(dirpath)
-			self.logged_vanilla = True
+		# Set Iterator position
+		self.end = self.length() - 1
 
 	# Override this function for custom parsing of GameObjects
 	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
 		"""
-				Return a PdxScriptObjectType
-				path = path to directory with GameObjects in it
+			Return a PdxScriptObjectType
+			path = path to directory with GameObjects in it
 		"""
 		obj_list = list()
 		for dirpath, dirnames, filenames in os.walk(path):
 			for filename in [f for f in filenames if f.endswith(".txt")]:
 				if filename in self.ignored_files:
 					continue
+				if self.included_files and filename not in self.included_files:
+					continue
 				file_path = os.path.join(dirpath, filename)
-				if self.included_files:
-					if filename not in self.included_files:
-						continue
 				with open(file_path, "r", encoding='utf-8-sig') as file:
 					for i, line in enumerate(file):
 						if self.should_read(line):
 							found_item = line.split("=").pop(0).replace(" ", "").replace("\t", "")
-							obj_list.append(PdxScriptObject(found_item, file_path, i + 1))
+							if found_item:
+								obj_list.append(PdxScriptObject(found_item, file_path, i + 1))
 		return PdxScriptObjectType(obj_list)
 
 	def should_read(self, x: str) -> bool:
 		# Check if a line should be read
 		y = x.split("#")[0]
 		z = y.split("=")[0]
-		r = False
 		# The long set is exclusion keys to not read when looking for top level keys
-		if ("= {" in y and z.count("\t") + z.count("    ") == self.level and not z.strip() in self.exclusion_keys):
-			r = True
+		if "= {" in y and z.count("\t") + z.count("    ") == self.level and not z.strip() in self.exclusion_keys:
+			return True
 		w = y.find("=")
 		if w != -1 and self.level == 0:
 			w = y[0:w].rstrip()
 			if "\t" not in w and " " not in w:
-				r = True
+				return True
 
-		return r
+		return False
+
+
+def dict_to_game_object(objects: dict) -> GameObjectBase:
+	"""
+		Create a GameObject from a dictionary that was created from a GameObjects to_dict or to_json method
+		Making game objects like this can be considerably faster 
+		because it allows you to skip all the file IO and just load from a cache of stored game objects
+	"""
+	obj_list = list()
+	for i in objects:
+		value = objects[i]
+		obj_list.append(PdxScriptObject(i, value[0], value[1]))
+	game_object = GameObjectBase()
+	game_object.main = PdxScriptObjectType(obj_list)
+	return game_object

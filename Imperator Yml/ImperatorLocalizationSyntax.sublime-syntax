@@ -1,0 +1,211 @@
+%YAML 1.2
+---
+name: Imperator Localization
+file_extensions: [yml]
+scope: imperator.yml
+
+variables:
+  localization_key: '([A-Za-z_0-9\.][A-Za-z_0-9\.]*)'
+  valid_variable: '[A-Za-z_][A-Za-z_0-9]*'
+  languages: '(english|french|german|spanish|simp_chinese|russian)'
+
+contexts:
+  main:
+    - include: comments
+    - include: file-header
+    - include: key-version
+    - include: description-zone
+
+  comments:
+    - match: (#).*$\n?
+      scope: comment
+
+  file-header:
+    - match: 'l_({{languages}})'
+      scope: entity.name
+      push:
+        - match: ':'
+          scope: keyword.operator
+          pop: true
+
+  key-version:
+    - match: ':'
+      scope: keyword.operator
+      push:
+        - include: line_ending_space
+        - match: \d+
+          scope: constant.numeric
+          pop: 2
+
+  description-zone:
+    - match: '"'
+      scope: string
+      push:
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - include: symbols
+        - meta_content_scope: string
+        - match: '\n'
+          scope: string
+          pop: true
+
+  symbols:
+    - match: '\\n'
+      scope: constant.numeric.control
+
+  dollar-zone:
+    - match: \$
+      scope: keyword.operator
+      push:
+        - include: line_ending
+        - meta_content_scope: variable.language
+        - match: \$
+          scope: keyword.operator
+          pop: true
+
+  function-zone:
+    - match: \[
+      scope: keyword.operator
+      push:
+        - clear_scopes: true
+        - meta_content_scope: empty.scope
+        - include: line_ending
+        - match: \]
+          scope: keyword.operator
+          pop: true
+
+  loc-key-call:
+    - match: \@
+      scope: keyword.operator
+      push:
+        - include: line_ending
+        - meta_content_scope: variable.language
+        - match: \!
+          scope: keyword.operator
+          pop: true
+
+  text-formatting-white:
+    - match: (#)(?i)(white|W)(?-i)\s
+      scope: text.format.white.yml
+      push:
+        - meta_content_scope: text.format.white.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.white.yml
+          pop: true
+
+  text-formatting-grey:
+    - match: (#)(?i)(zero_value_gray|ZG|weak|flavor|tooltip_flavor|F|TF)(?-i)\s
+      scope: text.format.grey.yml
+      push:
+        - meta_content_scope: text.format.grey.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.grey.yml
+          pop: true
+
+  text-formatting-red:
+    - match: (#)(?i)(R|warning|X|negative_value|N|Z)(?-i)\s
+      scope: text.format.red.yml
+      push:
+        - meta_content_scope: text.format.red.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.red.yml
+          pop: true
+
+  text-formatting-green:
+    - match: (#)(?i)(G|instruction|I)(?-i)\s
+      scope: text.format.green.yml
+      push:
+        - meta_content_scope: text.format.green.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.green.yml
+          pop: true
+
+  text-formatting-blue:
+    - match: (#)(?i)(Y|value|soft_value|V|highlight_UI|Q|H|positive_value|zero_value|P)(?-i)\s
+      scope: text.format.blue.yml
+      push:
+        - meta_content_scope: text.format.blue.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.blue.yml
+          pop: true
+
+  text-formatting-gold:
+    - match: (#)(?i)(tooltip_label|T)(?-i)\s
+      scope: text.format.gold.yml
+      push:
+        - meta_content_scope: text.format.gold.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.gold.yml
+          pop: true
+
+  text-formatting-bold:
+    - match: (#)(?i)(link_color|game_link|L|explanation_link|E)(?-i)\s
+      scope: text.format.bold.yml
+      push:
+        - meta_content_scope: text.format.bold.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.bold.yml
+          pop: true
+
+  text-formatting-italic:
+    - match: (#)(?i)(emphasis|EMP)(?-i)\s
+      scope: text.format.italic.yml
+      push:
+        - meta_content_scope: text.format.italic.yml
+        - include: dollar-zone
+        - include: function-zone
+        - include: loc-key-call
+        - include: text-formatting
+        - match: (#\!)
+          scope: text.format.italic.yml
+          pop: true
+
+  text-formatting:
+    - include: line_ending
+    - include: text-formatting-white
+    - include: text-formatting-grey
+    - include: text-formatting-red
+    - include: text-formatting-green
+    - include: text-formatting-yellow
+    - include: text-formatting-blue
+    - include: text-formatting-gold
+    - include: text-formatting-bold
+    - include: text-formatting-italic
+
+  line_ending:
+    - match: $\n
+      pop: 3
+
+  line_ending_space:
+    - match: $\n|\s
+      pop: 3
