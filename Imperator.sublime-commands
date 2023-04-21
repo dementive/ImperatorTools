@@ -41,4 +41,11 @@
 
 		},
 	},
+	{
+		"caption": "Imperator: Toggle All Textures",
+		"command": "imperator_toggle_all_textures",
+		"args": {
+
+		},
+	},
 ]

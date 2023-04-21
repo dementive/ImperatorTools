@@ -305,8 +305,7 @@ def dict_to_game_object(objects: dict) -> GameObjectBase:
 	"""
 	obj_list = list()
 	for i in objects:
-		value = objects[i]
-		obj_list.append(PdxScriptObject(i, value[0], value[1]))
+		obj_list.append(PdxScriptObject(i, objects[i][0], objects[i][1]))
 	game_object = GameObjectBase()
 	game_object.main = PdxScriptObjectType(obj_list)
 	return game_object

@@ -42,4 +42,6 @@
 	// Will open the file in it's default program
 	"TextureOpenPopup": true,
 
+	// Max number of images that can be cached
+	"MaxImageCacheSize": 99999, 
 }

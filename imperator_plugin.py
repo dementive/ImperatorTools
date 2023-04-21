@@ -1,8 +1,13 @@
 import sublime, sublime_plugin
 import os, re, time, webbrowser, threading
+import struct
+import Default.exec
 from collections import deque
 from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
+from .jomini import dict_to_game_object as make_object
 from .Utilities.game_data import GameData
+from .object_cache import GameObjectCache
+from .mod_cache import remake_cache
 
 # ----------------------------------
 # -          Plugin Setup          -
@@ -12,230 +17,226 @@ imperator_files_path = None
 imperator_mod_files = None
 
 
-# Setup Paths for Objects, get set on plugin_loaded
-# This is the unified paths with all mod paths + base game path at the end
-file_paths = []
-
 # Imperator Rome Game Object Class implementations
 
 class ImperatorAmbition(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\ambitions")
 
 class ImperatorBuilding(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\buildings")
 
 class ImperatorCultureGroup(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\cultures")
 
 class ImperatorCulture(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths,level=2)
+		super().__init__(imperator_mod_files, imperator_files_path,level=2)
 		self.get_data("common\\cultures")
 
 class ImperatorDeathReason(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\deathreasons")
 
 class ImperatorDeity(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\deities")
 
 class ImperatorDiplomaticStance(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\diplomatic_stances")
 
 class ImperatorEconomicPolicy(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\economic_policies")
 
 class ImperatorEventPicture(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\event_pictures")
 
 class ImperatorEventTheme(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\event_themes")
 
 class ImperatorGovernment(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\governments")
 
 class ImperatorGovernorPolicy(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\governor_policies")
 
 class ImperatorHeritage(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\heritage")
 
 class ImperatorIdea(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\ideas")
 
 class ImperatorInvention(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths,level=1)
+		super().__init__(imperator_mod_files, imperator_files_path,level=1)
 		self.get_data("common\\inventions")
 
 class ImperatorLaw(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths,level=1)
+		super().__init__(imperator_mod_files, imperator_files_path,level=1)
 		self.get_data("common\\laws")
 
 class ImperatorLegionDistinction(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\legion_distinctions")
 
 class ImperatorLevyTemplate(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\levy_templates")
 
 class ImperatorLoyalty(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\loyalty")
 
 class ImperatorMilitaryTradition(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths, level=1)
+		super().__init__(imperator_mod_files, imperator_files_path, level=1)
 		self.get_data("common\\military_traditions")
 
 class ImperatorMission(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\missions")
 
 class ImperatorMissionTask(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths, level=1)
+		super().__init__(imperator_mod_files, imperator_files_path, level=1)
 		self.get_data("common\\missions")
 
 class ImperatorModifier(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths, ignored_files=["00_hardcoded.txt", "00_hardcoded_inv.txt"])
+		super().__init__(imperator_mod_files, imperator_files_path, ignored_files=["00_hardcoded.txt", "00_hardcoded_inv.txt"])
 		self.get_data("common\\modifiers")
 
 class ImperatorOpinion(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\opinions")
 
 class ImperatorOffice(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\offices")
 
 class ImperatorParty(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\party_types")
 
 class ImperatorPop(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\pop_types")
 
 class ImperatorPrice(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\prices")
 
 class ImperatorProvinceRank(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\province_ranks")
 
 class ImperatorReligion(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\religions")
 
 class ImperatorScriptValue(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\script_values")
 
 class ImperatorScriptedEffect(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\scripted_effects")
 
 class ImperatorScriptedModifier(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\scripted_modifiers")
 
 class ImperatorScriptedTrigger(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\scripted_triggers")
 
 class ImperatorSubjectType(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\subject_types")
 
 class ImperatorTechTable(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\technology_tables")
 
 class ImperatorTerrain(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\terrain_types")
 
 class ImperatorTradeGood(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\trade_goods")
 
 class ImperatorTrait(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\traits")
 
 class ImperatorUnit(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\units")
 
 class ImperatorWargoal(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\wargoals")
 
 class ImperatorArea(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths, included_files=["areas.txt"])
+		super().__init__(imperator_mod_files, imperator_files_path, included_files=["areas.txt"])
 		self.get_data("map_data")
 
 class ImperatorRegion(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths, included_files=["regions.txt"])
+		super().__init__(imperator_mod_files, imperator_files_path, included_files=["regions.txt"])
 		self.get_data("map_data")
 
 class ImperatorScriptedList(GameObjectBase):
 	def __init__(self):
-		super().__init__(file_paths)
+		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\scripted_lists")
 
 # Game Data class
@@ -254,7 +255,154 @@ unit = war_goal = mission = mission_task = area = region = scripted_list_trigger
 # Setting all the objects can be slow and doing it on every hover (when they are actually used) is even slower,
 # so loading it all in on plugin init makes popups actually responsive
 
-def load_game_objects():
+def check_mod_for_changes():
+	"""
+		Check if any changes have been made to mod files
+		if changes have been made new game objects need to be generated and cached
+	"""
+	object_cache_path = sublime.packages_path() + f"\\ImperatorTools\\object_cache.py"
+	if os.stat(object_cache_path).st_size < 200:
+		# If there are no objects in the cache, they need to be created
+		return True
+	mod_cache_path = sublime.packages_path() + f"\\ImperatorTools\\mod_cache.py"
+	with open(mod_cache_path, "r") as f:
+		# Save lines without remake_cache function
+		mod_cache = f.readlines()
+		mod_cache = "".join(mod_cache[0:len(mod_cache) - 2])
+	with open(mod_cache_path, "w") as f:
+		# Clear
+		f.write("")
+
+	for path in imperator_mod_files:
+		stats_dict = dict()
+		mod_name = path.rpartition("\\")[2]
+		mod_class_name = mod_name.replace(" ", "")
+		for dirpath, dirnames, filenames in os.walk(path):
+			mod_files = [x for x in filenames if x.endswith(".txt")]
+			if mod_files:
+				for i,j in enumerate(mod_files):
+					full_path = dirpath + "\\" + mod_files[i]
+					stats_dict[full_path] = os.stat(full_path).st_mtime
+		with open(mod_cache_path, "a") as f:
+			# Write mod class
+			f.write(f"class {mod_class_name}:\n\tdef __init__(self):")
+			for i in stats_dict:
+				key = re.sub('\W|^(?=\d)', '_', i.split(mod_name)[1])
+				value = stats_dict[i]
+				f.write(f"\n\t\tself.{key} = {value}")
+			f.write("\n")
+
+	with open(mod_cache_path, "r") as f:
+		# Save written mod classes
+		new_mod_cache = "".join(f.readlines())
+	with open(mod_cache_path, "a") as f:
+		# Write remake_cache function that indicates if new game objects need to be made
+		f.write(f"def remake_cache():\n\treturn {True if mod_cache != new_mod_cache else False}")
+	return remake_cache()
+
+def get_objects_from_cache():
+	global ambition,building,culture,culture_group,death_reason,deity,diplo_stance,econ_policy,event_pic,event_theme,government,governor_policy,heritage,idea,invention,law,legion_distinction,levy_template,loyalty,mil_tradition,modifier,opinion,office,party,pop,price,province_rank,religion,script_value,scripted_effect,scripted_modifier,scripted_trigger,subject_type,tech_table,terrain,trade_good,trait,unit,war_goal,mission,mission_task,area,region,scripted_list_triggers,scripted_list_effects
+
+	object_cache = GameObjectCache()
+
+	ambition = make_object(object_cache.ambition)
+	building = make_object(object_cache.building)
+	culture = make_object(object_cache.culture)
+	culture_group = make_object(object_cache.culture_group)
+	death_reason = make_object(object_cache.death_reason)
+	deity = make_object(object_cache.deity)
+	diplo_stance = make_object(object_cache.diplo_stance)
+	econ_policy = make_object(object_cache.econ_policy)
+	event_pic = make_object(object_cache.event_pic)
+	event_theme = make_object(object_cache.event_theme)
+	government = make_object(object_cache.government)
+	governor_policy = make_object(object_cache.governor_policy)
+	heritage = make_object(object_cache.heritage)
+	idea = make_object(object_cache.idea)
+	invention = make_object(object_cache.invention)
+	law = make_object(object_cache.law)
+	legion_distinction = make_object(object_cache.legion_distinction)
+	levy_template = make_object(object_cache.levy_template)
+	loyalty = make_object(object_cache.loyalty)
+	mil_tradition = make_object(object_cache.mil_tradition)
+	modifier = make_object(object_cache.modifier)
+	opinion = make_object(object_cache.opinion)
+	office = make_object(object_cache.office)
+	party = make_object(object_cache.party)
+	pop = make_object(object_cache.pop)
+	price = make_object(object_cache.price)
+	province_rank = make_object(object_cache.province_rank)
+	religion = make_object(object_cache.religion)
+	script_value = make_object(object_cache.script_value)
+	scripted_effect = make_object(object_cache.scripted_effect)
+	scripted_modifier = make_object(object_cache.scripted_modifier)
+	scripted_trigger = make_object(object_cache.scripted_trigger)
+	subject_type = make_object(object_cache.subject_type)
+	tech_table = make_object(object_cache.tech_table)
+	terrain = make_object(object_cache.terrain)
+	trade_good = make_object(object_cache.trade_good)
+	trait = make_object(object_cache.trait)
+	unit = make_object(object_cache.unit)
+	war_goal = make_object(object_cache.war_goal)
+	mission = make_object(object_cache.mission)
+	mission_task = make_object(object_cache.mission_task)
+	area = make_object(object_cache.area)
+	region = make_object(object_cache.region)
+	scripted_list_triggers = make_object(object_cache.scripted_list_triggers)
+	scripted_list_effects = make_object(object_cache.scripted_list_effects)
+
+def cache_all_objects():
+	# Write all generated objects to cache
+	path = sublime.packages_path() + f"\\ImperatorTools\\object_cache.py"
+	with open(path, "w") as f:
+		f.write("class GameObjectCache:\n\tdef __init__(self):")
+		f.write(f"\n\t\tself.ambition = {ambition.to_json()}")
+		f.write(f"\n\t\tself.building = {building.to_json()}")
+		f.write(f"\n\t\tself.culture = {culture.to_json()}")
+		f.write(f"\n\t\tself.culture_group = {culture_group.to_json()}")
+		f.write(f"\n\t\tself.death_reason = {death_reason.to_json()}")
+		f.write(f"\n\t\tself.deity = {deity.to_json()}")
+		f.write(f"\n\t\tself.diplo_stance = {diplo_stance.to_json()}")
+		f.write(f"\n\t\tself.econ_policy = {econ_policy.to_json()}")
+		f.write(f"\n\t\tself.event_pic = {event_pic.to_json()}")
+		f.write(f"\n\t\tself.event_theme = {event_theme.to_json()}")
+		f.write(f"\n\t\tself.government = {government.to_json()}")
+		f.write(f"\n\t\tself.governor_policy = {governor_policy.to_json()}")
+		f.write(f"\n\t\tself.heritage = {heritage.to_json()}")
+		f.write(f"\n\t\tself.idea = {idea.to_json()}")
+		f.write(f"\n\t\tself.invention = {invention.to_json()}")
+		f.write(f"\n\t\tself.law = {law.to_json()}")
+		f.write(f"\n\t\tself.legion_distinction = {legion_distinction.to_json()}")
+		f.write(f"\n\t\tself.levy_template = {levy_template.to_json()}")
+		f.write(f"\n\t\tself.loyalty = {loyalty.to_json()}")
+		f.write(f"\n\t\tself.mil_tradition = {mil_tradition.to_json()}")
+		f.write(f"\n\t\tself.modifier = {modifier.to_json()}")
+		f.write(f"\n\t\tself.opinion = {opinion.to_json()}")
+		f.write(f"\n\t\tself.office = {office.to_json()}")
+		f.write(f"\n\t\tself.party = {party.to_json()}")
+		f.write(f"\n\t\tself.pop = {pop.to_json()}")
+		f.write(f"\n\t\tself.price = {price.to_json()}")
+		f.write(f"\n\t\tself.province_rank = {province_rank.to_json()}")
+		f.write(f"\n\t\tself.religion = {religion.to_json()}")
+		f.write(f"\n\t\tself.script_value = {script_value.to_json()}")
+		f.write(f"\n\t\tself.scripted_effect = {scripted_effect.to_json()}")
+		f.write(f"\n\t\tself.scripted_modifier = {scripted_modifier.to_json()}")
+		f.write(f"\n\t\tself.scripted_trigger = {scripted_trigger.to_json()}")
+		f.write(f"\n\t\tself.subject_type = {subject_type.to_json()}")
+		f.write(f"\n\t\tself.tech_table = {tech_table.to_json()}")
+		f.write(f"\n\t\tself.terrain = {terrain.to_json()}")
+		f.write(f"\n\t\tself.trade_good = {trade_good.to_json()}")
+		f.write(f"\n\t\tself.trait = {trait.to_json()}")
+		f.write(f"\n\t\tself.unit = {unit.to_json()}")
+		f.write(f"\n\t\tself.war_goal = {war_goal.to_json()}")
+		f.write(f"\n\t\tself.mission = {mission.to_json()}")
+		f.write(f"\n\t\tself.mission_task = {mission_task.to_json()}")
+		f.write(f"\n\t\tself.area = {area.to_json()}")
+		f.write(f"\n\t\tself.region = {region.to_json()}")
+		f.write(f"\n\t\tself.scripted_list_triggers = {scripted_list_triggers.to_json()}")
+		f.write(f"\n\t\tself.scripted_list_effects = {scripted_list_effects.to_json()}")
+
+def create_game_objects():
 	t0 = time.time()
 
 	def load_first():
@@ -348,15 +496,28 @@ def load_game_objects():
 	t1 = time.time()
 	print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1-t0))
 
+	# Cache created objects
+	sublime.set_timeout_async(lambda: cache_all_objects(), 0)
+
 def plugin_loaded():
-	global settings, imperator_files_path, imperator_mod_files, file_paths
+	global settings, imperator_files_path, imperator_mod_files
 	settings = sublime.load_settings("Imperator Syntax.sublime-settings")
 	imperator_files_path = settings.get("ImperatorFilesPath")
 	imperator_mod_files = settings.get("PathsToModFiles")
-	out_file_paths = imperator_mod_files
-	out_file_paths.append(imperator_files_path)
-	file_paths = out_file_paths
-	sublime.set_timeout_async(lambda: load_game_objects(), 0)
+	if check_mod_for_changes():
+		# Create new objects
+		sublime.set_timeout_async(lambda: create_game_objects(), 0)
+	else:
+		# Load cached objects
+		get_objects_from_cache()
+
+	cache_size_limit = settings.get("MaxImageCacheSize")
+	cache = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\"
+	cache_files = [x for x in os.listdir(cache) if x.endswith(".png")]
+	if len(cache_files) > cache_size_limit:
+		for i in cache_files:
+			os.remove(os.path.join(cache, i))
+		sublime.status_message("Cleared Image Cache")
 	add_color_scheme_scopes()
 
 def add_color_scheme_scopes():
@@ -2871,8 +3032,11 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		open_texture_url = sublime.command_url("open_imperator_texture ", args)
 		folder_args = { "path": full_texture_path, "folder": True}
 		open_folder_url = sublime.command_url("open_imperator_texture ", folder_args)
+		in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
+		inline_args = {"path": full_texture_path, "point": point}
 		in_sublime_args = { "path": full_texture_path, "mode": "in_sublime"}
 		open_in_sublime_url = sublime.command_url("open_imperator_texture ", in_sublime_args)
+		open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
 		hoverBody = """
 			<body id=\"vic-body\">
 				<style>%s</style>
@@ -2883,8 +3047,10 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 				<a href="%s" title="Open %s.dds in the default program">Open in default program</a>
 				<br>
 				<a href="%s" title="Convert %s.dds to PNG and open in sublime">Open in sublime</a>
+				<br>
+				<a href="%s" title="Convert %s.dds to PNG show at current selection">Show Inline</a>
 			</body>
-		""" %(css_basic_style, open_folder_url, open_texture_url, texture_name, open_in_sublime_url, texture_name)
+		""" %(css_basic_style, open_folder_url, open_texture_url, texture_name, open_in_sublime_url, texture_name, open_inline_url, texture_name)
 
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY
 						|sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
@@ -2953,3 +3119,237 @@ class ImpClearImageCacheCommand(sublime_plugin.WindowCommand):
 class ImpReloadPluginCommand(sublime_plugin.WindowCommand):
 	def run(self):
 		plugin_loaded()
+
+
+class QuietExecuteCommand(sublime_plugin.WindowCommand):
+	"""
+		Simple version of Default.exec.py that only runs the process and shows no panel or messages
+	"""
+
+	def __init__(self, window):
+		super().__init__(window)
+		self.proc = None
+
+	def run(
+		self,
+		cmd=None,
+		shell_cmd=None,
+		working_dir="",
+		encoding="utf-8",
+		env={},
+		**kwargs):
+
+		self.encoding = encoding
+		merged_env = env.copy()
+		if self.window.active_view():
+			user_env = self.window.active_view().settings().get('build_env')
+			if user_env:
+				merged_env.update(user_env)
+
+		if working_dir != "":
+			os.chdir(working_dir)
+
+		try:
+			# Run process
+			self.proc = Default.exec.AsyncProcess(cmd, shell_cmd, merged_env, self, **kwargs)
+			self.proc.start()
+		except Exception as e:
+			sublime.status_message("Build error")
+
+	def on_data(self, proc, data):
+		return
+
+	def on_finished(self, proc):
+		return
+
+class ImperatorTextureFileLoadEventListener(sublime_plugin.EventListener):
+	def on_load_async(self, view):
+		if not view:
+			return None
+
+		try:
+			if view.syntax().name != "Imperator Script":
+				return None
+		except AttributeError:
+			return None
+
+		if settings.get("ShowInlineTexturesOnLoad"):
+			sublime.active_window().run_command("imperator_show_all_textures")
+
+
+class ImperatorTextureEventListener(sublime_plugin.EventListener):
+	def on_post_text_command(self, view, command_name, args):
+		if command_name in ("left_delete", "insert"):
+			if view.file_name() and view.syntax().name == "Imperator Script":
+				x = [v for v in views_with_shown_textures if v.id() == view.id()]
+				if x:
+					x[0].update_line_count(view.rowcol(view.size())[0] + 1)
+
+
+views_with_shown_textures = set()
+
+
+class ImperatorViewTextures(sublime.View):
+	def __init__(self, id):
+		super(ImperatorViewTextures, self).__init__(id)
+		self.textures = []
+		self.line_count = self.rowcol(self.size())[0] + 1
+
+	def update_line_count(self, new_count):
+		diff = new_count - self.line_count
+		self.line_count += diff
+		to_update = []
+		for i, tex in enumerate(self.textures):
+			tex = tex.split("|")
+			key = tex[0]
+			line = int(tex[1])
+			point = self.text_point(line, 1)
+			if self.find(key, point):
+				# Texture is still on the same line, dont need to update
+				return
+			else:
+				current_selection_line = self.rowcol(self.sel()[0].a)[0] + 1
+				if current_selection_line < line:
+					line += diff
+					out = key + "|" + str(line)
+					to_update.append((i, out))
+		for i in to_update:
+			index = i[0]
+			replacement = i[1]
+			views_with_shown_textures.discard(self)
+			self.textures[index] = replacement
+			views_with_shown_textures.add(self)
+
+class ImperatorShowTextureBase:
+
+	conversion_iterations = 0
+
+	def show_texture(self, path, point):
+		window = sublime.active_window()
+		simple_path = path.rpartition("\\")[2].replace(".dds", ".png")
+		output_file = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\" + simple_path
+		exe_path = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\src\\ConvertDDS.exe"
+		if not os.path.exists(output_file):
+			window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
+			# Wait 100ms for conversion to finish
+			sublime.set_timeout_async(lambda: self.toggle_async(output_file, simple_path, point, window, path), 100)
+		else:
+			self.toggle_async(output_file, simple_path, point, window, path)
+
+	def toggle_async(self, output_file, simple_path, point, window, original_path):
+		# Try to convert for 500ms
+		if not os.path.exists(output_file) and self.conversion_iterations < 6:
+			self.conversion_iterations += 1
+			self.show_texture(original_path, point)
+		elif os.path.exists(output_file):
+			self.conversion_iterations = 0
+			image = f"file://{output_file}"
+			dimensions = self.get_png_dimensions(output_file)
+			width = dimensions[0]
+			height = dimensions[1]
+			html = f'<img src="{image}" width="{width}" height="{height}">'
+			view = window.active_view()
+			if os.path.exists(output_file):
+				self.toggle(simple_path, view, html, point)
+
+	def toggle(self, key, view, html, point):
+		pid = key + "|" + str(view.rowcol(point)[0] + 1)
+		x = ImperatorViewTextures(view.id())
+		views_with_shown_textures.add(x)
+		x = [v for v in views_with_shown_textures if v.id() == view.id()]
+		if x:
+			current_view = x[0]
+		if pid in current_view.textures:
+			current_view.textures.remove(pid)
+			view.erase_phantoms(key)
+		else:
+			current_view.textures.append(pid)
+			line_region = view.line(point)
+			# Find region of texture path declaration
+			# Ex: [start]texture = "gfx/interface/icons/goods_icons/meat.dds"[end]
+			start = view.find("[A-Za-z_][A-Za-z_0-9]*\s?=\s?\"?/?gfx", line_region.a).a
+			end = view.find("\"|\n", start).a
+			phantom_region = sublime.Region(start, end)
+			view.add_phantom(key, phantom_region, html, sublime.LAYOUT_BELOW)
+
+	def get_png_dimensions(self, path):
+		height = 150
+		width = 150
+		file = open(path, 'rb')
+		try:
+			head = file.read(31)
+			size = len(head)
+			if size >= 24 and head.startswith(b'\211PNG\r\n\032\n') and head[12:16] == b'IHDR':
+				try:
+					width, height = struct.unpack(">LL", head[16:24])
+				except struct.error:
+					pass
+			elif size >= 16 and head.startswith(b'\211PNG\r\n\032\n'):
+				try:
+					width, height = struct.unpack(">LL", head[8:16])
+				except struct.error:
+					pass
+		finally:
+			file.close()
+
+		# Scale down so image doens't take up entire viewport
+		if width > 150 and height > 150:
+			width /= 1.75
+			height /= 1.75
+		return int(width), int(height)
+
+
+class ImperatorShowTextureCommand(sublime_plugin.ApplicationCommand, ImperatorShowTextureBase):
+	def run(self, path, point):
+		self.show_texture(path, point)
+
+
+class ImperatorToggleAllTexturesCommand(sublime_plugin.ApplicationCommand):
+	def __init__(self):
+		self.shown = False
+
+	def run(self):
+		window = sublime.active_window()
+		view = window.active_view()
+		if not view:
+			return None
+
+		try:
+			if view.syntax().name != "Imperator Script":
+				return None
+		except AttributeError:
+			return None
+
+		if self.shown or len(views_with_shown_textures) > 0:
+			self.shown = False
+			window.run_command("imperator_clear_all_textures")
+		else:
+			self.shown = True
+			window.run_command("imperator_show_all_textures")
+
+
+class ImperatorClearAllTexturesCommand(sublime_plugin.ApplicationCommand):
+	def run(self):
+		keys = []
+		for view in views_with_shown_textures:
+			for i in view.textures:
+				tex = i.split("|")
+				key = tex[0]
+				keys.append(key)
+		for view in sublime.active_window().views():
+			for i in keys:
+				view.erase_phantoms(i)
+		views_with_shown_textures.clear()
+
+
+class ImperatorShowAllTexturesCommand(sublime_plugin.WindowCommand, ImperatorShowTextureBase):
+	def run(self):
+		view = self.window.active_view()
+		for line in (x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)):
+			texture_raw_start = view.find("gfx", line.a)
+			texture_raw_end = view.find(".dds", line.a)
+			texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
+			texture_raw_path = view.substr(texture_raw_region)
+			full_texture_path = imperator_files_path + "\\" + texture_raw_path
+			full_texture_path = full_texture_path.replace("/", "\\")
+			self.show_texture(full_texture_path, texture_raw_start.a)
