@@ -369,7 +369,7 @@ contexts:
 
   # Modifier blocks for modifier GameObject autocompletions
   modifier-block-start:
-    - match: \b(overlord_modifier|subject_modifier|rank_modifier|output_modifier|count_modifier|ruler_modifier|skill_modifier|personal_modifier|unit|modifier|country_modifier|bonus|passive_modifier|omen)\b
+    - match: \b(state_modifier|overlord_modifier|subject_modifier|rank_modifier|output_modifier|count_modifier|ruler_modifier|skill_modifier|personal_modifier|unit|modifier|country_modifier|bonus|passive_modifier|omen)\b
       scope: string.modifier.block.start
       push:
         - include: line_ending

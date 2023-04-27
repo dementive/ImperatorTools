@@ -280,16 +280,15 @@ def check_mod_for_changes():
 		for dirpath, dirnames, filenames in os.walk(path):
 			mod_files = [x for x in filenames if x.endswith(".txt")]
 			if mod_files:
-				for i,j in enumerate(mod_files):
+				for i, j in enumerate(mod_files):
 					full_path = dirpath + "\\" + mod_files[i]
 					stats_dict[full_path] = os.stat(full_path).st_mtime
 		with open(mod_cache_path, "a") as f:
-			# Write mod class
-			f.write(f"class {mod_class_name}:\n\tdef __init__(self):")
+			f.write("#")
 			for i in stats_dict:
 				key = re.sub('\W|^(?=\d)', '_', i.split(mod_name)[1])
 				value = stats_dict[i]
-				f.write(f"\n\t\tself.{key} = {value}")
+				f.write(f"{key}{value}")
 			f.write("\n")
 
 	with open(mod_cache_path, "r") as f:
@@ -447,12 +446,14 @@ def create_game_objects():
 		scripted_list_triggers.clear()
 		for i in tri_list:
 			scripted_list_triggers.add(i)
+
 		ef_list = []
 		for obj in scripted_list_effects:
 			ef_list.append(PdxScriptObject(f"random_{obj.key}", obj.path, obj.line))
 			ef_list.append(PdxScriptObject(f"every_{obj.key}", obj.path, obj.line))
 			ef_list.append(PdxScriptObject(f"ordered_{obj.key}", obj.path, obj.line))
 		scripted_list_effects.clear()
+
 		for i in ef_list:
 			scripted_list_effects.add(i)
 		for i in scripted_list_effects.keys():
@@ -1686,7 +1687,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 			if "\\events\\" in fname:
 				return sublime.CompletionList(
 					GameData.EventsList,
-					flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS|sublime.INHIBIT_WORD_COMPLETIONS|sublime.INHIBIT_REORDER
+					flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS|sublime.INHIBIT_REORDER
 				)
 			return None
 
@@ -1828,8 +1829,8 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 		line = view.substr(view.line(point))
 
 		a_list = ["set_ambition","has_ambition"]
-		b_list = ["can_build_building","has_building","add_building_level"]
-		c_list = ["set_culture","set_pop_culture","set_primary_culture"]
+		b_list = ["can_build_building","has_building","add_building_level","remove_building_level"]
+		c_list = ["set_culture","set_pop_culture","set_primary_culture", "primary_culture"]
 		death_list = ["death_reason"]
 		diplo_list = ["diplomatic_stance"]
 		econ_list = ["has_low_economic_policy", "has_mid_economic_policy", "has_high_economic_policy"]
@@ -2408,8 +2409,6 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 		self.view = view
 		self.view_str = view.substr(sublime.Region(0, view.size()))
 
-		self.bracket_check()
-		self.quote_check()
 		self.encoding_check()
 
 	def encoding_check(self):
@@ -2448,57 +2447,6 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 					panel.add_regions("encoding", [sublime.Region(len(panel) - 21, len(panel) - 16)], "underline.good", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE  ))
 					panel.set_read_only(True)
 
-	def bracket_check(self):
-		# Check for mismatched brackets and shows an error message at the line of the error
-		check = checker(self.view_str)
-		if not check:
-			return
-
-		self.view.show(check)
-		line = self.view.rowcol(check)
-		line_num = line[0]
-		line_a = int(len(str(line_num)))
-		error_message = f"BracketError: There is a mismatched bracket near line {line_num}"
-
-		panel = self.create_error_panel()
-		panel.set_read_only(False)
-		panel.run_command("append", {"characters": error_message})
-		panel.add_regions("line_num", [sublime.Region(len(panel) - line_a, len(panel))], "region.redish", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE  ))
-		panel.set_read_only(True)
-
-	def quote_check(self):
-		# Check for mismatched quotes and shows an error message at the line of the error
-		lines = self.view_str.splitlines()
-		line_num = ""
-		total_quote_count = 0
-		potential_errors = []
-		for index, line in enumerate(lines, start=1):
-			count = line.count("\"")
-			total_quote_count += count
-			if count == 2 or count == 0:
-				continue
-			if count % 2 == 1:
-				# add line number to potential errors, will show first potential error if total count is not even
-				potential_errors.append(index)
-
-
-		# NOTE: If quotes on separate lines is actually allowed change the 'or' to an 'and'
-		try:
-			if total_quote_count % 2 == 1 and potential_errors[0] is not None:
-				line_num = potential_errors[0]
-		except IndexError:
-			return
-		if line_num:
-			self.view.run_command("goto_line", {"line": line_num})
-			line_a = int(len(str(line_num)))
-			error_message = f"QuoteError: There is an extra quotation near line {line_num}"
-
-			panel = self.create_error_panel()
-			panel.set_read_only(False)
-			panel.run_command("append", {"characters": error_message})
-			panel.add_regions("line_num", [sublime.Region(len(panel) - line_a, len(panel))], "region.redish", flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE  ))
-			panel.set_read_only(True)
-
 	def create_error_panel(self):
 		window = sublime.active_window()
 		panel = window.create_output_panel("error", unlisted=True)
@@ -2508,40 +2456,6 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
 		window.run_command("show_panel", {"panel": "output.error"})
 		window.focus_view(panel)
 		return panel
-
-class Bracket:
-	def __init__(self, bracket_type, position):
-		self.bracket_type = bracket_type
-		self.position = position
-
-	def match(self, char):
-		if self.bracket_type == '[' and char == ']':
-			return True
-		if self.bracket_type == '{' and char == '}':
-			return True
-		if self.bracket_type == '(' and char == ')':
-			return True
-		return False
-
-def checker(text):
-	stack = []
-	for index, char in enumerate(text, start=1):
-
-		if char in ("[", "(", "{"):
-			stack.append(Bracket(char, index))
-
-		elif char in ("]", ")", "}"):
-			if not stack:
-				return index
-
-			top = stack.pop()
-			if not top.match(char):
-				return index
-	if stack:
-		top = stack.pop()
-		return top.position
-
-	return False # file is all good
 
 # ----------------------------------
 # -           Hover Docs           -
