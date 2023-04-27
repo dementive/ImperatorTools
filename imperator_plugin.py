@@ -3181,7 +3181,7 @@ class ImperatorShowTextureBase:
 			line_region = view.line(point)
 			# Find region of texture path declaration
 			# Ex: [start]texture = "gfx/interface/icons/goods_icons/meat.dds"[end]
-			start = view.find("[A-Za-z_][A-Za-z_0-9]*\s?=\s?\"?/?gfx", line_region.a).a
+			start = view.find("[A-Za-z_][A-Za-z_0-9]*\s?=\s?\"?/?(gfx)?", line_region.a).a
 			end = view.find("\"|\n", start).a
 			phantom_region = sublime.Region(start, end)
 			view.add_phantom(key, phantom_region, html, sublime.LAYOUT_BELOW)
@@ -3259,7 +3259,8 @@ class ImperatorClearAllTexturesCommand(sublime_plugin.ApplicationCommand):
 class ImperatorShowAllTexturesCommand(sublime_plugin.WindowCommand, ImperatorShowTextureBase):
 	def run(self):
 		view = self.window.active_view()
-		for line in (x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)):
+		texture_list = [x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)]
+		for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):
 			texture_raw_start = view.find("gfx", line.a)
 			texture_raw_end = view.find(".dds", line.a)
 			texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)

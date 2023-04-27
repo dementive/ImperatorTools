@@ -44,4 +44,8 @@
 
 	// Max number of images that can be cached
 	"MaxImageCacheSize": 99999, 
+
+	// Max number of images to that will be shown when using show all textures command
+	// too many can make sublime unresponsive
+	"MaxToggleTextures": 150
 }
