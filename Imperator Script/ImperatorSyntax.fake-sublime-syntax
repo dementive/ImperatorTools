@@ -154,6 +154,7 @@ contexts:
       scope: keyword.effect
       push:
         - match: =
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n
               pop: 2
@@ -193,6 +194,7 @@ contexts:
       scope: string.trigger
       push:
         - match: =
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n
               pop: 2
@@ -231,7 +233,9 @@ contexts:
     - match: set_(local_|global_)?variable
       scope: keyword.effect
       push:
-        - match: =\s?\{
+        - match: =
+          scope: keyword.operator.comparison.victoria
+        - match: \{\n?+
           push:
             - match: (#).*$\n?
               scope: comment.line
@@ -240,6 +244,8 @@ contexts:
             - match: name
               scope: constant.numeric
               push:
+                - match: =
+                  scope: keyword.operator.comparison.victoria
                 - match: \n
                   pop: 3
                 - match: (#).*$\n?
@@ -273,6 +279,7 @@ contexts:
                     - match: \n
                       pop: 4
         - match: =
+          scope: keyword.operator.comparison.victoria
           push:
             - match: \n
               pop: 2
@@ -288,7 +295,9 @@ contexts:
       scope: keyword.effect
       push:
         - include: line_ending
-        - match: = \{\n?+
+        - match: =
+          scope: keyword.operator.comparison.victoria
+        - match: \{\n?+
           push:
             - match: (#).*$\n?
               scope: comment.line
@@ -297,6 +306,8 @@ contexts:
             - match: name
               scope: constant.numeric
               push:
+                - match: =
+                  scope: keyword.operator.comparison.victoria
                 - match: \n
                   pop: 3
                 - match: (#).*$\n?
@@ -354,6 +365,7 @@ contexts:
       scope: string.trigger.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{|"
           scope: meta.trigger.bracket
           pop: true
@@ -363,6 +375,7 @@ contexts:
       scope: keyword.effect.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{|"
           scope: meta.effect.bracket
           pop: true
@@ -373,6 +386,7 @@ contexts:
       scope: string.modifier.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{|"
           scope: meta.modifier.bracket
           pop: true
@@ -382,6 +396,7 @@ contexts:
       scope: string.ai.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{|"
           scope: meta.ai.bracket
           pop: true
@@ -391,6 +406,7 @@ contexts:
       scope: string.trait.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.trait.bracket
           pop: true
@@ -400,6 +416,7 @@ contexts:
       scope: string.unit.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.unit.bracket
           pop: true
@@ -409,6 +426,7 @@ contexts:
       scope: keyword.op.mod.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.op.mod.bracket
           pop: true
@@ -418,6 +436,7 @@ contexts:
       scope: keyword.party.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.party.bracket
           pop: true
@@ -427,6 +446,7 @@ contexts:
       scope: keyword.pop.type.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.pop.type.bracket
           pop: true
@@ -436,6 +456,7 @@ contexts:
       scope: keyword.pop.type.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.subject.type.bracket
           pop: true
@@ -445,6 +466,7 @@ contexts:
       scope: keyword.pop.type.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.tech.table.bracket
           pop: true
@@ -454,6 +476,7 @@ contexts:
       scope: string.trade.good.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.trade.good.bracket
           pop: true
@@ -463,6 +486,7 @@ contexts:
       scope: string.invention.block.start
       push:
         - include: line_ending
+        - include: equal_sign
         - match: \{
           scope: meta.invention.bracket
           pop: true
@@ -477,7 +501,15 @@ contexts:
     - match: $\n|\s
       pop: 2
 
+  equal_sign:
+    - match: =
+      scope: keyword.operator.comparison.victoria
+
   manually-entered-content:
+
+    # Math Operators
+    - match: (\?=|<=|<|!=|>=|>|=|:)
+      scope: keyword.operator.comparison.victoria
 
     # Math/Sound
     - match: \b(sacrifice_sound|soundeffect|sound|range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|integer_range|clicksound)\b

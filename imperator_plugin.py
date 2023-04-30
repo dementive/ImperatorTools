@@ -2,6 +2,7 @@ import sublime, sublime_plugin
 import os, re, time, webbrowser, threading
 import struct
 import Default.exec
+from colorsys import hsv_to_rgb
 from collections import deque
 from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 from .jomini import dict_to_game_object as make_object
@@ -239,6 +240,140 @@ class ImperatorScriptedList(GameObjectBase):
 		super().__init__(imperator_mod_files, imperator_files_path)
 		self.get_data("common\\scripted_lists")
 
+def hsv2rgb(h, s, v):
+	return tuple(round(i * 255) for i in hsv_to_rgb(h, s, v))
+
+class PdxColorObject(PdxScriptObject):
+	def __init__(self, key, path, line, color):
+		super().__init__(key, path, line)
+		self.color = color
+		self.rgb_color = self.get_rgb_color()
+
+	def get_rgb_color(self):
+		"""
+		Color Formats:
+			color1 = hsv { 1.0 1.0 1.0 }
+			color2 = hsv360 { 360 100 100 }
+			color3 = { 255 255 255 }
+			color4 = rgb { 255 255 255 }
+			color5 = hex { aabbccdd }
+		This function merges all of these formats into one and returns (r, g, b) tuple
+		"""
+		object_color = self.color
+		r = 255
+		g = 255
+		b = 0
+		if object_color.startswith("rgb") or object_color.startswith("{"):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = split_color.split(" ")
+			r = float(split_color[1])
+			g = float(split_color[2])
+			b = float(split_color[3])
+		if re.search(r"\bhsv\b", object_color):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = object_color.split(" ")
+			h = float(split_color[2])
+			s = float(split_color[3])
+			v = float(split_color[4])
+			rgb = hsv2rgb(h, s, v)
+			r = rgb[0]
+			g = rgb[1]
+			b = rgb[2]
+		if re.search(r"\bhsv360\b", object_color):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = object_color.split(" ")
+			h = float(split_color[2]) / 360
+			s = float(split_color[3]) / 100
+			v = float(split_color[4]) / 100
+			rgb = hsv2rgb(h, s, v)
+			r = rgb[0]
+			g = rgb[1]
+			b = rgb[2]
+			if split_color[2] == "187" and split_color[3] == "83" and split_color[4] == "146":
+				r = 230
+				g = 0
+				b = 230
+		if re.search(r"\bhex\b", object_color):
+			split_color = object_color.split("{")[1].replace(" }", "")
+			split_color = split_color.split("#").replace(" ", "")
+			return tuple(int(split_color[i:i + 2], 16) for i in (0, 2, 4))
+
+		return (r, g, b)
+
+	def __eq__(self, other):
+		if isinstance(other, ImperatorNamedColor):
+			return (self.key == other.key)
+		elif isinstance(other, str):
+			return (self.key == other)
+		else:
+			return False
+
+	def __lt__(self, other):
+		if isinstance(other, ImperatorNamedColor):
+			return (self.key < other.key)
+		elif isinstance(other, str):
+			return (self.key < other)
+		else:
+			return False
+
+	def __gt__(self, other):
+		if isinstance(other, ImperatorNamedColor):
+			return (self.key > other.key)
+		elif isinstance(other, str):
+			return (self.key > other)
+		else:
+			return False
+
+def make_named_color_object(objects: dict) -> GameObjectBase:
+	obj_list = list()
+	for i in objects:
+		obj_list.append(PdxColorObject(i, objects[i][0], objects[i][1], objects[i][2]))
+	game_object = GameObjectBase()
+	game_object.main = PdxScriptObjectType(obj_list)
+	return game_object
+
+class ImperatorNamedColor(GameObjectBase):
+	def __init__(self):
+		super().__init__(imperator_mod_files, imperator_files_path, level=1)
+		self.get_data("common\\named_colors")
+
+	def to_dict(self) -> dict:
+		d = dict()
+		for i in self.main.objects:
+			d[i.key] = [i.path, i.line, i.color]
+		return d
+
+	def get_pdx_object_list(self, path: str) -> PdxScriptObjectType:
+		obj_list = list()
+		for dirpath, dirnames, filenames in os.walk(path):
+			for filename in [f for f in filenames if f.endswith(".txt")]:
+				if filename in self.ignored_files:
+					continue
+				file_path = os.path.join(dirpath, filename)
+				if self.included_files:
+					if filename not in self.included_files:
+						continue
+				with open(file_path, "r", encoding='utf-8-sig') as file:
+					for i, line in enumerate(file):
+						if self.should_read(line):
+							found_item = re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=(.*)", line)
+							if found_item and found_item.groups()[0]:
+								item_color = found_item.groups()[1]
+								found_item = found_item.groups()[0]
+								item_color = item_color.strip().split("#")[0]
+								item_color = item_color.rpartition("}")[0]
+								if not item_color:
+									continue
+								else:
+									item_color = item_color.replace("\t", " ") + " }"
+									item_color = re.sub(r"\s+", " ", item_color)
+									obj_list.append(PdxColorObject(found_item, file_path, i + 1, item_color))
+		return PdxScriptObjectType(obj_list)
+
+	def should_read(self, x: str) -> bool:
+		# Check if a line should be read
+		return re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=", x)
+
 # Game Data class
 GameData = GameData()
 
@@ -249,7 +384,7 @@ law = legion_distinction = levy_template = loyalty = mil_tradition = modifier = 
 office = party = pop = price = province_rank = religion = script_value = scripted_effect = ""
 scripted_modifier = scripted_trigger = subject_type = tech_table = terrain = trade_good = trait = ""
 unit = war_goal = mission = mission_task = area = region = scripted_list_triggers = scripted_list_effects = ""
-
+named_colors = ""
 
 # Function to fill all global game objects that get set in non-blocking async function on plugin_loaded
 # Setting all the objects can be slow and doing it on every hover (when they are actually used) is even slower,
@@ -300,10 +435,11 @@ def check_mod_for_changes():
 	return remake_cache()
 
 def get_objects_from_cache():
-	global ambition,building,culture,culture_group,death_reason,deity,diplo_stance,econ_policy,event_pic,event_theme,government,governor_policy,heritage,idea,invention,law,legion_distinction,levy_template,loyalty,mil_tradition,modifier,opinion,office,party,pop,price,province_rank,religion,script_value,scripted_effect,scripted_modifier,scripted_trigger,subject_type,tech_table,terrain,trade_good,trait,unit,war_goal,mission,mission_task,area,region,scripted_list_triggers,scripted_list_effects
+	global ambition,building,culture,culture_group,death_reason,deity,diplo_stance,econ_policy,event_pic,event_theme,government,governor_policy,heritage,idea,invention,law,legion_distinction,levy_template,loyalty,mil_tradition,modifier,opinion,office,party,pop,price,province_rank,religion,script_value,scripted_effect,scripted_modifier,scripted_trigger,subject_type,tech_table,terrain,trade_good,trait,unit,war_goal,mission,mission_task,area,region,scripted_list_triggers,scripted_list_effects,named_colors
 
 	object_cache = GameObjectCache()
 
+	named_colors = make_named_color_object(object_cache.named_colors)
 	ambition = make_object(object_cache.ambition)
 	building = make_object(object_cache.building)
 	culture = make_object(object_cache.culture)
@@ -400,6 +536,7 @@ def cache_all_objects():
 		f.write(f"\n\t\tself.region = {region.to_json()}")
 		f.write(f"\n\t\tself.scripted_list_triggers = {scripted_list_triggers.to_json()}")
 		f.write(f"\n\t\tself.scripted_list_effects = {scripted_list_effects.to_json()}")
+		f.write(f"\n\t\tself.named_colors = {named_colors.to_json()}")
 
 def create_game_objects():
 	t0 = time.time()
@@ -462,7 +599,7 @@ def create_game_objects():
 			GameData.TriggersList[i] = "Scripted list trigger"
 
 	def load_fourth():
-		global price, province_rank, religion, script_value, scripted_effect, scripted_modifier, scripted_trigger, subject_type
+		global price, province_rank, religion, script_value, scripted_effect, scripted_modifier, scripted_trigger, subject_type, named_colors
 		price = ImperatorPrice()
 		province_rank = ImperatorProvinceRank()
 		religion = ImperatorReligion()
@@ -471,6 +608,7 @@ def create_game_objects():
 		scripted_modifier = ImperatorScriptedModifier()
 		scripted_trigger = ImperatorScriptedTrigger()
 		subject_type = ImperatorSubjectType()
+		named_colors = ImperatorNamedColor()
 
 	def load_fifth():
 		global terrain, trade_good, trait, unit, war_goal, tech_table, mission, mission_task, area, region
@@ -558,7 +696,7 @@ def write_data_to_syntax():
 	lines += write_syntax(econ_policy.keys(), "Economic Policy", "entity.name.imperator.econ.policy")
 	lines += write_syntax(event_pic.keys(), "Event Picture", "entity.name.imperator.event.pic")
 	lines += write_syntax(event_theme.keys(), "Event Theme", "entity.name.imperator.event.theme")
-
+	lines += write_syntax(named_colors.keys(), "Named Colors", "entity.name.named.colors")
 	lines += write_syntax(government.keys(), "Government", "entity.name.imperator.government")
 	lines += write_syntax(governor_policy.keys(), "Governor Policy", "entity.name.imperator.governor.policy")
 	lines += write_syntax(heritage.keys(), "Heritage", "entity.name.imperator.heritage")
@@ -753,6 +891,8 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 
 		self.mtth_field = False
 		self.mtth_views = []
+		self.named_colors = False
+		self.named_colors_views = []
 
 	def on_deactivated_async(self, view):
 		"""
@@ -761,6 +901,9 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 			save the id of the view so it can be readded when it regains focus
 		"""
 		vid = view.id()
+		if self.named_colors:
+			self.named_colors = False
+			self.named_colors_views.append(vid)
 		if self.trigger_field:
 			self.trigger_field = False
 			self.trigger_views.append(vid)
@@ -1022,6 +1165,9 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 		if vid in self.regions_views:
 			self.regions = True
 			self.regions_views.remove(vid)
+		if self.named_colors_views:
+			self.named_colors = True
+			self.named_colors_views.remove(vid)
 
 	def on_query_completions(self, view, prefix, locations):
 
@@ -1053,6 +1199,21 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 					for key in sorted(a)
 				],
 				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS|sublime.INHIBIT_WORD_COMPLETIONS
+			)
+		elif self.named_colors:
+			self.named_colors = False
+			return sublime.CompletionList(
+				[
+					sublime.CompletionItem(
+						trigger=obj.key,
+						completion_format=sublime.COMPLETION_FORMAT_TEXT,
+						kind=(sublime.KIND_ID_VARIABLE, "C", "Named Color"),
+						details=" ",
+						annotation=obj.color
+					)
+					for obj in named_colors
+				],
+				flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS
 			)
 		elif self.show_buildings:
 			b = building.keys()
@@ -1815,6 +1976,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 		self.war_goals = False
 		self.areas = False
 		self.regions = False
+		self.named_colors = False
 
 	def check_for_simple_completions(self, view, point):
 		"""
@@ -1828,9 +1990,10 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 
 		line = view.substr(view.line(point))
 
+		named_colors = ["color", "color1", "color2", "color3", "color4", "color5"]
 		a_list = ["set_ambition","has_ambition"]
 		b_list = ["can_build_building","has_building","add_building_level","remove_building_level"]
-		c_list = ["set_culture","set_pop_culture","set_primary_culture", "primary_culture"]
+		c_list = ["set_culture","set_pop_culture","set_primary_culture", "primary_culture", "dominant_province_culture"]
 		death_list = ["death_reason"]
 		diplo_list = ["diplomatic_stance"]
 		econ_list = ["has_low_economic_policy", "has_mid_economic_policy", "has_high_economic_policy"]
@@ -1879,6 +2042,18 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 		area_list = ["area", "is_in_area", "owns_or_subject_owns_area", "owns_area"]
 		region_list = ["region", "owns_or_subject_owns_region", "owns_region", "is_in_region"]
 
+		# Named Colors
+		for i in named_colors:
+			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
+			if r:
+				y = 0
+				idx = line.index(i) + view.line(point).a + len(i) + 2
+				if r.groups()[0] == "\"":
+					y = 2
+				if idx == point or idx + y == point or idx + 1 == point:
+					self.named_colors = True
+					view.run_command("auto_complete")
+					break
 		# Ambition
 		for i in a_list:
 			r = re.search(f"{i}{FIND_SIMPLE_DECLARATION_RE}", line)
@@ -2199,9 +2374,10 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
 	def check_for_complex_completions(self, view, point):
 		view_str = view.substr(sublime.Region(0, view.size()))
 
-		for br in view.find_by_selector("meta.invention.bracket"):
-			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
-			if i.contains(point): self.inventions = True; view.run_command("auto_complete")
+		if "inventions" in view.file_name():
+			for br in view.find_by_selector("meta.invention.bracket"):
+				i = sublime.Region(br.a, self.getIndex(view_str, br.a))
+				if i.contains(point): self.inventions = True; view.run_command("auto_complete")
 
 		for br in view.find_by_selector("meta.op.mod.bracket"):
 			i = sublime.Region(br.a, self.getIndex(view_str, br.a))
@@ -2687,6 +2863,9 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			self.show_popup_default(view, point, word, her, "Heritage")
 			return
 
+		if named_colors.contains(word):
+			self.show_popup_named_color(view, point, word, named_colors.access(word), "Named Color")
+
 		if idea.contains(word):
 			ide = idea.access(word)
 			self.show_popup_default(view, point, word, ide, "Idea")
@@ -2941,6 +3120,60 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY |sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
 							location=point, max_width=1024)
 
+	def get_definitions_for_popup(self, view, point, PdxObject, header, def_value=""):
+		word_line_num = view.rowcol(point)[0] + 1
+		word_file = view.file_name().rpartition("\\")[2]
+		definition = ""
+		definitions = []
+		if header == "Saved Scope" or header == "Saved Variable":
+			for win in sublime.windows():
+				for i in [v for v in win.views() if v and v.file_name()]:
+					if i.file_name().endswith(".txt") or i.file_name().endswith(".py"):
+						variables = [x for x in i.find_by_selector("entity.name.function.var.declaration") if i.substr(x) == PdxObject.key]
+						variables.extend([x for x in i.find_by_selector("entity.name.function.scope.declaration") if i.substr(x) == PdxObject.key])
+						for r in variables:
+							line = i.rowcol(r.a)[0] + 1
+							path = i.file_name()
+							if line == word_line_num and path == PdxObject.path:
+								continue
+							else:
+								definitions.append(PdxScriptObject(PdxObject.key, path, line))
+
+			if len(definitions) == 1:
+				if def_value:
+					definition = f"<br>{def_value}<br><br>"
+					definition += f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+				else:
+					definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+			elif len(definitions) > 1:
+				if def_value:
+					definition = f"<br>{def_value}<br><br>"
+					definition += f"<p><b>Definitions of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+				else:
+					definition = f"<p><b>Definitions of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+			for obj in definitions:
+				goto_args = {"path": obj.path, "line": obj.line}
+				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (goto_url, obj.path.rpartition("\\")[2], obj.line, obj.path.rpartition("\\")[2], obj.line)
+				goto_right_args = {"path": obj.path, "line": obj.line}
+				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
+				definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>""" % (goto_right_url)
+		else:
+			if word_line_num != PdxObject.line and view.file_name() != PdxObject.path:
+				if def_value:
+					definition = f"<br>{def_value}<br><br>"
+					definition += f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+				else:
+					definition = f"<p><b>Definition of&nbsp;&nbsp;</b><tt class=\"variable\">{PdxObject.key}</tt></p>"
+				goto_args = {"path": PdxObject.path, "line": PdxObject.line}
+				goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+				definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (goto_url, PdxObject.path.rpartition("\\")[2], PdxObject.line, PdxObject.path.rpartition("\\")[2], PdxObject.line)
+				goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
+				goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
+				definition += """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>""" % (goto_right_url)
+
+		return definition
+
 	def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
 		args = { "path": full_texture_path }
 		open_texture_url = sublime.command_url("open_imperator_texture ", args)
@@ -2969,6 +3202,31 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 		view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY
 						|sublime.COOPERATE_WITH_AUTO_COMPLETE |sublime.HIDE_ON_CHARACTER_EVENT),
 						location=point, max_width=802)
+
+	def show_popup_named_color(self, view, point, word, PdxObject, header):
+		if view.file_name() is None:
+			return
+
+		object_color = PdxObject.color
+		css_color = PdxObject.rgb_color
+		r = css_color[0]
+		g = css_color[1]
+		b = css_color[2]
+		icon_color = f"rgb({r},{g},{b})"
+		color = f"<a class=\"icon\"style=\"color:{icon_color}\">■</a>\t\t\t<code>{object_color}</code>"
+
+		link = self.get_definitions_for_popup(view, point, PdxObject, header, color)
+		if link:
+			hoverBody = """
+				<body id="vic-body">
+					<style>%s</style>
+					<h1>%s</h1>
+					%s
+				</body>
+			""" % (css_basic_style, header, link)
+
+			view.show_popup(hoverBody, flags=(sublime.HIDE_ON_MOUSE_MOVE_AWAY | sublime.COOPERATE_WITH_AUTO_COMPLETE | sublime.HIDE_ON_CHARACTER_EVENT),
+							location=point, max_width=1024)
 
 class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
 	def run(self, path, line):
