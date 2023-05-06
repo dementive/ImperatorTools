@@ -8,7 +8,6 @@ from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 from .jomini import dict_to_game_object as make_object
 from .Utilities.game_data import GameData
 from .object_cache import GameObjectCache
-from .mod_cache import remake_cache
 
 # ----------------------------------
 # -          Plugin Setup          -
@@ -435,6 +434,9 @@ def check_mod_for_changes():
 	with open(mod_cache_path, "a") as f:
 		# Write remake_cache function that indicates if new game objects need to be made
 		f.write(f"def remake_cache():\n\treturn {True if mod_cache != new_mod_cache else False}")
+
+	from .mod_cache import remake_cache
+	
 	return remake_cache()
 
 def get_objects_from_cache():
