@@ -477,7 +477,7 @@ class GameData:
 			"change_unit_owner": "Destroys the unit from the current scope<br>Supported Scopes: unit<br>Supported Targets: country",
 			"damage_unit_morale_percent": "Applies the given morale damage to each Cohort in the unit as a percentage of their current morale<br>Supported Scopes: unit",
 			"damage_unit_percent": "Applies the given damage to each Cohort in the unit as a percentage of their current strength<br>Supported Scopes: unit",
-			"destroy_unit": "Destroys the unit from the current scope<br>Supported Scopes: unit",
+			"destroy_unit": "Destroys the unit from the current scope<br><code>destroy_unit = yes</code><br>Supported Scopes: unit",
 			"every_sub_unit": "Iterate through all subunits in a unit<br>every_sub_unit = { limit = { [triggers] } [effects] }<br>Supported Scopes: unit<br>Supported Targets: subunit",
 			"lock_unit": "Locks a Unit for the specified number of days<br>Supported Scopes: unit",
 			"ordered_sub_unit": "Iterate through all subunits in a unit<br>ordered_sub_unit = {<br>limit = { [triggers] }<br>order_by = script_value<br>position = int<br>min = int<br>max = script_value<br>check_range_bounds = no # If you don't want an error logged if the list is smaller than the min/max<br>[effects] }<br>Supported Scopes: unit<br>Supported Targets: subunit",

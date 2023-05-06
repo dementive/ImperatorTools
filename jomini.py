@@ -140,7 +140,7 @@ class GameObjectBase:
 			"desc", "compatibility", "name", "opposites", "triggered_opinion", "icon", "random_list", "limit", "random",
 			"potential", "abort", "chance", "on_potential", "on_start", "on_abort", "on_completion", "requires", "highlight",
 			"allow", "bypass", "ai_chance", "trigger", "family", "male_names", "female_names", "stability", "raise_legion",
-			"alternative_limit", "hidden_effect", "OR", "or", "prevented_by", "trigger_event", "current_ruler", "value", "bg"
+			"alternative_limit", "hidden_effect", "OR", "or", "prevented_by", "trigger_event", "current_ruler", "value", "bg", "custom_tooltip"
 		}
 
 	# Utility Functions shared between all GameObjects

@@ -400,9 +400,12 @@ def check_mod_for_changes():
 		# If there are no objects in the cache, they need to be created
 		return True
 	mod_cache_path = sublime.packages_path() + f"\\ImperatorTools\\mod_cache.py"
-	with open(mod_cache_path, "r") as f:
+	with open(mod_cache_path, "r+") as f:
 		# Save lines without remake_cache function
 		mod_cache = f.readlines()
+		if mod_cache == "":
+			f.write(f"def remake_cache():\n\treturn True")
+			return True
 		mod_cache = "".join(mod_cache[0:len(mod_cache) - 2])
 	with open(mod_cache_path, "w") as f:
 		# Clear
