@@ -77,6 +77,7 @@ contexts:
       push:
         - include: line_ending_space
         - match: ':'
+          scope: keyword.operator.comparison.imperator
           push:
             - match: \n|\s
               pop: 2
@@ -115,6 +116,7 @@ contexts:
       scope: keyword.effect
       push:
         - match: =
+          scope: keyword.operator.comparison.imperator
           push:
             - match: \n
               pop: 2
@@ -154,7 +156,7 @@ contexts:
       scope: keyword.effect
       push:
         - match: =
-          scope: keyword.operator.comparison.victoria
+          scope: keyword.operator.comparison.imperator
           push:
             - match: \n
               pop: 2
@@ -194,7 +196,7 @@ contexts:
       scope: string.trigger
       push:
         - match: =
-          scope: keyword.operator.comparison.victoria
+          scope: keyword.operator.comparison.imperator
           push:
             - match: \n
               pop: 2
@@ -234,36 +236,24 @@ contexts:
       scope: keyword.effect
       push:
         - match: =
-          scope: keyword.operator.comparison.victoria
-        - match: \{\n?+
+          scope: keyword.operator.comparison.imperator
           push:
-            - match: (#).*$\n?
-              scope: comment.line
-            - match: \}
+            - match: ({{valid_variable}})
+              scope: entity.name.function.var.declaration
               pop: 3
-            - match: name
-              scope: constant.numeric
+            - match: \{\n?+
               push:
-                - match: =
-                  scope: keyword.operator.comparison.victoria
-                - match: \n
-                  pop: 3
                 - match: (#).*$\n?
                   scope: comment.line
-                  pop: 3
-                - match: \$
-                  scope: keyword.dolla
+                - match: \}
+                  pop: 4
+                - match: name
+                  scope: constant.numeric
                   push:
-                    - include: line_ending
-                    - match: ({{valid_variable}})
-                      scope: variable.language.at.parameter
-                    - match: \$
-                      scope: keyword.dolla
-                      pop: 1
-                - match: ({{valid_variable}})
-                  scope: entity.name.function.var.declaration
-                  push:
-                    - include: auto-generated-content
+                    - match: =
+                      scope: keyword.operator.comparison.imperator
+                    - match: \n
+                      pop: 4
                     - match: (#).*$\n?
                       scope: comment.line
                       pop: 4
@@ -275,18 +265,26 @@ contexts:
                           scope: variable.language.at.parameter
                         - match: \$
                           scope: keyword.dolla
+                          pop: 1
+                    - match: ({{valid_variable}})
+                      scope: entity.name.function.var.declaration
+                      push:
+                        - include: auto-generated-content
+                        - include: manually-entered-content
+                        - match: (#).*$\n?
+                          scope: comment.line
                           pop: 5
-                    - match: \n
-                      pop: 4
-        - match: =
-          scope: keyword.operator.comparison.victoria
-          push:
-            - match: \n
-              pop: 2
-            - include: scripted-effect-zone
-            - match: ({{valid_variable}})
-              scope: entity.name.function.var.declaration
-              pop: 2
+                        - match: \$
+                          scope: keyword.dolla
+                          push:
+                            - include: line_ending
+                            - match: ({{valid_variable}})
+                              scope: variable.language.at.parameter
+                            - match: \$
+                              scope: keyword.dolla
+                              pop: 6
+                        - match: \n
+                          pop: 5
         - match: \n
           pop: 2
 
@@ -296,7 +294,7 @@ contexts:
       push:
         - include: line_ending
         - match: =
-          scope: keyword.operator.comparison.victoria
+          scope: keyword.operator.comparison.imperator
         - match: \{\n?+
           push:
             - match: (#).*$\n?
@@ -307,7 +305,7 @@ contexts:
               scope: constant.numeric
               push:
                 - match: =
-                  scope: keyword.operator.comparison.victoria
+                  scope: keyword.operator.comparison.imperator
                 - match: \n
                   pop: 3
                 - match: (#).*$\n?
@@ -503,28 +501,28 @@ contexts:
 
   equal_sign:
     - match: =
-      scope: keyword.operator.comparison.victoria
+      scope: keyword.operator.comparison.imperator
 
   manually-entered-content:
 
     # Math Operators
     - match: (\?=|<=|<|!=|>=|>|=|:)
-      scope: keyword.operator.comparison.victoria
+      scope: keyword.operator.comparison.imperator
 
     # Math/Sound
     - match: \b(sacrifice_sound|soundeffect|sound|range|factor|percent|nearest|multiplier|amount|add|subtract|max|min|round|ceiling|floor|divide|modulo|multiply|divide|integer_range|clicksound)\b
       scope: variable.language
 
     # Essential Scipt Functions/textures/localization key field
-    - match: \b(on_action|goto_location|interface_lock|left_portrait|right_portrait|country_decisions|diplo_chance|confirm_title|confirm_text|sacrifice_icon|header|final|monthly_on_action|image|icon_override|technology|group|great_work_module|great_work_effect_tier|tier_modifier_tooltip_override|attachments|great_work_material|great_work_surface_materials|great_work_category_slots|key|theme|picture|template|deity_category|type|localization_key|graphical_culture|ethnicities|textured_emblem|colored_emblem|modification_display|item|initial_view|button_text|title|description|background|triggered_desc|namespace|chance|mode|default|base|weight|first_name|last_name|texture|icon|title|desc|duration|default_option|months|days|years|hidden|id|text|name|order_by)\b
+    - match: \b(check_range_bounds|on_action|goto_location|interface_lock|left_portrait|right_portrait|country_decisions|diplo_chance|confirm_title|confirm_text|sacrifice_icon|header|final|monthly_on_action|image|icon_override|technology|group|great_work_module|great_work_effect_tier|tier_modifier_tooltip_override|attachments|great_work_material|great_work_surface_materials|great_work_category_slots|key|theme|picture|template|deity_category|type|localization_key|graphical_culture|ethnicities|textured_emblem|colored_emblem|modification_display|item|initial_view|button_text|title|description|background|triggered_desc|namespace|chance|mode|default|base|weight|first_name|last_name|texture|icon|title|desc|duration|default_option|months|days|years|hidden|id|text|name|order_by)\b
       scope: constant.numeric
 
     # Effects
-    - match: \b(great_work_effect)\b
+    - match: \b(enable_ability|great_work_effect)\b
       scope: keyword.effect
 
     #Triggers/boolean values
-    - match: \b(female|alternative_limit|prevented_by|assault|fire_only_once|weight_multiplier|uses_civil_war_conquest|is_flank|legions|idle_entity_state|toggle|army_only|allow_unit_type|joins_overlord_in_war|protected_when_attacked|has_overlords_ruler|can_be_integrated|costs_diplomatic_slot|subject_can_cancel|has_limited_diplomacy|religion_category|is_established_city|is_slaves|block_colonization|is_linked_with_holdings|integrated_pop_type_right|is_citizen|score|levy_tier|can_promote_to|demotes_to|skill|repeatable|enable_tactic|requires_or|requires|keystone|can_build|great_work_tier_effect_modifiers|use_regnal_numbers|ruler_consort_benefits|revolt|has_co_ruler|can_deify_ruler|natural|random_valid|levy_template|primary|second|flank|primary_navy|secondary_navy|flank_navy|male_names|female_names|barbarian_names|use_as_default|navy|on_other_nation|on_own_nation|message|pure_weight|modifier|fallback|highlight_elements)\b
+    - match: \b(first_valid|female|alternative_limit|prevented_by|assault|fire_only_once|weight_multiplier|uses_civil_war_conquest|is_flank|legions|idle_entity_state|toggle|army_only|allow_unit_type|joins_overlord_in_war|protected_when_attacked|has_overlords_ruler|can_be_integrated|costs_diplomatic_slot|subject_can_cancel|has_limited_diplomacy|religion_category|is_established_city|is_slaves|block_colonization|is_linked_with_holdings|integrated_pop_type_right|is_citizen|score|levy_tier|can_promote_to|demotes_to|skill|repeatable|enable_tactic|requires_or|requires|keystone|can_build|great_work_tier_effect_modifiers|use_regnal_numbers|ruler_consort_benefits|revolt|has_co_ruler|can_deify_ruler|natural|random_valid|levy_template|primary|second|flank|primary_navy|secondary_navy|flank_navy|male_names|female_names|barbarian_names|use_as_default|navy|on_other_nation|on_own_nation|message|pure_weight|modifier|fallback|highlight_elements)\b
       scope: string.trigger
 
     # Scopes/value fields

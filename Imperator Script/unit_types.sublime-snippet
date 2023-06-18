@@ -1,0 +1,117 @@
+<snippet>
+	<content><![CDATA[
+### Archers ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_archers"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_archers"
+	clone = "${3:Legion Unit}"
+}
+
+### Camels ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_camels"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_camels"
+	clone = "${3:Legion Unit}"
+}
+
+### Chariots ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_chariots"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_chariots"
+	clone = "${3:Legion Unit}"
+}
+
+### Engineer Cohort ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_engineer_cohort"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_engineer_cohort"
+	clone = "${3:Legion Unit}"
+}
+
+### Heavy Cavalry ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_heavy_cavalry"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_heavy_cavalry"
+	clone = "${3:Legion Unit}"
+}
+
+### Heavy Infantry ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_heavy_infantry"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_heavy_infantry"
+	clone = "${3:Legion Unit}"
+}
+
+### Horse Archers ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_horse_archers"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_horse_archers"
+	clone = "${3:Legion Unit}"
+}
+
+### Light Cavalry ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_light_cavalry"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_light_cavalry"
+	clone = "${3:Legion Unit}"
+}
+
+### Light Infantry ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_light_infantry"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_light_infantry"
+	clone = "${3:Legion Unit}"
+}
+
+### Supply Train ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_supply_train"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_supply_train"
+	clone = "${3:Legion Unit}"
+}
+
+### War Elephant ----------------------------------------------------------------
+entity ={
+	name = "${1:TAG}_levy_warelephant"
+	clone = "${2:Levy Unit}"
+}
+entity ={
+	name = "${1:TAG}_legion_warelephant"
+	clone = "${3:Legion Unit}"
+}
+	]]></content>
+	<!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
+	<tabTrigger>New Unit</tabTrigger>
+	<scope>text.asset</scope>
+	<description>Unit Asset Creation</description>
+</snippet>
