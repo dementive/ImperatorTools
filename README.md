@@ -49,7 +49,7 @@ Several commands have also been added to the command palette. Open it with `ctrl
 
 # GUI and Shader Modding
 
-The .gui, .shader, and .fxh syntaxes are part of the Victoria 3 sublime tools so to get them working you will need to download it and enable the `VictoriaGui` and `PdxShader` syntaxes found here:
+The .gui, .shader, and .fxh syntaxes are part of the Victoria 3 sublime tools so to get them working you will need to download it and enable the `VictoriaGui` and `PdxShader` syntaxes found here:  
 https://github.com/dementive/Victoria3Tools
 
 
