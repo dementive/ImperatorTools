@@ -181,7 +181,7 @@ class GameObjectBase:
 		""" Check if the PdxScriptObjectType contains a specified PdxScriptObject or a string"""
 		return True if key in self.main.objects else False
 
-	def keys(self) -> list():
+	def keys(self) -> list:
 		""" Return a list of the keys in the object"""
 		keys = []
 		for i in self.main.objects:
@@ -230,6 +230,12 @@ class GameObjectBase:
 	# Class Functions needed to initialize data, don't need to be use anything below this after initilization of class
 	def get_data(self, objpath: str) -> None:
 		# Fill collections with vanilla data
+
+		# Split the objpath using the Windows path separator
+		objpath_parts = objpath.split('\\')
+		# Create a platform-independent path using os.path.join()
+		objpath = os.path.join(*objpath_parts)
+		
 		for dirpath, dirnames, filenames in os.walk(self.vanilla_path):
 			if objpath in dirpath:
 				self.main += self.get_pdx_object_list(dirpath)
@@ -241,6 +247,11 @@ class GameObjectBase:
 					self.main += self.get_pdx_object_list(dirpath)
 
 		# Remove vanilla objects when mod file overrides vanilla file but the mod file doens't include that object
+
+		#
+		# TODO this does not work and I can't figure out how to make it work right now but it's pretty important so need to figure it out
+		#
+
 		vanilla_files = set()
 		mod_files = set()
 

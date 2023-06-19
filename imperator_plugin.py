@@ -431,13 +431,15 @@ class ImperatorNamedColor(GameObjectBase):
 GameData = GameData()
 
 # Global Object Variables that get set on plugin_loaded
-ambition = building = culture = culture_group = death_reason = deity = diplo_stance = econ_policy = ""
-event_pic = event_theme = government = governor_policy = heritage = idea = invention = ""
-law = legion_distinction = levy_template = loyalty = mil_tradition = modifier = opinion = ""
-office = party = pop = price = province_rank = religion = script_value = scripted_effect = ""
-scripted_modifier = scripted_trigger = subject_type = tech_table = terrain = trade_good = trait = ""
-unit = war_goal = mission = mission_task = area = region = scripted_list_triggers = scripted_list_effects = ""
-named_colors = ""
+
+default_object = GameObjectBase()
+ambition = building = culture = culture_group = death_reason = deity = diplo_stance = econ_policy = default_object
+event_pic = event_theme = government = governor_policy = heritage = idea = invention = default_object
+law = legion_distinction = levy_template = loyalty = mil_tradition = modifier = opinion = default_object
+office = party = pop = price = province_rank = religion = script_value = scripted_effect = default_object
+scripted_modifier = scripted_trigger = subject_type = tech_table = terrain = trade_good = trait = default_object
+unit = war_goal = mission = mission_task = area = region = scripted_list_triggers = scripted_list_effects = default_object
+named_colors = default_object
 
 # Function to fill all global game objects that get set in non-blocking async function on plugin_loaded
 # Setting all the objects can be slow and doing it on every hover (when they are actually used) is even slower,
@@ -449,11 +451,11 @@ def check_mod_for_changes():
     Check if any changes have been made to mod files
     if changes have been made new game objects need to be generated and cached
     """
-    object_cache_path = sublime.packages_path() + f"\\ImperatorTools\\object_cache.py"
+    object_cache_path = sublime.packages_path() + f"/ImperatorTools/object_cache.py"
     if os.stat(object_cache_path).st_size < 200:
         # If there are no objects in the cache, they need to be created
         return True
-    mod_cache_path = sublime.packages_path() + f"\\ImperatorTools\\mod_cache.py"
+    mod_cache_path = sublime.packages_path() + f"/ImperatorTools/mod_cache.py"
     with open(mod_cache_path, "r+") as f:
         # Save lines without remake_cache function
         mod_cache = f.readlines()
@@ -467,13 +469,13 @@ def check_mod_for_changes():
 
     for path in imperator_mod_files:
         stats_dict = dict()
-        mod_name = path.rpartition("\\")[2]
+        mod_name = path.replace("\\", "/").rstrip("/").rpartition("/")[2]
         mod_class_name = mod_name.replace(" ", "")
         for dirpath, dirnames, filenames in os.walk(path):
             mod_files = [x for x in filenames if x.endswith(".txt")]
             if mod_files:
                 for i, j in enumerate(mod_files):
-                    full_path = dirpath + "\\" + mod_files[i]
+                    full_path = dirpath + "/" + mod_files[i]
                     stats_dict[full_path] = os.stat(full_path).st_mtime
         with open(mod_cache_path, "a") as f:
             f.write("#")
@@ -554,8 +556,8 @@ def get_objects_from_cache():
 
 def cache_all_objects():
     # Write all generated objects to cache
-    path = sublime.packages_path() + f"\\ImperatorTools\\object_cache.py"
-    with open(path, "w") as f:
+    path = sublime.packages_path() + f"/ImperatorTools/object_cache.py"
+    with open(path, "w", encoding="utf-8") as f:
         f.write("class GameObjectCache:\n\tdef __init__(self):")
         f.write(f"\n\t\tself.ambition = {ambition.to_json()}")
         f.write(f"\n\t\tself.building = {building.to_json()}")
@@ -729,7 +731,7 @@ def plugin_loaded():
         get_objects_from_cache()
 
     cache_size_limit = settings.get("MaxImageCacheSize")
-    cache = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\"
+    cache = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/"
     cache_files = [x for x in os.listdir(cache) if x.endswith(".png")]
     if len(cache_files) > cache_size_limit:
         for i in cache_files:
@@ -755,10 +757,10 @@ def add_color_scheme_scopes():
 
 def write_data_to_syntax():
     fake_syntax_path = (
-        sublime.packages_path() + "\\ImperatorTools\\Imperator Script\\ImperatorSyntax.fake-sublime-syntax"
+        sublime.packages_path() + "/ImperatorTools/Imperator Script/ImperatorSyntax.fake-sublime-syntax"
     )
     real_syntax_path = (
-        sublime.packages_path() + "\\ImperatorTools\\Imperator Script\\ImperatorSyntax.sublime-syntax"
+        sublime.packages_path() + "/ImperatorTools/Imperator Script/ImperatorSyntax.sublime-syntax"
     )
     with open(fake_syntax_path, "r") as file:
         lines = file.read()
@@ -1883,7 +1885,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
 
                 return sublime.CompletionList(e_list + t_list)
-            if "common\\prices" in fname:
+            if "common/prices" in fname:
                 return sublime.CompletionList(
                     [
                         sublime.CompletionItem(
@@ -1928,7 +1930,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     ]
                 )
             if self.modifier_field or re.search(
-                "common\\\s?(modifiers|traits|buildings|governor_policies|trade_goods)", fname
+                "common(\\|/)\s?(modifiers|traits|buildings|governor_policies|trade_goods)", fname
             ):
                 return sublime.CompletionList(
                     [
@@ -1943,7 +1945,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     ],
                     flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
                 )
-            if "\\events\\" in fname:
+            if "/events/" in fname:
                 return sublime.CompletionList(
                     GameData.EventsList, flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_REORDER
                 )
@@ -2946,7 +2948,7 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
         # If it should be UTF-8 with BOM and it is not create error panel
         path = self.view.file_name()
         # Coat of arms is the only files that are only UTF-8 not UTF-8 with BOM
-        utf8_paths = re.search(r"(common\\coat_of_arms)", path)
+        utf8_paths = re.search(r"(common/coat_of_arms)", path)
         bom_paths = re.search(r"(events|common|music|localization)", path)
         with open(path, "r+b") as fp:
             old_encoding = self.view.encoding()
@@ -3144,7 +3146,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 texture_raw_end = view.find(".dds", posLine.a)
                 texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
                 texture_raw_path = view.substr(texture_raw_region)
-                full_texture_path = imperator_files_path + "\\" + texture_raw_path
+                full_texture_path = imperator_files_path + "/" + texture_raw_path
                 if not os.path.exists(full_texture_path):
                     # Check mod paths if it's not vanilla
                     for mod in imperator_mod_files:
@@ -3152,14 +3154,13 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                             if mod.endswith("mod"):
                                 # if it is the path to the mod directory, get all directories in it
                                 for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
-                                    mod_path = directory + "\\" + texture_raw_path
+                                    mod_path = directory + "/" + texture_raw_path
                                     if os.path.exists(mod_path):
                                         full_texture_path = mod_path
                             else:
-                                mod_path = mod + "\\" + texture_raw_path
+                                mod_path = mod + "/" + texture_raw_path
                                 if os.path.exists(mod_path):
                                     full_texture_path = mod_path
-                full_texture_path = full_texture_path.replace("/", "\\")
                 # The path exists and the point in the view is inside of the path
                 if texture_raw_region.__contains__(point):
                     texture_name = view.substr(view.word(texture_raw_end.a - 1))
@@ -3429,7 +3430,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
     def show_popup_default(self, view, point, word, PdxObject, header):
         word_line_num = view.rowcol(point)[0] + 1
-        word_file = view.file_name().rpartition("\\")[2]
+        word_file = view.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
         definition = ""
         definitions = []
 
@@ -3470,9 +3471,9 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 goto_url = sublime.command_url("goto_script_object_definition", goto_args)
                 definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
                     goto_url,
-                    obj.path.rpartition("\\")[2],
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     obj.line,
-                    obj.path.rpartition("\\")[2],
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     obj.line,
                 )
                 goto_right_args = {"path": obj.path, "line": obj.line}
@@ -3491,9 +3492,9 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 goto_url = sublime.command_url("goto_script_object_definition", goto_args)
                 definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
                     goto_url,
-                    PdxObject.path.rpartition("\\")[2],
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     PdxObject.line,
-                    PdxObject.path.rpartition("\\")[2],
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     PdxObject.line,
                 )
                 goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
@@ -3513,7 +3514,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     for j, line in enumerate(view_str.splitlines()):
                         definition_found = False
                         if PdxObject.key in line and "#" not in line:
-                            filename = i.file_name().rpartition("\\")[2]
+                            filename = i.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
                             line_num = j + 1
                             if definitions:
                                 # Don't do definitions for scopes and variables
@@ -3532,7 +3533,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             ref = f'<p><b>References to&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
             for i in references:
                 fname = i.split("|")[0]
-                shortname = fname.rpartition("\\")[2]
+                shortname = fname.replace("\\", "/").rstrip("/").rpartition("/")[2]
                 line = i.split("|")[1]
                 goto_args = {"path": fname, "line": line}
                 goto_url = sublime.command_url("goto_script_object_definition", goto_args)
@@ -3577,7 +3578,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
     def get_definitions_for_popup(self, view, point, PdxObject, header, def_value=""):
         word_line_num = view.rowcol(point)[0] + 1
-        word_file = view.file_name().rpartition("\\")[2]
+        word_file = view.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
         definition = ""
         definitions = []
         if header == "Saved Scope" or header == "Saved Variable":
@@ -3629,9 +3630,9 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 goto_url = sublime.command_url("goto_script_object_definition", goto_args)
                 definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
                     goto_url,
-                    obj.path.rpartition("\\")[2],
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     obj.line,
-                    obj.path.rpartition("\\")[2],
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     obj.line,
                 )
                 goto_right_args = {"path": obj.path, "line": obj.line}
@@ -3655,9 +3656,9 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 goto_url = sublime.command_url("goto_script_object_definition", goto_args)
                 definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
                     goto_url,
-                    PdxObject.path.rpartition("\\")[2],
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     PdxObject.line,
-                    PdxObject.path.rpartition("\\")[2],
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
                     PdxObject.line,
                 )
                 goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
@@ -3788,16 +3789,16 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
     def run(self, path, folder=False, mode="default_program"):
         if folder:
-            end = path.rfind("\\")
+            end = path.rfind("/")
             path = path[0:end:]
             os.startfile(path)
         else:
             if mode == "default_program":
                 os.startfile(path)
             elif mode == "in_sublime":
-                simple_path = path.rpartition("\\")[2].replace(".dds", ".png")
-                output_file = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\" + simple_path
-                exe_path = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\src\\ConvertDDS.exe"
+                simple_path = path.replace("\\", "/").rstrip("/").rpartition("/")[2].replace(".dds", ".png")
+                output_file = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/" + simple_path
+                exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
 
                 if not os.path.exists(output_file):
                     # Run dds to png converter
@@ -3811,7 +3812,7 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
 
 class ImpClearImageCacheCommand(sublime_plugin.WindowCommand):
     def run(self):
-        dir_name = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\"
+        dir_name = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/"
         ld = os.listdir(dir_name)
         for item in ld:
             if item.endswith(".png"):
@@ -3922,9 +3923,9 @@ class ImperatorShowTextureBase:
 
     def show_texture(self, path, point):
         window = sublime.active_window()
-        simple_path = path.rpartition("\\")[2].replace(".dds", ".png")
-        output_file = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\cache\\" + simple_path
-        exe_path = sublime.packages_path() + "\\ImperatorTools\\Convert DDS\\src\\ConvertDDS.exe"
+        simple_path = path.replace("\\", "/").rstrip("/").rpartition("/")[2].replace(".dds", ".png")
+        output_file = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/" + simple_path
+        exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
         if not os.path.exists(output_file):
             window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
             # Wait 100ms for conversion to finish
@@ -4049,6 +4050,6 @@ class ImperatorShowAllTexturesCommand(sublime_plugin.WindowCommand, ImperatorSho
             texture_raw_end = view.find(".dds", line.a)
             texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
             texture_raw_path = view.substr(texture_raw_region)
-            full_texture_path = imperator_files_path + "\\" + texture_raw_path
-            full_texture_path = full_texture_path.replace("/", "\\")
+            full_texture_path = imperator_files_path + "/" + texture_raw_path
+            full_texture_path = full_texture_path.replace("\\", "/")
             self.show_texture(full_texture_path, texture_raw_start.a)
