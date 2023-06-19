@@ -29,8 +29,12 @@ Select ```Imperator Rome Scripting``` as the default syntax for .txt.
 For .yml files use ``` Imperator Localization ```.
 For .log files use ```Imperator Log Syntax```.
 
-In addition to syntax highlighting all effects, triggers, and scopes have been added to autocompletion. At any time you can press ```ctrl+space``` and start typing and autocompletion will open. Context aware autocompletions will also show up to fill in valid game objects
-There are also autocompletions for some balancing effects and whole templates, like a country event templates for example.
+In addition to syntax highlighting all effects, triggers, and scopes have been added to autocompletion.  
+At any time you can press ```ctrl+space``` and start typing and autocompletion will open, autocomplete.  
+Context aware autocompletions will also show up to fill in valid game objects.  
+There are also snippets for some balancing effects and whole templates, like a country event templates for example.
+
+Status bar text will indicate when your cursor is inside of an effect, trigger, modifier, or value block and appropriate autocompletion will be shown depending on the kind of block the cursor is in.
 
 Goto Definition popups also have been added for all game objects and for saved scopes or variables.
 
