@@ -57,6 +57,10 @@ The .gui, .shader, and .fxh syntaxes are part of the Victoria 3 sublime tools so
 https://github.com/dementive/Victoria3Tools
 
 
+
+# Images
+
+
 ![Script Screenshot](/assets/image1.png)
 
 ![Script Screenshot 2](/assets/image2.png)
