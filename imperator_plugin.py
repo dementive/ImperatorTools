@@ -3124,14 +3124,14 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             return
 
         if settings.get("DocsHoverEnabled") == True:
-            if view.match_selector(point, "keyword.effect"):
+            if view.match_selector(point, "keyword.effect") or view.match_selector(point, "support.function"):
                 show_hover_docs(view, point, "keyword.effect", GameData.EffectsList)
 
             if view.match_selector(point, "string.trigger"):
                 GameData.TriggersList.update(GameData.CustomTriggersList)
                 show_hover_docs(view, point, "string.trigger", GameData.TriggersList)
 
-            if view.match_selector(point, "storage.type.scope"):
+            if view.match_selector(point, "storage.type.scope") or view.match_selector(point, "support.function.boolean"):
                 GameData.ScopesList.update(GameData.CustomScopesList)
                 show_hover_docs(view, point, "storage.type.scope", GameData.ScopesList)
 
