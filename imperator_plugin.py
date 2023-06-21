@@ -1,5 +1,5 @@
 import sublime, sublime_plugin
-import os, re, time, webbrowser, threading
+import os, re, time, webbrowser, threading, sys, subprocess
 import struct
 import Default.exec
 from colorsys import hsv_to_rgb
@@ -3788,13 +3788,16 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
     def run(self, path, folder=False, mode="default_program"):
+        opener = "open" if sys.platform == "darwin" else "xdg-open"
         if folder:
             end = path.rfind("/")
             path = path[0:end:]
-            os.startfile(path)
+            #subprocess.call([opener, path])
+            OpenImperatorTextureCommand.open_path(path)
         else:
             if mode == "default_program":
-                os.startfile(path)
+                #subprocess.call([opener, path])
+                OpenImperatorTextureCommand.open_path(path)
             elif mode == "in_sublime":
                 simple_path = path.replace("\\", "/").rstrip("/").rpartition("/")[2].replace(".dds", ".png")
                 output_file = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/" + simple_path
@@ -3808,6 +3811,16 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
                 else:
                     # File is already in cache, don't need to convert
                     sublime.active_window().open_file(output_file)
+    @staticmethod
+    def open_path(path):
+        system = sys.platform
+        print(system)
+        if system == 'Darwin':  # macOS
+            subprocess.call(('open', path))
+        elif system == 'Windows' or system == 'win32' or system == 'win':  # Windows
+            os.startfile(path)
+        else:  # Linux and other Unix-like systems
+            subprocess.call(('xdg-open', path))
 
 
 class ImpClearImageCacheCommand(sublime_plugin.WindowCommand):
