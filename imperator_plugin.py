@@ -4064,15 +4064,12 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
 
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
     def run(self, path, folder=False, mode="default_program"):
-        opener = "open" if sys.platform == "darwin" else "xdg-open"
         if folder:
             end = path.rfind("/")
             path = path[0:end:]
-            # subprocess.call([opener, path])
             OpenImperatorTextureCommand.open_path(path)
         else:
             if mode == "default_program":
-                # subprocess.call([opener, path])
                 OpenImperatorTextureCommand.open_path(path)
             elif mode == "in_sublime":
                 simple_path = (
@@ -4091,13 +4088,19 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
                     + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
                 )
 
-                if sublime.platform() == "linux":
-                    exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS"
-
                 if not os.path.exists(output_file):
                     # Run dds to png converter
+                    cmd = (
+                        ["wine", exe_path, path, output_file]
+                        if sublime.platform() == "linux"
+                        else [exe_path, path, output_file]
+                    )
                     self.window.run_command(
-                        "exec", {"cmd": [exe_path, path, output_file], "quiet": True}
+                        "exec",
+                        {
+                            "cmd": cmd,
+                            "quiet": True,
+                        },
                     )
                     self.window.destroy_output_panel("exec")
                     sublime.active_window().open_file(output_file)
@@ -4109,11 +4112,11 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
     def open_path(path):
         system = sys.platform
         if system == "Darwin":  # macOS
-            subprocess.call(("open", path))
+            subprocess.Popen(("open", path))
         elif system == "Windows" or system == "win32" or system == "win":  # Windows
             os.startfile(path)
         else:  # Linux and other Unix-like systems
-            subprocess.call(("xdg-open", path))
+            subprocess.Popen(("xdg-open", path))
 
 
 class ImpClearImageCacheCommand(sublime_plugin.WindowCommand):
@@ -4236,6 +4239,7 @@ class ImperatorViewTextures(sublime.View):
 
 class ImperatorShowTextureBase:
     conversion_iterations = 0
+    total_conversion_attempts = 2 if sublime.platform() == "linux" else 6
 
     def show_texture(self, path, point):
         window = sublime.active_window()
@@ -4251,23 +4255,32 @@ class ImperatorShowTextureBase:
         exe_path = (
             sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
         )
-        if sublime.platform() == "linux":
-            exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS"
         if not os.path.exists(output_file):
-            window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
+            cmd = (
+                ["wine", exe_path, path, output_file]
+                if sublime.platform() == "linux"
+                else [exe_path, path, output_file]
+            )
+            window.run_command("exec", {"cmd": cmd, "quiet": True})
+            window.destroy_output_panel("exec")
             # Wait 100ms for conversion to finish
+            timeout = 2000 if sublime.platform() == "linux" else 100
             sublime.set_timeout_async(
                 lambda: self.toggle_async(
                     output_file, simple_path, point, window, path
                 ),
-                100,
+                timeout,
             )
         else:
             self.toggle_async(output_file, simple_path, point, window, path)
 
     def toggle_async(self, output_file, simple_path, point, window, original_path):
         # Try to convert for 500ms
-        if not os.path.exists(output_file) and self.conversion_iterations < 6:
+
+        if (
+            not os.path.exists(output_file)
+            and self.conversion_iterations < self.total_conversion_attempts
+        ):
             self.conversion_iterations += 1
             self.show_texture(original_path, point)
         elif os.path.exists(output_file):
