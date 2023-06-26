@@ -4091,6 +4091,9 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
                     + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
                 )
 
+                if sublime.platform() == "linux":
+                    exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS"
+
                 if not os.path.exists(output_file):
                     # Run dds to png converter
                     self.window.run_command(
@@ -4248,6 +4251,8 @@ class ImperatorShowTextureBase:
         exe_path = (
             sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
         )
+        if sublime.platform() == "linux":
+            exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS"
         if not os.path.exists(output_file):
             window.run_command("quiet_execute", {"cmd": [exe_path, path, output_file]})
             # Wait 100ms for conversion to finish
