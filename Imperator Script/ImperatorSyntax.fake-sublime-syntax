@@ -369,7 +369,7 @@ contexts:
           pop: true
 
   effect-block-start:
-    - match: \b(after|on_in_power|start_effect|on_bypass|on_potential|on_completion|on_enact|on_start|on_finish|on_abort|on_monthly|effect|on_activate|on_timeout|on_fail|on_complete|on_enable|on_disable|when_taken|immediate|option)\b
+    - match: \b(finish_effect|after|on_in_power|start_effect|on_bypass|on_potential|on_completion|on_enact|on_start|on_finish|on_abort|on_monthly|effect|on_activate|on_timeout|on_fail|on_complete|on_enable|on_disable|when_taken|immediate|option)\b
       scope: keyword.effect.block.start
       push:
         - include: line_ending

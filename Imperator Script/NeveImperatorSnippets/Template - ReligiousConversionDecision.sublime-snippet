@@ -1,0 +1,38 @@
+<snippet>
+	<content><![CDATA[
+	convert_to_${1:RELIGION} = {
+
+		potential = {
+			num_of_cities >= 1
+			potential_change_religion_trigger = {
+				RELIGION = ${1:RELIGION}
+			}
+		}
+
+		allow = {
+			could_change_religion_trigger = {
+				RELIGION = ${1:RELIGION}
+			}
+		}
+
+		effect = {
+			change_religion_effect = {
+				RELIGION = ${1:RELIGION}
+			}
+		}
+
+		ai_will_do = {
+			factor = 0
+			modifier = {
+				add = 1
+				capital_scope = {
+					dominant_province_religion = ${1:RELIGION}
+				}
+			}
+		}
+	}
+	]]></content>
+	<!-- ${1:Selection Field 1}.${2:Selection Field 2} -->
+	<tabTrigger>religious_conversion_decision</tabTrigger>
+	<scope>text.imperator</scope>
+</snippet>
