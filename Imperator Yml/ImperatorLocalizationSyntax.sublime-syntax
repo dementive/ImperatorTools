@@ -92,6 +92,7 @@ contexts:
       push:
         - meta_content_scope: text.format.white.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
@@ -105,6 +106,7 @@ contexts:
       push:
         - meta_content_scope: text.format.grey.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
@@ -118,6 +120,7 @@ contexts:
       push:
         - meta_content_scope: text.format.red.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
@@ -131,6 +134,7 @@ contexts:
       push:
         - meta_content_scope: text.format.green.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
@@ -144,6 +148,7 @@ contexts:
       push:
         - meta_content_scope: text.format.blue.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
@@ -157,6 +162,7 @@ contexts:
       push:
         - meta_content_scope: text.format.gold.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
@@ -170,6 +176,7 @@ contexts:
       push:
         - meta_content_scope: text.format.bold.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
@@ -183,6 +190,7 @@ contexts:
       push:
         - meta_content_scope: text.format.italic.yml
         - include: dollar-zone
+        - include: symbols
         - include: function-zone
         - include: loc-key-call
         - include: text-formatting
