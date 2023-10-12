@@ -3031,6 +3031,7 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
 
         window.run_command("new_file")
         loc_view = window.active_view()
+        loc_view.set_encoding("UTF-8 with BOM")
         loc_view.set_name("Localization")
         capital_input = name.replace("_", " ").title()
         text = 'l_english:\n\n{name}:0 "{capital_input}"\n{name}_DESCRIPTION:0 "Mission description"\n{name}_CRITERIA_DESCRIPTION:0 "This mission will be completed when"\n{name}_BUTTON_TOOLTIP:0 ""\n\n#Missions\n\n'.format(
@@ -3039,7 +3040,7 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
         loc_view.insert(edit, len(loc_view), text)
         for i in range(int(mission_count)):
             i += 1
-            text = '{name}_task_{i}:0 ""\n{name}_DESC:0 ""\n\n'.format(i=i, name=name)
+            text = '{name}_{i}:0 ""\n{name}_DESC:0 ""\n\n'.format(i=i, name=name)
             loc_view.insert(edit, len(loc_view), text)
         text = "\n#Tooltips\n\n\n"
         loc_view.insert(edit, len(loc_view), text)
@@ -3067,6 +3068,7 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
                 name=name, i=i, event_name=event_name
             )
             mission_view.insert(edit, len(mission_view), text)
+        mission_view.insert(edit, len(mission_view), "\n}")
 
     def input(self, args):
         if "name" not in args:
