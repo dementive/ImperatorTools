@@ -272,17 +272,13 @@ class ImperatorWargoal(GameObjectBase):
 
 class ImperatorArea(GameObjectBase):
     def __init__(self):
-        super().__init__(
-            imperator_mod_files, imperator_files_path, included_files=["areas.txt"]
-        )
+        super().__init__(imperator_mod_files, imperator_files_path, included_files=["areas.txt"])
         self.get_data("map_data")
 
 
 class ImperatorRegion(GameObjectBase):
     def __init__(self):
-        super().__init__(
-            imperator_mod_files, imperator_files_path, included_files=["regions.txt"]
-        )
+        super().__init__(imperator_mod_files, imperator_files_path, included_files=["regions.txt"])
         self.get_data("map_data")
 
 
@@ -340,11 +336,7 @@ class PdxColorObject(PdxScriptObject):
                 r = rgb[0]
                 g = rgb[1]
                 b = rgb[2]
-                if (
-                    split_color[2] == "187"
-                    and split_color[3] == "83"
-                    and split_color[4] == "146"
-                ):
+                if split_color[2] == "187" and split_color[3] == "83" and split_color[4] == "146":
                     r = 230
                     g = 0
                     b = 230
@@ -416,9 +408,7 @@ class ImperatorNamedColor(GameObjectBase):
                 with open(file_path, "r", encoding="utf-8-sig") as file:
                     for i, line in enumerate(file):
                         if self.should_read(line):
-                            found_item = re.search(
-                                r"([A-Za-z_][A-Za-z_0-9]*)\s*=(.*)", line
-                            )
+                            found_item = re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=(.*)", line)
                             if found_item and found_item.groups()[0]:
                                 item_color = found_item.groups()[1]
                                 found_item = found_item.groups()[0]
@@ -429,11 +419,7 @@ class ImperatorNamedColor(GameObjectBase):
                                 else:
                                     item_color = item_color.replace("\t", " ") + " }"
                                     item_color = re.sub(r"\s+", " ", item_color)
-                                    obj_list.append(
-                                        PdxColorObject(
-                                            found_item, file_path, i + 1, item_color
-                                        )
-                                    )
+                                    obj_list.append(PdxColorObject(found_item, file_path, i + 1, item_color))
         return PdxScriptObjectType(obj_list)
 
     def should_read(self, x: str) -> bool:
@@ -449,30 +435,16 @@ GameData = GameData()
 default_object = GameObjectBase()
 ambition = (
     building
-) = (
-    culture
-) = culture_group = death_reason = deity = diplo_stance = econ_policy = default_object
-event_pic = (
-    event_theme
-) = government = governor_policy = heritage = idea = invention = default_object
-law = (
-    legion_distinction
-) = levy_template = loyalty = mil_tradition = modifier = opinion = default_object
-office = (
-    party
-) = (
-    pop
-) = price = province_rank = religion = script_value = scripted_effect = default_object
+) = culture = culture_group = death_reason = deity = diplo_stance = econ_policy = default_object
+event_pic = event_theme = government = governor_policy = heritage = idea = invention = default_object
+law = legion_distinction = levy_template = loyalty = mil_tradition = modifier = opinion = default_object
+office = party = pop = price = province_rank = religion = script_value = scripted_effect = default_object
 scripted_modifier = (
     scripted_trigger
 ) = subject_type = tech_table = terrain = trade_good = trait = default_object
 unit = (
     war_goal
-) = (
-    mission
-) = (
-    mission_task
-) = area = region = scripted_list_triggers = scripted_list_effects = default_object
+) = mission = mission_task = area = region = scripted_list_triggers = scripted_list_effects = default_object
 named_colors = default_object
 
 # Function to fill all global game objects that get set in non-blocking async function on plugin_loaded
@@ -524,9 +496,7 @@ def check_mod_for_changes():
         new_mod_cache = "".join(f.readlines())
     with open(mod_cache_path, "a") as f:
         # Write remake_cache function that indicates if new game objects need to be made
-        f.write(
-            f"def remake_cache():\n\treturn {True if mod_cache != new_mod_cache else False}"
-        )
+        f.write(f"def remake_cache():\n\treturn {True if mod_cache != new_mod_cache else False}")
 
     from .mod_cache import remake_cache
 
@@ -638,9 +608,7 @@ def cache_all_objects():
         f.write(f"\n\t\tself.mission_task = {mission_task.to_json()}")
         f.write(f"\n\t\tself.area = {area.to_json()}")
         f.write(f"\n\t\tself.region = {region.to_json()}")
-        f.write(
-            f"\n\t\tself.scripted_list_triggers = {scripted_list_triggers.to_json()}"
-        )
+        f.write(f"\n\t\tself.scripted_list_triggers = {scripted_list_triggers.to_json()}")
         f.write(f"\n\t\tself.scripted_list_effects = {scripted_list_effects.to_json()}")
         f.write(f"\n\t\tself.named_colors = {named_colors.to_json()}")
 
@@ -783,9 +751,9 @@ def add_color_scheme_scopes():
     DEFAULT_CS = "Packages/Color Scheme - Default/Monokai.sublime-color-scheme"
     prefs = sublime.load_settings("Preferences.sublime-settings")
     cs = prefs.get("color_scheme", DEFAULT_CS)
-    scheme_cache_path = os.path.join(
-        sublime.packages_path(), "User", "PdxTools", cs
-    ).replace("tmTheme", "sublime-color-scheme")
+    scheme_cache_path = os.path.join(sublime.packages_path(), "User", "PdxTools", cs).replace(
+        "tmTheme", "sublime-color-scheme"
+    )
     if not os.path.exists(scheme_cache_path):
         os.makedirs(os.path.dirname(scheme_cache_path), exist_ok=True)
         rules = """{"variables": {}, "globals": {},"rules": [{"scope": "text.format.white.yml","foreground": "rgb(250, 250, 250)",},{"scope": "text.format.grey.yml","foreground": "rgb(173, 165, 160)",},{"scope": "text.format.red.yml","foreground": "rgb(210, 40, 40)",},{"scope": "text.format.green.yml","foreground": "rgb(40, 210, 40)",},{"scope": "text.format.yellow.yml","foreground": "rgb(255, 255, 0)",},{"scope": "text.format.blue.yml","foreground": "rgb(51, 214, 255)",},{"scope": "text.format.gold.yml","foreground": "#ffb027",},{"scope": "text.format.bold.yml","font_style": "bold"},{"scope": "text.format.italic.yml","font_style": "italic"}]}"""
@@ -795,65 +763,35 @@ def add_color_scheme_scopes():
 
 def write_data_to_syntax():
     fake_syntax_path = (
-        sublime.packages_path()
-        + "/ImperatorTools/Imperator Script/ImperatorSyntax.fake-sublime-syntax"
+        sublime.packages_path() + "/ImperatorTools/Imperator Script/ImperatorSyntax.fake-sublime-syntax"
     )
     real_syntax_path = (
-        sublime.packages_path()
-        + "/ImperatorTools/Imperator Script/ImperatorSyntax.sublime-syntax"
+        sublime.packages_path() + "/ImperatorTools/Imperator Script/ImperatorSyntax.sublime-syntax"
     )
     with open(fake_syntax_path, "r") as file:
         lines = file.read()
 
     # Append all game objects to auto-generated-content section
-    lines += write_syntax(
-        scripted_trigger.keys(), "Scripted Triggers", "string.scripted.trigger"
-    )
-    lines += write_syntax(
-        scripted_modifier.keys(), "Scripted Triggers", "string.scripted.modifier"
-    )
-    lines += write_syntax(
-        scripted_list_triggers.keys(), "Scripted List", "string.scripted.list"
-    )
-    lines += write_syntax(
-        scripted_effect.keys(), "Scripted Effects", "keyword.scripted.effect"
-    )
-    lines += write_syntax(
-        scripted_list_effects.keys(), "Scripted Effects", "keyword.scripted.list"
-    )
-    lines += write_syntax(
-        script_value.keys(), "Scripted Values", "storage.type.script.value"
-    )
+    lines += write_syntax(scripted_trigger.keys(), "Scripted Triggers", "string.scripted.trigger")
+    lines += write_syntax(scripted_modifier.keys(), "Scripted Triggers", "string.scripted.modifier")
+    lines += write_syntax(scripted_list_triggers.keys(), "Scripted List", "string.scripted.list")
+    lines += write_syntax(scripted_effect.keys(), "Scripted Effects", "keyword.scripted.effect")
+    lines += write_syntax(scripted_list_effects.keys(), "Scripted Effects", "keyword.scripted.list")
+    lines += write_syntax(script_value.keys(), "Scripted Values", "storage.type.script.value")
 
     # All GameObjects get entity.name scope
     lines += write_syntax(ambition.keys(), "Ambition", "entity.name.imperator.ambition")
     lines += write_syntax(building.keys(), "Building", "entity.name.imperator.building")
     lines += write_syntax(culture.keys(), "Culture", "entity.name.imperator.culture")
-    lines += write_syntax(
-        culture_group.keys(), "Culture Group", "entity.name.imperator.culture.group"
-    )
-    lines += write_syntax(
-        death_reason.keys(), "Death Reason", "entity.name.imperator.death.reason"
-    )
+    lines += write_syntax(culture_group.keys(), "Culture Group", "entity.name.imperator.culture.group")
+    lines += write_syntax(death_reason.keys(), "Death Reason", "entity.name.imperator.death.reason")
     lines += write_syntax(deity.keys(), "Deity", "entity.name.imperator.deity")
-    lines += write_syntax(
-        diplo_stance.keys(), "Diplomatic Stance", "entity.name.imperator.diplo.stance"
-    )
-    lines += write_syntax(
-        econ_policy.keys(), "Economic Policy", "entity.name.imperator.econ.policy"
-    )
-    lines += write_syntax(
-        event_pic.keys(), "Event Picture", "entity.name.imperator.event.pic"
-    )
-    lines += write_syntax(
-        event_theme.keys(), "Event Theme", "entity.name.imperator.event.theme"
-    )
-    lines += write_syntax(
-        named_colors.keys(), "Named Colors", "entity.name.named.colors"
-    )
-    lines += write_syntax(
-        government.keys(), "Government", "entity.name.imperator.government"
-    )
+    lines += write_syntax(diplo_stance.keys(), "Diplomatic Stance", "entity.name.imperator.diplo.stance")
+    lines += write_syntax(econ_policy.keys(), "Economic Policy", "entity.name.imperator.econ.policy")
+    lines += write_syntax(event_pic.keys(), "Event Picture", "entity.name.imperator.event.pic")
+    lines += write_syntax(event_theme.keys(), "Event Theme", "entity.name.imperator.event.theme")
+    lines += write_syntax(named_colors.keys(), "Named Colors", "entity.name.named.colors")
+    lines += write_syntax(government.keys(), "Government", "entity.name.imperator.government")
     lines += write_syntax(
         governor_policy.keys(),
         "Governor Policy",
@@ -861,18 +799,14 @@ def write_data_to_syntax():
     )
     lines += write_syntax(heritage.keys(), "Heritage", "entity.name.imperator.heritage")
     lines += write_syntax(idea.keys(), "Idea", "entity.name.imperator.idea")
-    lines += write_syntax(
-        invention.keys(), "Invention", "entity.name.imperator.invention"
-    )
+    lines += write_syntax(invention.keys(), "Invention", "entity.name.imperator.invention")
     lines += write_syntax(law.keys(), "Law", "entity.name.imperator.law")
     lines += write_syntax(
         legion_distinction.keys(),
         "Legion Distinction",
         "entity.name.imperator.legion.distinction",
     )
-    lines += write_syntax(
-        levy_template.keys(), "Levy Template", "entity.name.imperator.levy.template"
-    )
+    lines += write_syntax(levy_template.keys(), "Levy Template", "entity.name.imperator.levy.template")
     lines += write_syntax(loyalty.keys(), "Loyalty", "entity.name.imperator.loyalty")
     lines += write_syntax(
         mil_tradition.keys(),
@@ -885,27 +819,17 @@ def write_data_to_syntax():
     lines += write_syntax(party.keys(), "Party", "entity.name.imperator.party")
     lines += write_syntax(pop.keys(), "Pop Type", "entity.name.imperator.pop")
     lines += write_syntax(price.keys(), "Price", "entity.name.imperator.price")
-    lines += write_syntax(
-        province_rank.keys(), "Province Rank", "entity.name.imperator.province.rank"
-    )
+    lines += write_syntax(province_rank.keys(), "Province Rank", "entity.name.imperator.province.rank")
     lines += write_syntax(religion.keys(), "Religion", "entity.name.imperator.religion")
-    lines += write_syntax(
-        subject_type.keys(), "Subject Type", "entity.name.imperator.subject.type"
-    )
-    lines += write_syntax(
-        tech_table.keys(), "Technology Table", "entity.name.imperator.tech.table"
-    )
+    lines += write_syntax(subject_type.keys(), "Subject Type", "entity.name.imperator.subject.type")
+    lines += write_syntax(tech_table.keys(), "Technology Table", "entity.name.imperator.tech.table")
     lines += write_syntax(terrain.keys(), "Terrain", "entity.name.imperator.terrain")
-    lines += write_syntax(
-        trade_good.keys(), "Trade Good", "entity.name.imperator.trade.good"
-    )
+    lines += write_syntax(trade_good.keys(), "Trade Good", "entity.name.imperator.trade.good")
     lines += write_syntax(trait.keys(), "Trait", "entity.name.imperator.trait")
     lines += write_syntax(unit.keys(), "Unit", "entity.name.imperator.unit")
     lines += write_syntax(war_goal.keys(), "War Goal", "entity.name.imperator.war.goal")
     lines += write_syntax(mission.keys(), "Mission", "entity.name.imperator.mission")
-    lines += write_syntax(
-        mission_task.keys(), "Mission Task", "entity.name.imperator.mission.task"
-    )
+    lines += write_syntax(mission_task.keys(), "Mission Task", "entity.name.imperator.mission.task")
     lines += write_syntax(mission.keys(), "Mission", "entity.name.imperator.mission")
     lines += write_syntax(area.keys(), "Area", "entity.name.imperator.area")
     lines += write_syntax(region.keys(), "Region", "entity.name.imperator.region")
@@ -1381,8 +1305,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     # 2. if they dont appear they show up alphabetically
                     for key in sorted(a)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.named_colors:
             self.named_colors = False
@@ -1397,8 +1320,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for obj in named_colors
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.show_buildings:
             b = building.keys()
@@ -1413,8 +1335,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(b)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.show_cultures:
             c = culture.keys()
@@ -1429,8 +1350,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(c)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.show_culture_groups:
             cg = culture_group.keys()
@@ -1445,8 +1365,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(cg)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.death_reasons:
             dea = death_reason.keys()
@@ -1461,8 +1380,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(dea)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.show_deities:
             d = deity.keys()
@@ -1477,8 +1395,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(d)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.diplo_stances:
             dip = diplo_stance.keys()
@@ -1493,8 +1410,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(dip)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.economic_policies:
             econ = econ_policy.keys()
@@ -1509,8 +1425,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(econ)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.event_pics and "events" in fname:
             evp = event_pic.keys()
@@ -1525,8 +1440,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(evp)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.event_themes:
             evt = event_theme.keys()
@@ -1541,8 +1455,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(evt)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.governements:
             gov = government.keys()
@@ -1557,8 +1470,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(gov)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.governor_policies:
             gov_pol = governor_policy.keys()
@@ -1573,8 +1485,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(gov_pol)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.heritages:
             her = heritage.keys()
@@ -1589,8 +1500,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(her)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.ideas:
             ida = idea.keys()
@@ -1605,8 +1515,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(ida)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.inventions:
             inv = invention.keys()
@@ -1621,8 +1530,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(inv)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.laws:
             la = law.keys()
@@ -1637,8 +1545,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(la)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.distinctions:
             dist = legion_distinction.keys()
@@ -1653,8 +1560,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(dist)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.loyalties:
             loy = loyalty.keys()
@@ -1669,8 +1575,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(loy)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.traditions:
             trad = mil_tradition.keys()
@@ -1685,8 +1590,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(trad)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.missions:
             miss = mission.keys()
@@ -1701,8 +1605,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(miss)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.mission_tasks:
             tasks = mission_task.keys()
@@ -1717,8 +1620,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(tasks)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.modifiers:
             mods = modifier.keys()
@@ -1733,8 +1635,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(mods)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.op_mods:
             op_mod = opinion.keys()
@@ -1749,8 +1650,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(op_mod)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.offices:
             of = office.keys()
@@ -1765,8 +1665,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(of)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.parties:
             pa = party.keys()
@@ -1781,8 +1680,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(pa)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.prices:
             pr = price.keys()
@@ -1797,8 +1695,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(pr)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.pop_types:
             po = pop.keys()
@@ -1813,8 +1710,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(po)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.prov_ranks:
             pr = province_rank.keys()
@@ -1829,8 +1725,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(pr)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.religions:
             rel = religion.keys()
@@ -1845,8 +1740,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(rel)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.subjects:
             sub = subject_type.keys()
@@ -1861,8 +1755,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(sub)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.tech_tables:
             tech = tech_table.keys()
@@ -1877,8 +1770,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(tech)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.terrains:
             ter = terrain.keys()
@@ -1893,8 +1785,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(ter)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.goods:
             good = trade_good.keys()
@@ -1909,8 +1800,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(good)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.traits:
             tr = trait.keys()
@@ -1925,8 +1815,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(tr)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.units:
             u = unit.keys()
@@ -1941,8 +1830,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(u)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.war_goals:
             w = war_goal.keys()
@@ -1957,8 +1845,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(w)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.areas:
             are = area.keys()
@@ -1973,8 +1860,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(are)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         elif self.regions:
             reg = region.keys()
@@ -1989,8 +1875,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     )
                     for key in sorted(reg)
                 ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         else:
             if "script_values" in fname:
@@ -2029,8 +1914,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                         )
                         for key in sorted(GameData.PricesDict)
                     ],
-                    flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                    | sublime.INHIBIT_WORD_COMPLETIONS,
+                    flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
                 )
             if (
                 self.trigger_field
@@ -2072,20 +1956,16 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                             completion_format=sublime.COMPLETION_FORMAT_TEXT,
                             kind=(sublime.KIND_ID_MARKUP, "M", "Modifier"),
                             details=GameData.ModifersList[key],
-                            annotation=GameData.ModifersList[key].replace(
-                                "Category: ", ""
-                            ),
+                            annotation=GameData.ModifersList[key].replace("Category: ", ""),
                         )
                         for key in sorted(GameData.ModifersList)
                     ],
-                    flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                    | sublime.INHIBIT_WORD_COMPLETIONS,
+                    flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_WORD_COMPLETIONS,
                 )
             if "/events/" in fname:
                 return sublime.CompletionList(
                     GameData.EventsList,
-                    flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                    | sublime.INHIBIT_REORDER,
+                    flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_REORDER,
                 )
             return None
 
@@ -2829,11 +2709,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                 view.run_command("auto_complete")
         # Culture Group Scope
         if "culture_group:" in line:
-            idx = (
-                line.index("culture_group:")
-                + view.line(point).a
-                + len("culture_group:")
-            )
+            idx = line.index("culture_group:") + view.line(point).a + len("culture_group:")
             if idx == point:
                 self.show_culture_groups = True
                 view.run_command("auto_complete")
@@ -3006,9 +2882,7 @@ class ImpMissionCountInputHandler(sublime_plugin.TextInputHandler):
             return True
         except ValueError:
             sublime.set_timeout(
-                lambda: sublime.status_message(
-                    "Number of Missions must be an Integer!"
-                ),
+                lambda: sublime.status_message("Number of Missions must be an Integer!"),
                 0,
             )
             return False
@@ -3149,21 +3023,13 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
                         "bad_encoding",
                         [sublime.Region(27, 27 + len(old_encoding))],
                         "underline.bad",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
+                        flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE),
                     )
                     panel.add_regions(
                         "encoding",
                         [sublime.Region(len(panel) - 30, len(panel) - 16)],
                         "underline.good",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
+                        flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE),
                     )
                     panel.set_read_only(True)
 
@@ -3180,22 +3046,14 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
                         "bad_encoding",
                         [sublime.Region(27, 27 + len(old_encoding))],
                         "underline.bad",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
+                        flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE),
                     )
                     # new good encoding
                     panel.add_regions(
                         "encoding",
                         [sublime.Region(len(panel) - 21, len(panel) - 16)],
                         "underline.good",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
+                        flags=(sublime.DRAW_SOLID_UNDERLINE | sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE),
                     )
                     panel.set_read_only(True)
 
@@ -3344,9 +3202,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             if ".dds" in view.substr(posLine):
                 texture_raw_start = view.find("gfx", posLine.a)
                 texture_raw_end = view.find(".dds", posLine.a)
-                texture_raw_region = sublime.Region(
-                    texture_raw_start.a, texture_raw_end.b
-                )
+                texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
                 texture_raw_path = view.substr(texture_raw_region)
                 full_texture_path = imperator_files_path + "/" + texture_raw_path
                 if not os.path.exists(full_texture_path):
@@ -3355,9 +3211,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                         if os.path.exists(mod):
                             if mod.endswith("mod"):
                                 # if it is the path to the mod directory, get all directories in it
-                                for directory in [
-                                    f.path for f in os.scandir(mod) if f.is_dir()
-                                ]:
+                                for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
                                     mod_path = directory + "/" + texture_raw_path
                                     if os.path.exists(mod_path):
                                         full_texture_path = mod_path
@@ -3368,9 +3222,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 # The path exists and the point in the view is inside of the path
                 if texture_raw_region.__contains__(point):
                     texture_name = view.substr(view.word(texture_raw_end.a - 1))
-                    self.show_texture_hover_popup(
-                        view, point, texture_name, full_texture_path
-                    )
+                    self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
 
     def do_hover_async(self, view, point):
         word_region = view.word(point)
@@ -3488,9 +3340,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             return
 
         if named_colors.contains(word):
-            self.show_popup_named_color(
-                view, point, word, named_colors.access(word), "Named Color"
-            )
+            self.show_popup_named_color(view, point, word, named_colors.access(word), "Named Color")
 
         if idea.contains(word):
             ide = idea.access(word)
@@ -3664,17 +3514,13 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     if i.file_name().endswith(".txt"):
                         variables = [
                             x
-                            for x in i.find_by_selector(
-                                "entity.name.function.var.declaration"
-                            )
+                            for x in i.find_by_selector("entity.name.function.var.declaration")
                             if i.substr(x) == PdxObject.key
                         ]
                         variables.extend(
                             [
                                 x
-                                for x in i.find_by_selector(
-                                    "entity.name.function.scope.declaration"
-                                )
+                                for x in i.find_by_selector("entity.name.function.scope.declaration")
                                 if i.substr(x) == PdxObject.key
                             ]
                         )
@@ -3684,63 +3530,49 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                             if line == word_line_num and path == PdxObject.path:
                                 continue
                             else:
-                                definitions.append(
-                                    PdxScriptObject(PdxObject.key, path, line)
-                                )
+                                definitions.append(PdxScriptObject(PdxObject.key, path, line))
 
             if len(definitions) == 1:
-                definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                definition = (
+                    f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                )
             elif len(definitions) > 1:
-                definition = f'<p><b>Definitions of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                definition = (
+                    f'<p><b>Definitions of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                )
             for obj in definitions:
                 goto_args = {"path": obj.path, "line": obj.line}
-                goto_url = sublime.command_url(
-                    "goto_script_object_definition", goto_args
-                )
-                definition += (
-                    """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
-                    % (
-                        goto_url,
-                        obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
-                        obj.line,
-                        obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
-                        obj.line,
-                    )
+                goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+                definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
+                    goto_url,
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    obj.line,
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    obj.line,
                 )
                 goto_right_args = {"path": obj.path, "line": obj.line}
-                goto_right_url = sublime.command_url(
-                    "goto_script_object_definition_right", goto_right_args
-                )
+                goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
                 definition += (
                     """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
                     % (goto_right_url)
                 )
         else:
             if word_line_num != PdxObject.line and view.file_name() != PdxObject.path:
-                definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                definition = (
+                    f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                )
 
                 goto_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_url = sublime.command_url(
-                    "goto_script_object_definition", goto_args
-                )
-                definition += (
-                    """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
-                    % (
-                        goto_url,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
-                    )
+                goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+                definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
+                    goto_url,
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    PdxObject.line,
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    PdxObject.line,
                 )
                 goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_right_url = sublime.command_url(
-                    "goto_script_object_definition_right", goto_right_args
-                )
+                goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
                 definition += (
                     """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
                     % (goto_right_url)
@@ -3756,28 +3588,17 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     for j, line in enumerate(view_str.splitlines()):
                         definition_found = False
                         if PdxObject.key in line and "#" not in line:
-                            filename = (
-                                i.file_name()
-                                .replace("\\", "/")
-                                .rstrip("/")
-                                .rpartition("/")[2]
-                            )
+                            filename = i.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
                             line_num = j + 1
                             if definitions:
                                 # Don't do definitions for scopes and variables
                                 for obj in definitions:
-                                    if (
-                                        obj.line == line_num
-                                        and obj.path == i.file_name()
-                                    ):
+                                    if obj.line == line_num and obj.path == i.file_name():
                                         definition_found = True
                             if word_line_num == line_num and word_file == filename:
                                 # Don't do current word
                                 continue
-                            elif (
-                                line_num == PdxObject.line
-                                and i.file_name() == PdxObject.path
-                            ):
+                            elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
                                 # Don't do definition
                                 continue
                             if not definition_found:
@@ -3789,23 +3610,16 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                 shortname = fname.replace("\\", "/").rstrip("/").rpartition("/")[2]
                 line = i.split("|")[1]
                 goto_args = {"path": fname, "line": line}
-                goto_url = sublime.command_url(
-                    "goto_script_object_definition", goto_args
-                )
-                ref += (
-                    """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;"""
-                    % (
-                        goto_url,
-                        shortname,
-                        line,
-                        shortname,
-                        line,
-                    )
+                goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+                ref += """<a href="%s" title="Open %s and goto line %s">%s:%s</a>&nbsp;""" % (
+                    goto_url,
+                    shortname,
+                    line,
+                    shortname,
+                    line,
                 )
                 goto_right_args = {"path": fname, "line": line}
-                goto_right_url = sublime.command_url(
-                    "goto_script_object_definition_right", goto_right_args
-                )
+                goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
                 ref += (
                     """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
                     % (goto_right_url)
@@ -3847,17 +3661,13 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     if i.file_name().endswith(".txt") or i.file_name().endswith(".py"):
                         variables = [
                             x
-                            for x in i.find_by_selector(
-                                "entity.name.function.var.declaration"
-                            )
+                            for x in i.find_by_selector("entity.name.function.var.declaration")
                             if i.substr(x) == PdxObject.key
                         ]
                         variables.extend(
                             [
                                 x
-                                for x in i.find_by_selector(
-                                    "entity.name.function.scope.declaration"
-                                )
+                                for x in i.find_by_selector("entity.name.function.scope.declaration")
                                 if i.substr(x) == PdxObject.key
                             ]
                         )
@@ -3867,41 +3677,40 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                             if line == word_line_num and path == PdxObject.path:
                                 continue
                             else:
-                                definitions.append(
-                                    PdxScriptObject(PdxObject.key, path, line)
-                                )
+                                definitions.append(PdxScriptObject(PdxObject.key, path, line))
 
             if len(definitions) == 1:
                 if def_value:
                     definition = f"<br>{def_value}<br><br>"
-                    definition += f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    definition += (
+                        f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    )
                 else:
-                    definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    definition = (
+                        f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    )
             elif len(definitions) > 1:
                 if def_value:
                     definition = f"<br>{def_value}<br><br>"
-                    definition += f'<p><b>Definitions of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    definition += (
+                        f'<p><b>Definitions of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    )
                 else:
-                    definition = f'<p><b>Definitions of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    definition = (
+                        f'<p><b>Definitions of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    )
             for obj in definitions:
                 goto_args = {"path": obj.path, "line": obj.line}
-                goto_url = sublime.command_url(
-                    "goto_script_object_definition", goto_args
-                )
-                definition += (
-                    """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
-                    % (
-                        goto_url,
-                        obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
-                        obj.line,
-                        obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
-                        obj.line,
-                    )
+                goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+                definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
+                    goto_url,
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    obj.line,
+                    obj.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    obj.line,
                 )
                 goto_right_args = {"path": obj.path, "line": obj.line}
-                goto_right_url = sublime.command_url(
-                    "goto_script_object_definition_right", goto_right_args
-                )
+                goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
                 definition += (
                     """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
                     % (goto_right_url)
@@ -3910,31 +3719,24 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             if word_line_num != PdxObject.line and view.file_name() != PdxObject.path:
                 if def_value:
                     definition = f"<br>{def_value}<br><br>"
-                    definition += f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
-                else:
-                    definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
-                goto_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_url = sublime.command_url(
-                    "goto_script_object_definition", goto_args
-                )
-                definition += (
-                    """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
-                    % (
-                        goto_url,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
+                    definition += (
+                        f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
                     )
+                else:
+                    definition = (
+                        f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+                    )
+                goto_args = {"path": PdxObject.path, "line": PdxObject.line}
+                goto_url = sublime.command_url("goto_script_object_definition", goto_args)
+                definition += """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;""" % (
+                    goto_url,
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    PdxObject.line,
+                    PdxObject.path.replace("\\", "/").rstrip("/").rpartition("/")[2],
+                    PdxObject.line,
                 )
                 goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_right_url = sublime.command_url(
-                    "goto_script_object_definition_right", goto_right_args
-                )
+                goto_right_url = sublime.command_url("goto_script_object_definition_right", goto_right_args)
                 definition += (
                     """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
                     % (goto_right_url)
@@ -3950,9 +3752,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
-        open_in_sublime_url = sublime.command_url(
-            "open_imperator_texture ", in_sublime_args
-        )
+        open_in_sublime_url = sublime.command_url("open_imperator_texture ", in_sublime_args)
         open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
         hoverBody = """
             <body id=\"vic-body\">
@@ -4045,13 +3845,9 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
     def run(self, path, line):
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, line, 0)
-            self.open_location(
-                self.window, file_path, side_by_side=True, clear_to_right=True
-            )
+            self.open_location(self.window, file_path, side_by_side=True, clear_to_right=True)
 
-    def open_location(
-        self, window, l, side_by_side=False, replace=False, clear_to_right=False
-    ):
+    def open_location(self, window, l, side_by_side=False, replace=False, clear_to_right=False):
         flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
 
         if side_by_side:
@@ -4074,21 +3870,9 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
             if mode == "default_program":
                 OpenImperatorTextureCommand.open_path(path)
             elif mode == "in_sublime":
-                simple_path = (
-                    path.replace("\\", "/")
-                    .rstrip("/")
-                    .rpartition("/")[2]
-                    .replace(".dds", ".png")
-                )
-                output_file = (
-                    sublime.packages_path()
-                    + "/ImperatorTools/Convert DDS/cache/"
-                    + simple_path
-                )
-                exe_path = (
-                    sublime.packages_path()
-                    + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
-                )
+                simple_path = path.replace("\\", "/").rstrip("/").rpartition("/")[2].replace(".dds", ".png")
+                output_file = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/" + simple_path
+                exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
 
                 if not os.path.exists(output_file):
                     # Run dds to png converter
@@ -4166,9 +3950,7 @@ class QuietExecuteCommand(sublime_plugin.WindowCommand):
 
         try:
             # Run process
-            self.proc = Default.exec.AsyncProcess(
-                cmd, shell_cmd, merged_env, self, **kwargs
-            )
+            self.proc = Default.exec.AsyncProcess(cmd, shell_cmd, merged_env, self, **kwargs)
             self.proc.start()
         except Exception as e:
             sublime.status_message("Build error")
@@ -4245,18 +4027,9 @@ class ImperatorShowTextureBase:
 
     def show_texture(self, path, point):
         window = sublime.active_window()
-        simple_path = (
-            path.replace("\\", "/")
-            .rstrip("/")
-            .rpartition("/")[2]
-            .replace(".dds", ".png")
-        )
-        output_file = (
-            sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/" + simple_path
-        )
-        exe_path = (
-            sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
-        )
+        simple_path = path.replace("\\", "/").rstrip("/").rpartition("/")[2].replace(".dds", ".png")
+        output_file = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/" + simple_path
+        exe_path = sublime.packages_path() + "/ImperatorTools/Convert DDS/src/ConvertDDS.exe"
         if not os.path.exists(output_file):
             cmd = (
                 ["wine", exe_path, path, output_file]
@@ -4268,9 +4041,7 @@ class ImperatorShowTextureBase:
             # Wait 100ms for conversion to finish
             timeout = 2000 if sublime.platform() == "linux" else 100
             sublime.set_timeout_async(
-                lambda: self.toggle_async(
-                    output_file, simple_path, point, window, path
-                ),
+                lambda: self.toggle_async(output_file, simple_path, point, window, path),
                 timeout,
             )
         else:
@@ -4279,10 +4050,7 @@ class ImperatorShowTextureBase:
     def toggle_async(self, output_file, simple_path, point, window, original_path):
         # Try to convert for 500ms
 
-        if (
-            not os.path.exists(output_file)
-            and self.conversion_iterations < self.total_conversion_attempts
-        ):
+        if not os.path.exists(output_file) and self.conversion_iterations < self.total_conversion_attempts:
             self.conversion_iterations += 1
             self.show_texture(original_path, point)
         elif os.path.exists(output_file):
@@ -4311,9 +4079,7 @@ class ImperatorShowTextureBase:
             line_region = view.line(point)
             # Find region of texture path declaration
             # Ex: [start]texture = "gfx/interface/icons/goods_icons/meat.dds"[end]
-            start = view.find(
-                '[A-Za-z_][A-Za-z_0-9]*\s?=\s?"?/?(gfx)?', line_region.a
-            ).a
+            start = view.find('[A-Za-z_][A-Za-z_0-9]*\s?=\s?"?/?(gfx)?', line_region.a).a
             end = view.find('"|\n', start).a
             phantom_region = sublime.Region(start, end)
             view.add_phantom(key, phantom_region, html, sublime.LAYOUT_BELOW)
@@ -4325,11 +4091,7 @@ class ImperatorShowTextureBase:
         try:
             head = file.read(31)
             size = len(head)
-            if (
-                size >= 24
-                and head.startswith(b"\211PNG\r\n\032\n")
-                and head[12:16] == b"IHDR"
-            ):
+            if size >= 24 and head.startswith(b"\211PNG\r\n\032\n") and head[12:16] == b"IHDR":
                 try:
                     width, height = struct.unpack(">LL", head[16:24])
                 except struct.error:
@@ -4349,9 +4111,7 @@ class ImperatorShowTextureBase:
         return int(width), int(height)
 
 
-class ImperatorShowTextureCommand(
-    sublime_plugin.ApplicationCommand, ImperatorShowTextureBase
-):
+class ImperatorShowTextureCommand(sublime_plugin.ApplicationCommand, ImperatorShowTextureBase):
     def run(self, path, point):
         self.show_texture(path, point)
 
@@ -4394,16 +4154,10 @@ class ImperatorClearAllTexturesCommand(sublime_plugin.ApplicationCommand):
         views_with_shown_textures.clear()
 
 
-class ImperatorShowAllTexturesCommand(
-    sublime_plugin.WindowCommand, ImperatorShowTextureBase
-):
+class ImperatorShowAllTexturesCommand(sublime_plugin.WindowCommand, ImperatorShowTextureBase):
     def run(self):
         view = self.window.active_view()
-        texture_list = [
-            x
-            for x in view.lines(sublime.Region(0, view.size()))
-            if ".dds" in view.substr(x)
-        ]
+        texture_list = [x for x in view.lines(sublime.Region(0, view.size())) if ".dds" in view.substr(x)]
         for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):
             texture_raw_start = view.find("gfx", line.a)
             texture_raw_end = view.find(".dds", line.a)
