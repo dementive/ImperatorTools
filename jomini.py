@@ -261,9 +261,13 @@ class GameObjectBase:
 			else:
 				mod_files.add(i.path.rpartition("\\")[2])
 
-		conflicting_files = (x for x in vanilla_files if x in mod_files)
+		conflicting_files = [x for x in vanilla_files if x in mod_files]
 		if sum(1 for _ in conflicting_files) > 0:
-			to_remove = (x for x in self.main.objects if x.key == "" or (self.vanilla_path in i.path and i.path.rpartition("\\")[2] in conflicting_files))
+			to_remove = [
+				x
+				for x in self.main.objects
+				if (self.vanilla_path in x.path and x.path.rpartition("\\")[2] in conflicting_files)
+			]
 			for i in to_remove:
 				self.main.objects.remove(i)
 
