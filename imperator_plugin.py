@@ -2888,6 +2888,11 @@ class ImpMissionCountInputHandler(sublime_plugin.TextInputHandler):
             return False
 
 
+class InsertTextCommand(sublime_plugin.TextCommand):
+    def run(self, edit, text):
+        self.view.insert(edit, len(self.view), text)
+
+
 class ImpMissionMakerCommand(sublime_plugin.TextCommand):
     def run(self, edit, name, event_name, mission_count):
         sublime.run_command("new_file")
@@ -2895,13 +2900,14 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
         event_view = window.active_view()
         event_view.set_name("Events")
         text = "namespace = {}\n\n".format(event_name)
-        event_view.insert(edit, len(event_view), text)
+        event_view.run_command("insert_text", {"text": text})
+        text = ""
         for i in range(int(mission_count)):
             i += 1
-            text = '{event_name}.{i} = {{\n    type = country_event\n\n    title = {event_name}_{i}_title\n    desc = {event_name}_{i}_desc\n    picture = great_library\n\n    option = {{\n        name = "{event_name}_{i}.a"\n        custom_tooltip = {event_name}_{i}_tooltip\n\n    }}\n}}\n'.format(
+            text += '{event_name}.{i} = {{\n    type = country_event\n\n    title = {event_name}_{i}_title\n    desc = {event_name}_{i}_desc\n    picture = great_library\n\n    option = {{\n        name = "{event_name}_{i}.a"\n        custom_tooltip = {event_name}_{i}_tooltip\n\n    }}\n}}\n'.format(
                 event_name=event_name, i=i
             )
-            event_view.insert(edit, len(event_view), text)
+        event_view.run_command("insert_text", {"text": text})
 
         window.run_command("new_file")
         loc_view = window.active_view()
@@ -2911,23 +2917,23 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
         text = 'l_english:\n\n{name}:0 "{capital_input}"\n{name}_DESCRIPTION:0 "Mission description"\n{name}_CRITERIA_DESCRIPTION:0 "This mission will be completed when"\n{name}_BUTTON_TOOLTIP:0 ""\n\n#Missions\n\n'.format(
             name=name, capital_input=capital_input
         )
-        loc_view.insert(edit, len(loc_view), text)
+        loc_view.run_command("insert_text", {"text": text})
         for i in range(int(mission_count)):
             i += 1
             text = '{name}_{i}:0 ""\n{name}_DESC:0 ""\n\n'.format(i=i, name=name)
-            loc_view.insert(edit, len(loc_view), text)
+            loc_view.run_command("insert_text", {"text": text})
         text = "\n#Tooltips\n\n\n"
-        loc_view.insert(edit, len(loc_view), text)
+        loc_view.run_command("insert_text", {"text": text})
         text = "\n#Modifiers\n\n\n"
-        loc_view.insert(edit, len(loc_view), text)
+        loc_view.run_command("insert_text", {"text": text})
         text = "\n#Events\n"
-        loc_view.insert(edit, len(loc_view), text)
+        loc_view.run_command("insert_text", {"text": text})
         for i in range(int(mission_count)):
             i += 1
             text = '{event_name}_{i}_title:0 "${name}_task_{i}$"\n{event_name}_{i}_desc:0 ""\n{event_name}_{i}.a:0 ""\n{event_name}_{i}_tooltip:0 "The mission task \'#Y ${name}_task_{i}$#!\' has now been #G Completed#!!"\n\n'.format(
                 name=name, i=i, event_name=event_name
             )
-            loc_view.insert(edit, len(loc_view), text)
+            loc_view.run_command("insert_text", {"text": text})
 
         window.run_command("new_file")
         mission_view = window.active_view()
@@ -2935,14 +2941,14 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
         text = '{name} = {{\n    header = "mission_image_general"\n    icon = "general_1"\n\n    repeatable = no\n    chance = 1000\n\n    potential = {{\n        NOT = {{ has_variable = mission_cooldown_var }}\n    }}\n\n    abort = {{}}\n    on_start = {{\n        start_mission_ai_effect = yes\n    }}\n    on_abort = {{\n        custom_tooltip = general_mission_cooldown_tt\n        set_variable = {{\n            name = mission_cooldown_var\n            days = 7300\n        }}\n    }}\n    on_completion = {{}}'.format(
             name=name
         )
-        mission_view.insert(edit, len(mission_view), text)
+        mission_view.run_command("insert_text", {"text": text})
         for i in range(int(mission_count)):
             i += 1
             text = '\n    {name}_task_{i} = {{\n        icon = "task_political"\n        allow = {{}}\n        on_completion = {{\n            trigger_event = {event_name}.{i}\n            show_as_tooltip = {{\n\n            }}\n        }}\n    }}'.format(
                 name=name, i=i, event_name=event_name
             )
-            mission_view.insert(edit, len(mission_view), text)
-        mission_view.insert(edit, len(mission_view), "\n}")
+            mission_view.run_command("insert_text", {"text": text})
+        mission_view.run_command("insert_text", {"text": "\n}"})
 
     def input(self, args):
         if "name" not in args:
