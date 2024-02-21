@@ -745,7 +745,6 @@ def plugin_loaded():
         sublime.status_message("Cleared Image Cache")
     add_color_scheme_scopes()
 
-
 def add_color_scheme_scopes():
     # Add scopes for yml text formatting to color scheme
     DEFAULT_CS = "Packages/Color Scheme - Default/Monokai.sublime-color-scheme"
@@ -2130,7 +2129,7 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
             "primary_culture",
             "dominant_province_culture",
         ]
-        cg_list = ["has_culture_group"]
+        cg_list = ["has_culture_group", "country_culture_group"]
         death_list = ["death_reason"]
         diplo_list = ["diplomatic_stance"]
         econ_list = [
