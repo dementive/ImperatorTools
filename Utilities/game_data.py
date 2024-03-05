@@ -26,7 +26,6 @@ ${1:NAMESPACE}.${2:NUM} = {
 }
 """
 
-
 class GameData:
     """Class to hold all data generated from the base game logs"""
 
@@ -2169,3 +2168,54 @@ class GameData:
             "hill_fort_cost": "Category: country",
             "local_forum_building_cost": "Category: country",
         }
+
+        self.simple_completion_pattern_flag_pairs = [
+            (["color", "color1", "color2", "color3", "color4", "color5"], "named_colors"),
+            (["set_ambition", "has_ambition"], "ambition"),
+            (["can_build_building", "has_building", "add_building_level", "remove_building_level"], "building"),
+            (["set_culture", "set_pop_culture", "set_primary_culture", "primary_culture", "dominant_province_culture"], "culture"),
+            (["has_culture_group", "country_culture_group"], "culture_group"),
+            (["death_reason"], "death_reason"),
+            (["diplomatic_stance"], "diplo_stance"),
+            (["has_low_economic_policy", "has_mid_economic_policy", "has_high_economic_policy"], "econ_policy"),
+            (["picture"], "event_pic"),
+            (["theme"], "event_theme"),
+            (["set_trade_goods", "can_import_trade_good", "trade_goods", "is_importing_trade_good"], "trade_good"),
+            (["government", "change_government"], "government"),
+            (["governor_policy", "can_change_governor_policy"], "governor_policy"),
+            (["heritage", "set_country_heritage"], "heritage"),
+            (["can_change_idea", "idea"], "idea"),
+            (["invention"], "invention"),
+            (["has_law", "change_law"], "law"),
+            (["levy_template"], "levy_template"),
+            (["can_add_entire_loyalty_bonus", "has_loyalty", "remove_loyalty", "add_loyalty"], "loyalty"),
+            (["has_military_bonus"], "mil_tradition"),
+            (["has_completed_mission"], "mission"),
+            (["has_completed_mission_task"], "mission_task"),
+            (["has_unit_modifier", "has_country_modifier", "has_province_modifier", "has_character_modifier", "has_triggered_character_modifier", "has_state_modifier", "has_country_culture_modifier", "remove_triggered_character_modifier", "remove_country_modifier", "remove_province_modifier", "add_country_modifier", "remove_unit_modifier", "remove_character_modifier", "add_unit_modifier", "add_permanent_province_modifier", "add_province_modifier", "remove_state_modifier", "add_character_modifier", "add_state_modifier", "add_triggered_character_modifier"], "modifier"),
+            (["has_opinion"], "opinion"),
+            (["give_office", "remove_office", "can_hold_office", "office_is_empty", "has_office"], "office"),
+            (["remove_party_leadership", "party", "is_leader_of_party", "is_leader_of_party_type", "party_type", "has_party_type", "is_party_type"], "party"),
+            (["create_pop", "set_pop_type", "create_state_pop", "pop_type", "has_pop_type_right", "is_pop_type_right"], "pop"),
+            (["subject_pays", "pay_price", "refund_price", "can_pay_price"], "price"),
+            (["set_city_status", "has_province_rank"], "province_rank"),
+            (["set_character_religion", "set_pop_religion", "set_country_religion", "has_religion", "pop_religion", "religion", "dominant_province_religion", "deity_religion", "religion"], "religion"),
+            (["is_subject_type"], "subject_type"),
+            (["has_tech_office_of"], "tech_table"),
+            (["terrain"], "terrain"),
+            (["force_add_trait", "add_trait", "remove_trait", "has_trait"], "trait"),
+            (["add_loyal_subunit", "add_subunit", "is_dominant_unit", "sub_unit_type"], "unit"),
+            (["war_goal"], "war_goal"),
+            (["area", "is_in_area", "owns_or_subject_owns_area", "owns_area"], "area"),
+            (["region", "owns_or_subject_owns_region", "owns_region", "is_in_region"], "region"),
+        ]
+
+        self.simple_completion_scope_pattern_flag_pairs = [
+            ("area:", "area"),
+            ("culture:", "culture"),
+            ("culture_group:", "culture_group"),
+            ("deity:", "deity"),
+            ("party:", "party"),
+            ("region:", "region"),
+            ("religion:", "religion"),
+        ]
