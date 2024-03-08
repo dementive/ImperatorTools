@@ -1207,7 +1207,9 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
                     for key in sorted(GameData.EffectsList)
                 ]
             )
-        if self.modifier_field or re.search(r"modifiers|traits|buildings|governor_policies|trade_goods", fname):
+        if self.modifier_field or re.search(
+            r"modifiers|traits|buildings|governor_policies|trade_goods", fname
+        ):
             return sublime.CompletionList(
                 [
                     sublime.CompletionItem(
@@ -1963,7 +1965,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     %s
                 </body>
             """ % (
-                css.default,
+                css_basic_style,
                 header,
                 link,
             )
