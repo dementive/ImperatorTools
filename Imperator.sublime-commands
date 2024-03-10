@@ -62,4 +62,11 @@
 
 		},
 	},
+	{
+		"caption": "Imperator: Edit imperator-tiger.conf",
+		"command": "edit_tiger_config",
+		"args": {
+
+		},
+	},
 ]

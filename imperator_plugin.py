@@ -18,6 +18,7 @@ from .ImperatorTiger.tiger import TigerJsonObject
 settings = sublime.Settings(9999)
 imperator_files_path = ""
 imperator_mod_files = list()
+tiger_objects = dict()
 
 
 # Imperator Rome Game Object Class implementations
@@ -441,7 +442,9 @@ class ImperatorNamedColor(GameObjectBase):
 
     def should_read(self, x: str) -> bool:
         # Check if a line should be read
-        return re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=", x)
+        if re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=", x):
+            return True
+        return False
 
 
 # Game Data class
@@ -684,9 +687,11 @@ def plugin_loaded():
     if check_mod_for_changes():
         # Create new objects
         sublime.set_timeout_async(lambda: create_game_objects(), 0)
+        sublime.active_window().run_command("run_tiger")
     else:
         # Load cached objects
         get_objects_from_cache()
+        sublime.set_timeout_async(lambda: get_tiger_objects(), 0)
 
     cache_size_limit = settings.get("MaxImageCacheSize")
     cache = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/"
@@ -696,6 +701,49 @@ def plugin_loaded():
             os.remove(os.path.join(cache, i))
         sublime.status_message("Cleared Image Cache")
     add_color_scheme_scopes()
+
+
+def get_tiger_objects():
+    global tiger_objects
+    path = sublime.packages_path() + f"/ImperatorTools/tiger.json"
+    with open(path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+
+    for i in data:
+        # Add location data to list in the same way the display() function does so the indexes stay the same
+        previous_locations = list()
+        for j in i["locations"]:
+            fullpath = j["fullpath"]
+            if fullpath not in previous_locations:
+                if fullpath in tiger_objects:
+                    old_data = tiger_objects[j["fullpath"]]
+                    new_data = {
+                        "severity": i["severity"],
+                        "key": i["key"],
+                        "info": i["info"],
+                        "message": i["message"],
+                        "linenr": j["linenr"],
+                        "column": j["column"],
+                        "length": j["length"],
+                    }
+                    if type(old_data) == list:
+                        old_data.append(new_data)
+                    else:
+                        old_data = [old_data, new_data]
+
+                    tiger_objects[j["fullpath"]] = old_data
+                else:
+                    tiger_objects[j["fullpath"]] = {
+                        "severity": i["severity"],
+                        "key": i["key"],
+                        "info": i["info"],
+                        "message": i["message"],
+                        "linenr": j["linenr"],
+                        "column": j["column"],
+                        "length": j["length"],
+                    }
+
+            previous_locations.append(j["fullpath"])
 
 
 def add_color_scheme_scopes():
@@ -961,7 +1009,7 @@ css_basic_style = """
         padding-bottom: 0.05rem;
     }
     h2 {
-        font-size: 1.0rem;
+        font-size: 1.1rem;
         margin: 0;
     }
     a {
@@ -981,11 +1029,54 @@ css_basic_style = """
         font-size: 1.0rem;
         color: rgb(150, 150, 150);
     }
+    .codebox {
+        border: 2px solid rgb(5, 5, 5);
+        border-style: groove;
+        background-color: rgb(40, 40, 40);
+        white-space: pre-line;
+        padding: 5px;
+        margin-right: 8px;
+        margin-left: 1px;
+        margin-top: 2px;
+        display: inline-block;
+        font-family: "Courier New", Courier, monospace;
+    }
+    .box-for-codebox {
+        margin-bottom: 14px;
+    }
+    .codedesc {
+        margin-left: 4px;
+        margin-right: 4px;
+        margin-top: 2px;
+        margin-bottom: 2px;
+    }
+    .code {
+        font-family: monospace;
+    }
+    .code-header {
+        margin-left: 5px;
+    }
+    /* Monokai color scheme text colors */
+    .red-text {
+        color: hsl(0, 93%, 59%);
+    }
+    .yellow-text {
+        color: hsl(54, 70%, 68%);
+    }
+    .blue-text {
+        color: hsl(170, 60%, 56%);
+        font-style: italic;
+    }
+    .green-text {
+        color: hsl(80, 76%, 53%);
+    }
+    .orange-text {
+        color: hsl(32, 98%, 56%);
+    }
+    .purple-text {
+        color: hsl(261, 100%, 75%);
+    }
 """
-
-FIND_SIMPLE_DECLARATION_RE = '\s?=\s?(")?'
-FIND_ERROR_RE = '\s?=\s?"?([A-Za-z_][A-Za-z_0-9]*)"?'
-FIND_SCOPE_RE = ':"?([A-Za-z_][A-Za-z_0-9]*)"?'
 
 
 class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
@@ -1091,8 +1182,6 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
         except AttributeError:
             return None
 
-        fname = view.file_name()
-
         completion_flag_pairs = [
             ("ambition", (sublime.KIND_ID_FUNCTION, "A", "Ambitions")),
             ("area", (sublime.KIND_ID_SNIPPET, "A", "Areas")),
@@ -1140,6 +1229,10 @@ class ImperatorCompletionsEventListener(sublime_plugin.EventListener):
             completion_list = self.create_completion_list(flag, completion)
             if completion_list is not None:
                 return completion_list
+
+        fname = view.file_name()
+        if not fname:
+            return
 
         if "script_values" in fname:
             e_list = []
@@ -2620,72 +2713,134 @@ class ImperatorShowAllTexturesCommand(
 
 
 class ImperatorTigerEventListener(sublime_plugin.EventListener):
-    def on_init(self, views):
-        path = sublime.packages_path() + f"/ImperatorTools/tiger.json"
-        with open(path, "r", encoding="utf-8") as file:
-            data = json.load(file)
-
-        self.tiger_objects = dict()
-        for i in data:
-            # Add location data to list in the same way the display() function does so the indexes stay the same
-            previous_locations = list()
-            for j in i["locations"]:
-                fullpath = j["fullpath"]
-                if fullpath not in previous_locations:
-                    if fullpath in self.tiger_objects:
-                        old_data = self.tiger_objects[j["fullpath"]]
-                        new_data = {
-                            "severity": i["severity"],
-                            "key": i["key"],
-                            "info": i["info"],
-                            "message": i["message"],
-                            "linenr": j["linenr"],
-                            "column": j["column"],
-                            "length": j["length"],
-                        }
-                        if type(old_data) == list:
-                            old_data.append(new_data)
-                        else:
-                            old_data = [old_data, new_data]
-                        
-                        self.tiger_objects[j["fullpath"]] = old_data
-                    else:
-                        self.tiger_objects[j["fullpath"]] = {
-                            "severity": i["severity"],
-                            "key": i["key"],
-                            "info": i["info"],
-                            "message": i["message"],
-                            "linenr": j["linenr"],
-                            "column": j["column"],
-                            "length": j["length"],
-                        }
-
-                previous_locations.append(j["fullpath"])
-
     def on_load_async(self, view):
         path = view.file_name()
-        if path not in self.tiger_objects:
+        if path not in tiger_objects:
             return
 
-        file_errors = self.tiger_objects[path]
-        regions = list()
+        file_errors = tiger_objects[path]
+        error_regions = list()
+        warning_regions = list()
+        tips_regions = list()
         if type(file_errors) == list:
             for i in file_errors:
-                point = view.text_point(i["linenr"]  - 1, i["column"] - 1)
-                regions.append(sublime.Region(point, point + i["length"]))
+                point = view.text_point(i["linenr"] - 1, i["column"] - 1)
+                if i["severity"] == "fatal" or i["severity"] == "error":
+                    error_regions.append(sublime.Region(point, point + i["length"]))
+                if i["severity"] == "warning" or i["severity"] == "untidy":
+                    warning_regions.append(sublime.Region(point, point + i["length"]))
+                if i["severity"] == "tips":
+                    tips_regions.append(sublime.Region(point, point + i["length"]))
         else:
-            point = view.text_point(i["linenr"]  - 1, i["column"] - 1)
-            regions.append(sublime.Region(point, point + file_errors["length"]))
-        
-        self.add_error(view, regions)
+            point = view.text_point(
+                file_errors["linenr"] - 1, file_errors["column"] - 1
+            )
+            if file_errors["severity"] == "fatal" or file_errors["severity"] == "error":
+                error_regions.append(
+                    sublime.Region(point, point + file_errors["length"])
+                )
+            if (
+                file_errors["severity"] == "warning"
+                or file_errors["severity"] == "untidy"
+            ):
+                warning_regions.append(
+                    sublime.Region(point, point + file_errors["length"])
+                )
+            if file_errors["severity"] == "tips":
+                tips_regions.append(
+                    sublime.Region(point, point + file_errors["length"])
+                )
 
-    def add_error(self, view, regions):
+        if error_regions:
+            self.add_error(view, error_regions, "region.redish")
+        if warning_regions:
+            self.add_error(view, warning_regions, "region.yellowish")
+        if tips_regions:
+            self.add_error(view, tips_regions, "region.greenish")
+
+    def add_error(self, view, regions, scope):
         view.add_regions(
-            "tiger_error",
+            scope,
             regions,
-            "keyword.tiger.error",
-            flags=(sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE | sublime.DRAW_SQUIGGLY_UNDERLINE),
+            scope,
+            flags=(
+                sublime.DRAW_NO_FILL
+                | sublime.DRAW_NO_OUTLINE
+                | sublime.DRAW_SQUIGGLY_UNDERLINE
+            ),
         )
+
+    def on_hover(self, view, point, hover_zone):
+        if not view:
+            return
+
+        path = view.file_name()
+        if path not in tiger_objects:
+            return
+
+        file_errors = tiger_objects[path]
+        file_error = ""
+        if type(file_errors) == list:
+            for i in file_errors:
+                # We can deduce the current error being hovered over by knowing the Region of the row and column it is in
+                region_start = view.text_point(i["linenr"] - 1, i["column"] - 1)
+                region_end = region_start + i["length"]
+                error_region = sublime.Region(region_start, region_end)
+                if error_region.contains(point):
+                    file_error = i
+        else:
+            region_start = view.text_point(
+                file_errors["linenr"] - 1, file_errors["column"] - 1
+            )
+            region_end = region_start + file_errors["length"]
+            error_region = sublime.Region(region_start, region_end)
+            if error_region.contains(point):
+                file_error = file_errors
+
+        if not file_error:
+            return
+
+        error = [x for x in view.get_regions("region.redish") if x.contains(point)]
+        warning = [x for x in view.get_regions("region.yellowish") if x.contains(point)]
+        tips = [x for x in view.get_regions("region.greenish") if x.contains(point)]
+
+        info = file_error["info"]
+        if not info:
+            info = ""
+        info = "<p>" + info + "</p>"
+
+        header_color = ""
+        if error:
+            header_color = "red"
+        if warning:
+            header_color = "yellow"
+        if tips:
+            header_color = "green"
+
+        header = f"{file_error['severity']}({file_error['key']})"
+        example = f'<h2 class="code-header {header_color}-text">{header}</h2>'
+        example += f'<div class="box-for-codebox"><div class="codebox"><code>{file_error["message"]}</code><br><code>{info}</code></div></div>'
+        hover_body = """
+            <body id="imperator-body">
+                <style>%s</style>
+                %s
+            </body>
+        """ % (
+            css_basic_style,
+            example,
+        )
+
+        view.show_popup(
+            hover_body,
+            flags=(
+                sublime.HIDE_ON_MOUSE_MOVE_AWAY
+                | sublime.COOPERATE_WITH_AUTO_COMPLETE
+                | sublime.HIDE_ON_CHARACTER_EVENT
+            ),
+            location=point,
+            max_width=1024,
+        )
+
 
 class ImpTigerInputHandler(sublime_plugin.ListInputHandler):
     def name(self):
@@ -2762,16 +2917,21 @@ class ShowTigerOutputCommand(sublime_plugin.WindowCommand):
         annotations = list()
 
         for i in range(len(regions)):
+            href_str = (
+                self.output_view.substr(regions[i]).lstrip(" ")
+                + ":"
+                + str(self.path_locations[i][0])
+                + ":"
+                + str(self.path_locations[i][1])
+            )
             annotation_body = """
                 <body id="imperator-body">
                     <style>%s</style>
-                    <a href="%s:%s:%s" >Open %s</a>
+                    <a href="%s" >Open %s</a>
                 </body>
             """ % (
                 css_basic_style,
-                self.output_view.substr(regions[i]),
-                self.path_locations[i][0],
-                self.path_locations[i][1],
+                href_str,
                 self.output_view.substr(regions[i]),
             )
             annotations.append(annotation_body)
@@ -2787,9 +2947,8 @@ class ShowTigerOutputCommand(sublime_plugin.WindowCommand):
 
     def annotation_callback(self, string):
         string = string.replace("\n", "").split(":")
+        print(string)
         path = settings.get("ImperatorTigerModPath") + "\\" + string[0]
-        if os.path.exists(path):
-            print(path)
 
         if not os.path.exists(path):
             path = imperator_files_path + "\\" + string[0]
@@ -2892,18 +3051,67 @@ class ExecuteTigerCommand(sublime_plugin.WindowCommand):
             output_file = sublime.packages_path() + f"/ImperatorTools/tiger.json"
             with open(output_file, "w") as f:
                 f.write(tiger_json_output)
-
-            self.window.run_command("show_tiger_output")
+            sublime.status_message("imperator-tiger.exe has finished running.")
+            sublime.set_timeout_async(lambda: get_tiger_objects(), 0)
 
 
 class RunTigerCommand(sublime_plugin.WindowCommand):
     def run(self):
+        mod_path = settings.get("ImperatorTigerModPath")
+
+        if not os.path.exists(mod_path):
+            return
+
         tiger_exe_path = (
             sublime.packages_path()
             + f"/ImperatorTools/ImperatorTiger/imperator-tiger.exe"
         )
         window = sublime.active_window()
-        mod_path = settings.get("ImperatorTigerModPath")
 
-        cmd = [tiger_exe_path, mod_path, "--json"]
+        if not settings.get("ImperatorTigerUseDefaultConfig"):
+            conf_file = (
+                sublime.packages_path()
+                + f"/ImperatorTools/ImperatorTiger/imperator-tiger.conf"
+            )
+            cmd = [tiger_exe_path, mod_path, "--json", "--config", conf_file]
+        else:
+            cmd = [tiger_exe_path, mod_path, "--json"]
+
+        sublime.status_message("imperator-tiger.exe has started running...")
         window.run_command("execute_tiger", {"cmd": cmd})
+
+
+class EditTigerConfigCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        conf_file = (
+            sublime.packages_path()
+            + f"/ImperatorTools/ImperatorTiger/imperator-tiger.conf"
+        )
+        view = self.window.open_file(conf_file)
+        view.assign_syntax("scope:source.ruby")
+        self.write_load_mods_to_tiger_config()
+
+    def write_load_mods_to_tiger_config(self):
+        tiger_main_mod = settings.get("ImperatorTigerModPath")
+        if not os.path.exists(tiger_main_mod):
+            return  # Not using tiger
+
+        pattern = r"load_mod = \{[^}]*\}"
+        conf_file = (
+            sublime.packages_path()
+            + f"/ImperatorTools/ImperatorTiger/imperator-tiger.conf"
+        )
+        with open(conf_file, "r") as file:
+            file_content = file.read()
+
+        modified_content = re.sub(pattern, "", file_content, flags=re.DOTALL)
+
+        for i in settings.get("ImperatorTigerLoadedMods"):
+            if not os.path.exists(i) and i.endswith(".mod"):
+                continue
+            label = os.path.splitext(os.path.basename(i))[0]
+            block = f'load_mod = {{\n\tlabel = "{label}"\n\tmodfile = "{i}"\n}}'
+            modified_content += block
+
+        with open(conf_file, "w") as file:
+            file.write(modified_content)

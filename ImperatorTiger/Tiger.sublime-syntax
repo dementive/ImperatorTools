@@ -5,7 +5,7 @@ file_extensions: [tiger]
 scope: text.tiger
 
 variables:
-  valid_path: '[/\\A-Za-z0-9-\._~!$&()*+,;=@]+'
+  valid_path: '[/\\A-Za-z0-9-\._~!$&()*+,;=@\s]+'
 
 contexts:
   main:
@@ -32,6 +32,11 @@ contexts:
     - match: Info
       scope: entity.name
 
+    - match: \d+
+      scope: constant.numeric
+      push:
+        script-line-no-loc
+
     - match: '-->'
       scope: keyword
       push:
@@ -42,21 +47,37 @@ contexts:
           pop: true
           push:
             script-line
-        - match: '(\w|\\)+\.dds\n$'
+        - match: ({{valid_path}})\.dds\n$
           scope: string.file.path.gfx
           pop: true
           push:
             script-line
-        - match: '(\w|\\)+\.asset\n$'
+        - match: ({{valid_path}})\.asset\n$
           scope: string.file.path
           pop: true
           push:
             asset-line
-        - match: '(\w|\\)+\.gui\n$'
+        - match: ({{valid_path}})\.gui\n$
           scope: string.file.path
           pop: true
           push:
             gui-line
+
+  script-line-no-loc:
+    - match: \|
+      scope: keyword
+    - match: ⁭
+      captures:
+        0: keyword.imperator.embedding.start
+
+      embed: scope:text.imperator
+      embed_scope: meta.embedded.pdx
+      # IMPORTANT NOTE: This escape is matching an invisible character that is put here by tiger.py
+      escape: ⁭
+      escape_captures:
+        0: imperator.embedding.ending
+    - match: \n
+      push: arrows-line
 
   script-line:
     - match: Info
@@ -137,7 +158,7 @@ contexts:
           push: arrows-line
 
   arrows-line:
-    - match: \||\^
+    - match: \||\^|<--
       scope: keyword
     - match: \n
       pop: 20

@@ -62,7 +62,7 @@ class TigerJsonObject:
             
             # The initial padding is dependent on the line number with the longest length
             if line_len < self._max_line_num_length:
-                for j in range(line_len - 1):
+                for j in range(self._max_line_num_length - line_len):
                     low_num_padding += " "
             if low_num_padding:
                 low_num_arrow_padding = " "
