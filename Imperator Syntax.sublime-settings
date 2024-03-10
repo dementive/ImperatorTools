@@ -17,6 +17,10 @@
 		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME",
 	],
 
+	// This is a path to the mod you want imperator-tiger to validate
+	// The plugin will automatically put all other mods that are found in the PathsToModFiles setting into the loaded_mods section of the imperator-tiger.conf
+	"ImperatorTigerModPath": "C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME",
+
 	// How should textures be opened when clicked in hover popups? 2 options:
 	// 1. default_program - open the texture in whatever the OS thinks it should be opened in
 	// 2. in_sublime - open the texture directly in sublime,

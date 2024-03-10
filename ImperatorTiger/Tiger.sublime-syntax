@@ -1,0 +1,197 @@
+%YAML 1.2
+---
+name: Tiger Syntax
+file_extensions: [tiger]
+scope: text.tiger
+
+variables:
+  valid_path: '[/\\A-Za-z0-9-\._~!$&()*+,;=@]+'
+
+contexts:
+  main:
+    - include: tips
+    - include: warnings
+    - include: errors
+
+  location-line:
+    - match: tips
+      scope: entity.name
+      pop: true
+      push: tips
+
+    - match: warning
+      scope: string
+      pop: true
+      push: warnings
+
+    - match: error
+      scope: keyword
+      pop: true
+      push: errors
+
+    - match: Info
+      scope: entity.name
+
+    - match: '-->'
+      scope: keyword
+      push:
+        - match: \[\w+\]
+          scope: variable.function
+        - match: ({{valid_path}})\.txt\n$
+          scope: string.file.path
+          pop: true
+          push:
+            script-line
+        - match: '(\w|\\)+\.dds\n$'
+          scope: string.file.path.gfx
+          pop: true
+          push:
+            script-line
+        - match: '(\w|\\)+\.asset\n$'
+          scope: string.file.path
+          pop: true
+          push:
+            asset-line
+        - match: '(\w|\\)+\.gui\n$'
+          scope: string.file.path
+          pop: true
+          push:
+            gui-line
+
+  script-line:
+    - match: Info
+      scope: entity.name
+    - match: ⁭
+      pop: true
+    - match: \d+\s
+      scope: constant.numeric
+      push:
+        - match: \||\^
+          scope: keyword
+          # IMPORTANT NOTE: This match is matching an invisible character that is put here by tiger.py
+          # This seems to be the only way to hack in the embeded scope as it needs both a start and an end character but the end character can't be '\n' due to limitations with the 'escape' keyword
+        - match: ⁭
+          captures:
+            0: keyword.imperator.embedding.start
+
+          embed: scope:text.imperator
+          embed_scope: meta.embedded.pdx
+          # IMPORTANT NOTE: This escape is matching an invisible character that is put here by tiger.py
+          escape: ⁭
+          escape_captures:
+            0: imperator.embedding.ending
+
+        - match: \n
+          push: arrows-line
+
+  asset-line:
+    - match: Info
+      scope: entity.name
+    - match: ⁭
+      pop: true
+    - match: \d+\s
+      scope: constant.numeric
+      push:
+        - match: \||\^
+          scope: keyword
+          # IMPORTANT NOTE: This match is matching an invisible character that is put here by tiger.py
+          # This seems to be the only way to hack in the embeded scope as it needs both a start and an end character but the end character can't be '\n' due to limitations with the 'escape' keyword
+        - match: ⁭
+          captures:
+            0: keyword.imperator.embedding.start
+
+          embed: scope:text.jomini.asset
+          embed_scope: meta.embedded.pdx
+          # IMPORTANT NOTE: This escape is matching an invisible character that is put here by tiger.py
+          escape: ⁭
+          escape_captures:
+            0: imperator.embedding.ending
+
+        - match: \n
+          push: arrows-line
+
+  gui-line:
+    - match: Info
+      scope: entity.name
+    - match: ⁭
+      pop: true
+    - match: \d+\s
+      scope: constant.numeric
+      push:
+        - match: \||\^
+          scope: keyword
+          # IMPORTANT NOTE: This match is matching an invisible character that is put here by tiger.py
+          # This seems to be the only way to hack in the embeded scope as it needs both a start and an end character but the end character can't be '\n' due to limitations with the 'escape' keyword
+        - match: ⁭
+          captures:
+            0: keyword.imperator.embedding.start
+
+          embed: scope:text.jomini.gui
+          embed_scope: meta.embedded.pdx
+          # IMPORTANT NOTE: This escape is matching an invisible character that is put here by tiger.py
+          escape: ⁭
+          escape_captures:
+            0: imperator.embedding.ending
+
+        - match: \n
+          push: arrows-line
+
+  arrows-line:
+    - match: \||\^
+      scope: keyword
+    - match: \n
+      pop: 20
+      push: location-line
+
+  tips:
+    - match: tips\((\w|-)+\)
+      scope: entity.name
+      push:
+        - match: ':'
+          scope: keyword
+        - match: \n
+          push:
+            - include: location-line
+    - match: \((\w|-)+\)
+      scope: entity.name
+      push:
+        - match: ':'
+          scope: keyword
+        - match: \n
+          push:
+            - include: location-line
+  warnings:
+    - match: warning\((\w|-)+\)
+      scope: string
+      push:
+        - match: ':'
+          scope: keyword
+        - match: \n
+          push:
+            - include: location-line
+    - match: \((\w|-)+\)
+      scope: string
+      push:
+        - match: ':'
+          scope: keyword
+        - match: \n
+          push:
+            - include: location-line
+
+  errors:
+    - match: error\((\w|-)+\)
+      scope: keyword
+      push:
+        - match: ':'
+          scope: keyword
+        - match: \n
+          push:
+            - include: location-line
+    - match: \((\w|-)+\)
+      scope: keyword
+      push:
+        - match: ':'
+          scope: keyword
+        - match: \n
+          push:
+            - include: location-line

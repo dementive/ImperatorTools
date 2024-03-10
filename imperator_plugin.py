@@ -1,6 +1,7 @@
 import sublime, sublime_plugin
 import os, re, time, webbrowser, threading, sys, subprocess
 import struct
+import json
 import Default.exec
 from colorsys import hsv_to_rgb
 from collections import deque
@@ -9,11 +10,12 @@ from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
 from .jomini import dict_to_game_object as make_object
 from .Utilities.game_data import GameData
 from .object_cache import GameObjectCache
+from .ImperatorTiger.tiger import TigerJsonObject
 
 # ----------------------------------
 # -          Plugin Setup          -
 # ----------------------------------
-settings = ""
+settings = sublime.Settings(9999)
 imperator_files_path = ""
 imperator_mod_files = list()
 
@@ -1575,7 +1577,7 @@ class ImperatorModdingIndexCommand(sublime_plugin.WindowCommand):
 
 class ValidatorOnSaveListener(sublime_plugin.EventListener):
     def __init__(self):
-        self.view = None
+        self.view: sublime.View
         self.view_str = None
 
     def on_post_save_async(self, view):
@@ -1601,70 +1603,70 @@ class ValidatorOnSaveListener(sublime_plugin.EventListener):
         # Coat of arms is the only files that are only UTF-8 not UTF-8 with BOM
         utf8_paths = re.search(r"(common/coat_of_arms)", path)
         bom_paths = re.search(r"(events|common|music|localization)", path)
-        with open(path, "r+b") as fp:
-            old_encoding = self.view.encoding()
-            if not old_encoding == "UTF-8 with BOM":
-                if bom_paths is not None and utf8_paths is None:
-                    # is not bom and should be
-                    self.view.set_encoding("UTF-8 with BOM")
-                    error_message = f"EncodingError: Encoding is {old_encoding}, files in {bom_paths.group()} should be UTF-8 with BOM, resave to fix."
 
-                    panel = self.create_error_panel()
-                    panel.set_read_only(False)
-                    panel.run_command("append", {"characters": error_message})
-                    panel.add_regions(
-                        "bad_encoding",
-                        [sublime.Region(27, 27 + len(old_encoding))],
-                        "underline.bad",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
-                    )
-                    panel.add_regions(
-                        "encoding",
-                        [sublime.Region(len(panel) - 30, len(panel) - 16)],
-                        "underline.good",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
-                    )
-                    panel.set_read_only(True)
+        old_encoding = self.view.encoding()
+        if not old_encoding == "UTF-8 with BOM":
+            if bom_paths is not None and utf8_paths is None:
+                # is not bom and should be
+                self.view.set_encoding("UTF-8 with BOM")
+                error_message = f"EncodingError: Encoding is {old_encoding}, files in {bom_paths.group()} should be UTF-8 with BOM, resave to fix."
 
-                if utf8_paths is not None and not old_encoding == "UTF-8":
-                    # is not utf-8 and should be
-                    self.view.set_encoding("UTF-8")
-                    error_message = f"EncodingError: Encoding is {old_encoding}, files in {utf8_paths.group()} should be UTF-8, resave to fix."
+                panel = self.create_error_panel()
+                panel.set_read_only(False)
+                panel.run_command("append", {"characters": error_message})
+                panel.add_regions(
+                    "bad_encoding",
+                    [sublime.Region(27, 27 + len(old_encoding))],
+                    "underline.bad",
+                    flags=(
+                        sublime.DRAW_SOLID_UNDERLINE
+                        | sublime.DRAW_NO_FILL
+                        | sublime.DRAW_NO_OUTLINE
+                    ),
+                )
+                panel.add_regions(
+                    "encoding",
+                    [sublime.Region(len(panel) - 30, len(panel) - 16)],
+                    "underline.good",
+                    flags=(
+                        sublime.DRAW_SOLID_UNDERLINE
+                        | sublime.DRAW_NO_FILL
+                        | sublime.DRAW_NO_OUTLINE
+                    ),
+                )
+                panel.set_read_only(True)
 
-                    panel = self.create_error_panel()
-                    panel.set_read_only(False)
-                    panel.run_command("append", {"characters": error_message})
-                    # bad encoding
-                    panel.add_regions(
-                        "bad_encoding",
-                        [sublime.Region(27, 27 + len(old_encoding))],
-                        "underline.bad",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
-                    )
-                    # new good encoding
-                    panel.add_regions(
-                        "encoding",
-                        [sublime.Region(len(panel) - 21, len(panel) - 16)],
-                        "underline.good",
-                        flags=(
-                            sublime.DRAW_SOLID_UNDERLINE
-                            | sublime.DRAW_NO_FILL
-                            | sublime.DRAW_NO_OUTLINE
-                        ),
-                    )
-                    panel.set_read_only(True)
+            if utf8_paths is not None and not old_encoding == "UTF-8":
+                # is not utf-8 and should be
+                self.view.set_encoding("UTF-8")
+                error_message = f"EncodingError: Encoding is {old_encoding}, files in {utf8_paths.group()} should be UTF-8, resave to fix."
+
+                panel = self.create_error_panel()
+                panel.set_read_only(False)
+                panel.run_command("append", {"characters": error_message})
+                # bad encoding
+                panel.add_regions(
+                    "bad_encoding",
+                    [sublime.Region(27, 27 + len(old_encoding))],
+                    "underline.bad",
+                    flags=(
+                        sublime.DRAW_SOLID_UNDERLINE
+                        | sublime.DRAW_NO_FILL
+                        | sublime.DRAW_NO_OUTLINE
+                    ),
+                )
+                # new good encoding
+                panel.add_regions(
+                    "encoding",
+                    [sublime.Region(len(panel) - 21, len(panel) - 16)],
+                    "underline.good",
+                    flags=(
+                        sublime.DRAW_SOLID_UNDERLINE
+                        | sublime.DRAW_NO_FILL
+                        | sublime.DRAW_NO_OUTLINE
+                    ),
+                )
+                panel.set_read_only(True)
 
     def create_error_panel(self):
         window = sublime.active_window()
@@ -1754,7 +1756,7 @@ def show_hover_docs(view, point, scope, collection):
     item = view.substr(view.word(point))
     if item in collection:
         desc = collection[item]
-        hoverBody = """
+        hover_body = """
             <body id="imperator-body">
                 <style>%s</style>
                 <p>%s</p>
@@ -1765,7 +1767,7 @@ def show_hover_docs(view, point, scope, collection):
         )
 
         view.show_popup(
-            hoverBody,
+            hover_body,
             flags=(
                 sublime.HIDE_ON_MOUSE_MOVE_AWAY
                 | sublime.COOPERATE_WITH_AUTO_COMPLETE
@@ -1958,7 +1960,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             view, point, PdxObject, header
         ) + self.get_references_for_popup(view, point, PdxObject)
         if link:
-            hoverBody = """
+            hover_body = """
                 <body id="imperator-body">
                     <style>%s</style>
                     <h1>%s</h1>
@@ -1971,7 +1973,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             )
 
             view.show_popup(
-                hoverBody,
+                hover_body,
                 flags=(
                     sublime.HIDE_ON_MOUSE_MOVE_AWAY
                     | sublime.COOPERATE_WITH_AUTO_COMPLETE
@@ -2158,7 +2160,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             "open_victoria_texture ", in_sublime_args
         )
         open_inline_url = sublime.command_url("v3_show_texture ", inline_args)
-        hoverBody = """
+        hover_body = """
             <body id=\"imperator-body\">
                 <style>%s</style>
                 <h1>Open Texture</h1>
@@ -2183,7 +2185,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         )
 
         view.show_popup(
-            hoverBody,
+            hover_body,
             flags=(
                 sublime.HIDE_ON_MOUSE_MOVE_AWAY
                 | sublime.COOPERATE_WITH_AUTO_COMPLETE
@@ -2210,7 +2212,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
 
         link = self.get_definitions_for_popup(view, point, PdxObject, header, color)
         if link:
-            hoverBody = """
+            hover_body = """
                 <body id="imperator-body">
                     <style>%s</style>
                     <h1>%s</h1>
@@ -2223,7 +2225,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             )
 
             view.show_popup(
-                hoverBody,
+                hover_body,
                 flags=(
                     sublime.HIDE_ON_MOUSE_MOVE_AWAY
                     | sublime.COOPERATE_WITH_AUTO_COMPLETE
@@ -2302,13 +2304,7 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
                         if sublime.platform() == "linux"
                         else [exe_path, path, output_file]
                     )
-                    self.window.run_command(
-                        "exec",
-                        {
-                            "cmd": cmd,
-                            "quiet": True,
-                        },
-                    )
+                    self.window.run_command("quiet_execute", {"cmd": cmd})
                     self.window.destroy_output_panel("exec")
                     sublime.active_window().open_file(output_file)
                 else:
@@ -2468,7 +2464,7 @@ class ImperatorShowTextureBase:
                 if sublime.platform() == "linux"
                 else [exe_path, path, output_file]
             )
-            window.run_command("exec", {"cmd": cmd, "quiet": True})
+            window.run_command("quiet_execute", {"cmd": cmd})
             window.destroy_output_panel("exec")
             # Wait 100ms for conversion to finish
             timeout = 2000 if sublime.platform() == "linux" else 100
@@ -2506,8 +2502,12 @@ class ImperatorShowTextureBase:
         x = ImperatorViewTextures(view.id())
         views_with_shown_textures.add(x)
         x = [v for v in views_with_shown_textures if v.id() == view.id()]
+        current_view = ""
         if x:
             current_view = x[0]
+        if not current_view:
+            return
+
         if pid in current_view.textures:
             current_view.textures.remove(pid)
             view.erase_phantoms(key)
@@ -2617,3 +2617,223 @@ class ImperatorShowAllTexturesCommand(
             full_texture_path = imperator_files_path + "/" + texture_raw_path
             full_texture_path = full_texture_path.replace("\\", "/")
             self.show_texture(full_texture_path, texture_raw_start.a)
+
+class ImpTigerInputHandler(sublime_plugin.ListInputHandler):
+    def name(self):
+        return "view_type"
+
+    def list_items(self):
+        return ["Panel", "Tab"]
+
+class ShowTigerOutputCommand(sublime_plugin.WindowCommand):
+    def run(self, view_type):
+        path = sublime.packages_path() + f"/ImperatorTools/tiger.json"
+        with open(path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        view_text = str()
+        self.path_locations = list()
+        for i in data:
+            # Add location data to list in the same way the display() function does so the indexes stay the same
+            previous_locations = list()
+            for j in i["locations"]:
+                if j["fullpath"] not in previous_locations:
+                    self.path_locations.append((j["linenr"], j["column"]))
+                previous_locations.append(j["fullpath"])
+
+            obj = TigerJsonObject(
+                i["confidence"],
+                i["info"],
+                i["key"],
+                i["locations"],
+                i["message"],
+                i["severity"],
+            )
+
+            view_text += obj.display()
+
+        if view_type == "Panel":
+            if self.window.find_output_panel("exec") is None:
+                self.output_view = self.window.create_output_panel("exec")
+                self.window.run_command("show_panel", {"panel": "output.exec"})
+            else:
+                self.window.destroy_output_panel("exec")
+                self.output_view = self.window.create_output_panel("exec")
+                self.window.run_command("show_panel", {"panel": "output.exec"})
+        else:
+            self.output_view = self.window.new_file(flags=sublime.TRANSIENT)
+            self.output_view.set_name("Tiger Output")
+            self.output_view.set_scratch(True)
+
+        if self.output_view:
+            self.view_creation(view_text)
+
+    def input(self, args):
+        if "view_type" not in args:
+            return ImpTigerInputHandler()
+
+    def view_creation(self, view_text):
+        self.window.focus_view(self.output_view)
+        self.output_view.set_read_only(True)
+        self.output_view.assign_syntax("Tiger.sublime-syntax")
+        s = self.output_view.settings()
+        s.set("word_wrap", True)
+        s.set("line_numbers", False)
+        s.set("gutter", False)
+        s.set("scroll_past_end", False)
+        self.output_view.run_command(
+            "append", {"characters": view_text, "force": True, "scroll_to_end": True}
+        )
+
+        self.add_annotations()
+
+    def add_annotations(self):
+        regions = self.output_view.find_by_selector("string.file.path")
+        annotations = list()
+
+        for i in range(len(regions)):
+            annotation_body = """
+                <body id="imperator-body">
+                    <style>%s</style>
+                    <a href="%s:%s:%s" >Open %s</a>
+                </body>
+            """ % (
+                css_basic_style,
+                self.output_view.substr(regions[i]),
+                self.path_locations[i][0],
+                self.path_locations[i][1],
+                self.output_view.substr(regions[i]),
+            )
+            annotations.append(annotation_body)
+
+        self.output_view.add_regions(
+            "file_to_open",
+            regions,
+            "string.file.path",
+            flags=(sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE),
+            annotations=annotations,
+            on_navigate=self.annotation_callback,
+        )
+
+    def annotation_callback(self, string):
+        string = string.replace("\n", "").split(":")
+        path = settings.get("ImperatorTigerModPath") + "\\" + string[0]
+        if os.path.exists(path):
+            print(path)
+
+        if not os.path.exists(path):
+            path = imperator_files_path + "\\" + string[0]
+
+        if os.path.exists(path):
+            file_path = "{}:{}:{}".format(path, string[1], string[2])
+            flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
+            self.window.open_file(file_path, flags)
+
+
+class ExecuteTigerCommand(sublime_plugin.WindowCommand):
+    """
+    Version of Default.exec.py specifically for executing tiger and piping it's output to a file.
+    It is basically the same except it does not pull up the output panel and it only outputs the text the subprocess sends.
+    """
+
+    def __init__(self, window):
+        super().__init__(window)
+        self.proc = None
+
+    def run(
+        self,
+        cmd=None,
+        shell_cmd=None,
+        working_dir="",
+        encoding="utf-8",
+        env={},
+        word_wrap=True,
+        syntax="Packages/JSON/JSON.sublime-syntax",
+        **kwargs,
+    ):
+        self.output_view = self.window.find_output_panel("exec")
+        if self.output_view is None:
+            # Try not to call get_output_panel until the regexes are assigned
+            self.output_view = self.window.create_output_panel("exec")
+
+        # Default the to the current files directory if no working directory
+        # was given
+        if (
+            working_dir == ""
+            and self.window.active_view()
+            and self.window.active_view().file_name()
+        ):
+            working_dir = os.path.dirname(self.window.active_view().file_name())
+
+        self.output_view.settings().set("result_base_dir", working_dir)
+        self.output_view.settings().set("word_wrap", word_wrap)
+        self.output_view.settings().set("line_numbers", False)
+        self.output_view.settings().set("gutter", False)
+        self.output_view.settings().set("scroll_past_end", False)
+        self.output_view.assign_syntax(syntax)
+
+        # Call create_output_panel a second time after assigning the above
+        # settings, so that it'll be picked up as a result buffer
+        self.window.create_output_panel("exec")
+
+        self.window.focus_view(self.output_view)
+
+        self.encoding = encoding
+        merged_env = env.copy()
+        if self.window.active_view():
+            user_env = self.window.active_view().settings().get("build_env")
+            if user_env:
+                merged_env.update(user_env)
+
+        if working_dir != "":
+            os.chdir(working_dir)
+
+        try:
+            # Run process
+            self.proc = Default.exec.AsyncProcess(
+                cmd, shell_cmd, merged_env, self, **kwargs
+            )
+            self.proc.start()
+        except Exception as e:
+            sublime.status_message("Build error")
+
+    def write(self, characters):
+        self.output_view.run_command(
+            "append", {"characters": characters, "force": True, "scroll_to_end": True}
+        )
+
+    def on_data(self, proc, data):
+        if proc != self.proc:
+            return
+
+        self.write(data)
+
+    def on_finished(self, proc):
+        if proc != self.proc:
+            return
+
+        text = self.output_view.substr(sublime.Region(0, self.output_view.size()))
+        # Find where the json starts by splitting off the header output
+        # This will break if there is a "[" in the header but that should never happen
+        json_start_index = text.find("[")
+
+        if json_start_index != -1:
+            tiger_json_output = text[json_start_index:]
+            output_file = sublime.packages_path() + f"/ImperatorTools/tiger.json"
+            with open(output_file, "w") as f:
+                f.write(tiger_json_output)
+
+            self.window.run_command("show_tiger_output")
+
+
+class RunTigerCommand(sublime_plugin.WindowCommand):
+    def run(self):
+        tiger_exe_path = (
+            sublime.packages_path()
+            + f"/ImperatorTools/ImperatorTiger/imperator-tiger.exe"
+        )
+        window = sublime.active_window()
+        mod_path = settings.get("ImperatorTigerModPath")
+
+        cmd = [tiger_exe_path, mod_path, "--json"]
+        window.run_command("execute_tiger", {"cmd": cmd})

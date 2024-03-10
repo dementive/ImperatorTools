@@ -48,4 +48,18 @@
 
 		},
 	},
+	{
+		"caption": "Imperator: Show Tiger Output",
+		"command": "show_tiger_output",
+		"args": {
+
+		},
+	},
+	{
+		"caption": "Imperator: Run Tiger",
+		"command": "run_tiger",
+		"args": {
+
+		},
+	},
 ]
