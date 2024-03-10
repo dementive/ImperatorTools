@@ -2422,7 +2422,7 @@ class ImperatorViewTextures(sublime.View):
             tex = tex.split("|")
             key = tex[0]
             line = int(tex[1])
-            point = self.text_point(line, 1)
+            point = self.view.text_point(line, 1)
             if self.find(key, point):
                 # Texture is still on the same line, dont need to update
                 return
@@ -2618,12 +2618,82 @@ class ImperatorShowAllTexturesCommand(
             full_texture_path = full_texture_path.replace("\\", "/")
             self.show_texture(full_texture_path, texture_raw_start.a)
 
+
+class ImperatorTigerEventListener(sublime_plugin.EventListener):
+    def on_init(self, views):
+        path = sublime.packages_path() + f"/ImperatorTools/tiger.json"
+        with open(path, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        self.tiger_objects = dict()
+        for i in data:
+            # Add location data to list in the same way the display() function does so the indexes stay the same
+            previous_locations = list()
+            for j in i["locations"]:
+                fullpath = j["fullpath"]
+                if fullpath not in previous_locations:
+                    if fullpath in self.tiger_objects:
+                        old_data = self.tiger_objects[j["fullpath"]]
+                        new_data = {
+                            "severity": i["severity"],
+                            "key": i["key"],
+                            "info": i["info"],
+                            "message": i["message"],
+                            "linenr": j["linenr"],
+                            "column": j["column"],
+                            "length": j["length"],
+                        }
+                        if type(old_data) == list:
+                            old_data.append(new_data)
+                        else:
+                            old_data = [old_data, new_data]
+                        
+                        self.tiger_objects[j["fullpath"]] = old_data
+                    else:
+                        self.tiger_objects[j["fullpath"]] = {
+                            "severity": i["severity"],
+                            "key": i["key"],
+                            "info": i["info"],
+                            "message": i["message"],
+                            "linenr": j["linenr"],
+                            "column": j["column"],
+                            "length": j["length"],
+                        }
+
+                previous_locations.append(j["fullpath"])
+
+    def on_load_async(self, view):
+        path = view.file_name()
+        if path not in self.tiger_objects:
+            return
+
+        file_errors = self.tiger_objects[path]
+        regions = list()
+        if type(file_errors) == list:
+            for i in file_errors:
+                point = view.text_point(i["linenr"]  - 1, i["column"] - 1)
+                regions.append(sublime.Region(point, point + i["length"]))
+        else:
+            point = view.text_point(i["linenr"]  - 1, i["column"] - 1)
+            regions.append(sublime.Region(point, point + file_errors["length"]))
+        
+        self.add_error(view, regions)
+
+    def add_error(self, view, regions):
+        view.add_regions(
+            "tiger_error",
+            regions,
+            "keyword.tiger.error",
+            flags=(sublime.DRAW_NO_FILL | sublime.DRAW_NO_OUTLINE | sublime.DRAW_SQUIGGLY_UNDERLINE),
+        )
+
 class ImpTigerInputHandler(sublime_plugin.ListInputHandler):
     def name(self):
         return "view_type"
 
     def list_items(self):
         return ["Panel", "Tab"]
+
 
 class ShowTigerOutputCommand(sublime_plugin.WindowCommand):
     def run(self, view_type):
