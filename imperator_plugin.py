@@ -2714,6 +2714,9 @@ class ImperatorShowAllTexturesCommand(
 
 class ImperatorTigerEventListener(sublime_plugin.EventListener):
     def on_load_async(self, view):
+        if not settings.get("ImperatorTigerShowErrorsInline"):
+            return
+
         path = view.file_name()
         if path not in tiger_objects:
             return
@@ -2771,6 +2774,9 @@ class ImperatorTigerEventListener(sublime_plugin.EventListener):
         )
 
     def on_hover(self, view, point, hover_zone):
+        if not settings.get("ImperatorTigerShowErrorsInline"):
+            return
+
         if not view:
             return
 
@@ -3089,29 +3095,3 @@ class EditTigerConfigCommand(sublime_plugin.WindowCommand):
         )
         view = self.window.open_file(conf_file)
         view.assign_syntax("scope:source.ruby")
-        self.write_load_mods_to_tiger_config()
-
-    def write_load_mods_to_tiger_config(self):
-        tiger_main_mod = settings.get("ImperatorTigerModPath")
-        if not os.path.exists(tiger_main_mod):
-            return  # Not using tiger
-
-        pattern = r"load_mod = \{[^}]*\}"
-        conf_file = (
-            sublime.packages_path()
-            + f"/ImperatorTools/ImperatorTiger/imperator-tiger.conf"
-        )
-        with open(conf_file, "r") as file:
-            file_content = file.read()
-
-        modified_content = re.sub(pattern, "", file_content, flags=re.DOTALL)
-
-        for i in settings.get("ImperatorTigerLoadedMods"):
-            if not os.path.exists(i) and i.endswith(".mod"):
-                continue
-            label = os.path.splitext(os.path.basename(i))[0]
-            block = f'load_mod = {{\n\tlabel = "{label}"\n\tmodfile = "{i}"\n}}'
-            modified_content += block
-
-        with open(conf_file, "w") as file:
-            file.write(modified_content)

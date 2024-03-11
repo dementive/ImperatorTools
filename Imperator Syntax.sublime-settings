@@ -21,20 +21,14 @@
 	// The plugin will automatically put all other mods that are found in the PathsToModFiles setting into the loaded_mods section of the imperator-tiger.conf
 	"ImperatorTigerModPath": "C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME",
 
-	// List of modfiles to load before ImperatorTigerModPath when using imperator-tiger
-	// Each mod file in this section will be added to a load_mod block in the imperator-tiger.conf that comes with the plugin.
-	// Make sure it is the path to the .mod file in your imperator mod folder.
-	// This only has an effect if ImperatorTigerUseDefaultConfig is false
-	"ImperatorTigerLoadedMods":
-	[
-		//"C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME.mod",
-	],
-
 	// Should the default imperator-tiger.conf file be used?
-	// true = Use the .conf file located in the mod directory that is listed in ImperatorTigerModPath setting.
+	// true = Use the .conf file located in the mod directory that is listed in ImperatorTigerModPath setting. If there is no imperator-tiger.conf file in the mod directory the default tiger config will be used instead.
 	// false = Use the .conf file included with ImperatorTools, this will automatically handle the loaded_mods section based on the load order of PathsToModFiles.
 	// setting to false also allows you to use a common .conf file for all of your mods.
 	"ImperatorTigerUseDefaultConfig": true,
+
+	// Should errors that imperator-tiger finds be shown in files when they are loaded?
+	"ImperatorTigerShowErrorsInline": true,
 
 	// How should textures be opened when clicked in hover popups? 2 options:
 	// 1. default_program - open the texture in whatever the OS thinks it should be opened in

@@ -56,13 +56,6 @@
 		},
 	},
 	{
-		"caption": "Imperator: Run Tiger",
-		"command": "run_tiger",
-		"args": {
-
-		},
-	},
-	{
 		"caption": "Imperator: Edit imperator-tiger.conf",
 		"command": "edit_tiger_config",
 		"args": {
