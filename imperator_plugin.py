@@ -3068,10 +3068,13 @@ class RunTigerCommand(sublime_plugin.WindowCommand):
         if not os.path.exists(mod_path):
             return
 
-        tiger_exe_path = (
-            sublime.packages_path()
-            + f"/ImperatorTools/ImperatorTiger/imperator-tiger.exe"
-        )
+        tiger_exe_path = settings.get("ImperatorTigerBinaryPath")
+
+        if not os.path.exists(tiger_exe_path):
+            tiger_exe_path = (
+                sublime.packages_path()
+                + f"/ImperatorTools/ImperatorTiger/imperator-tiger.exe"
+            )
         window = sublime.active_window()
 
         if not settings.get("ImperatorTigerUseDefaultConfig"):

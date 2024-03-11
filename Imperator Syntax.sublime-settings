@@ -30,6 +30,11 @@
 	// Should errors that imperator-tiger finds be shown in files when they are loaded?
 	"ImperatorTigerShowErrorsInline": true,
 
+	// Full path to the imperator-tiger.exe
+	// You probably don't need to set this as the plugin comes with a tiger binary
+	// but if it is outdated or not working for some reason you can use a different one with this setting.
+	"ImperatorTigerBinaryPath": "",
+
 	// How should textures be opened when clicked in hover popups? 2 options:
 	// 1. default_program - open the texture in whatever the OS thinks it should be opened in
 	// 2. in_sublime - open the texture directly in sublime,
