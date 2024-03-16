@@ -2295,8 +2295,6 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         object_color = PdxObject.color
         css_color = PdxObject.rgb_color
 
-        # print(css_color)
-
         r = css_color[0]
         g = css_color[1]
         b = css_color[2]
@@ -2728,30 +2726,32 @@ class ImperatorTigerEventListener(sublime_plugin.EventListener):
         if type(file_errors) == list:
             for i in file_errors:
                 point = view.text_point(i["linenr"] - 1, i["column"] - 1)
+                length = i["length"] if i["length"] is not None else 0
                 if i["severity"] == "fatal" or i["severity"] == "error":
-                    error_regions.append(sublime.Region(point, point + i["length"]))
+                    error_regions.append(sublime.Region(point, point + length))
                 if i["severity"] == "warning" or i["severity"] == "untidy":
-                    warning_regions.append(sublime.Region(point, point + i["length"]))
+                    warning_regions.append(sublime.Region(point, point + length))
                 if i["severity"] == "tips":
-                    tips_regions.append(sublime.Region(point, point + i["length"]))
+                    tips_regions.append(sublime.Region(point, point + length))
         else:
             point = view.text_point(
                 file_errors["linenr"] - 1, file_errors["column"] - 1
             )
+            length = file_errors["length"] if file_errors["length"] is not None else 0
             if file_errors["severity"] == "fatal" or file_errors["severity"] == "error":
                 error_regions.append(
-                    sublime.Region(point, point + file_errors["length"])
+                    sublime.Region(point, point + length)
                 )
             if (
                 file_errors["severity"] == "warning"
                 or file_errors["severity"] == "untidy"
             ):
                 warning_regions.append(
-                    sublime.Region(point, point + file_errors["length"])
+                    sublime.Region(point, point + length)
                 )
             if file_errors["severity"] == "tips":
                 tips_regions.append(
-                    sublime.Region(point, point + file_errors["length"])
+                    sublime.Region(point, point + length)
                 )
 
         if error_regions:
@@ -2790,7 +2790,8 @@ class ImperatorTigerEventListener(sublime_plugin.EventListener):
             for i in file_errors:
                 # We can deduce the current error being hovered over by knowing the Region of the row and column it is in
                 region_start = view.text_point(i["linenr"] - 1, i["column"] - 1)
-                region_end = region_start + i["length"]
+                length = i["length"] if i["length"] is not None else 0
+                region_end = region_start + length
                 error_region = sublime.Region(region_start, region_end)
                 if error_region.contains(point):
                     file_error = i
@@ -2912,6 +2913,8 @@ class ShowTigerOutputCommand(sublime_plugin.WindowCommand):
         s.set("line_numbers", False)
         s.set("gutter", False)
         s.set("scroll_past_end", False)
+        if not view_text:
+            view_text = "imperator-tiger found no errors :)"
         self.output_view.run_command(
             "append", {"characters": view_text, "force": True, "scroll_to_end": True}
         )
@@ -2953,7 +2956,6 @@ class ShowTigerOutputCommand(sublime_plugin.WindowCommand):
 
     def annotation_callback(self, string):
         string = string.replace("\n", "").split(":")
-        print(string)
         path = settings.get("ImperatorTigerModPath") + "\\" + string[0]
 
         if not os.path.exists(path):
@@ -3055,7 +3057,7 @@ class ExecuteTigerCommand(sublime_plugin.WindowCommand):
         if json_start_index != -1:
             tiger_json_output = text[json_start_index:]
             output_file = sublime.packages_path() + f"/ImperatorTools/tiger.json"
-            with open(output_file, "w") as f:
+            with open(output_file, "w", encoding='utf-8') as f:
                 f.write(tiger_json_output)
             sublime.status_message("imperator-tiger.exe has finished running.")
             sublime.set_timeout_async(lambda: get_tiger_objects(), 0)

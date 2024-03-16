@@ -32,10 +32,11 @@ contexts:
     - match: ':'
       scope: keyword.operator
       push:
-        - include: line_ending_space
+        - match: \s
+          pop: true
         - match: \d+
           scope: constant.numeric
-          pop: 2
+          pop: true
 
   description-zone:
     - match: '"'
