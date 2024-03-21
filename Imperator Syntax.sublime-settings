@@ -18,13 +18,16 @@
 	],
 
 	// This is a path to the mod you want imperator-tiger to validate
-	// The plugin will automatically put all other mods that are found in the PathsToModFiles setting into the loaded_mods section of the imperator-tiger.conf
 	"ImperatorTigerModPath": "C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME",
 
-	// Should the default imperator-tiger.conf file be used?
-	// true = Use the .conf file located in the mod directory that is listed in ImperatorTigerModPath setting. If there is no imperator-tiger.conf file in the mod directory the default tiger config will be used instead.
-	// false = Use the .conf file included with ImperatorTools, this will automatically handle the loaded_mods section based on the load order of PathsToModFiles.
-	// setting to false also allows you to use a common .conf file for all of your mods.
+	/*
+	Should the default imperator-tiger.conf file be used?
+	true = Use the .conf file located in the mod directory that is listed in the ImperatorTigerModPath setting.
+	If there is no imperator-tiger.conf file in the mod directory the default tiger config will be used instead.
+	false = Use the .conf file included with ImperatorTools.
+	setting to false also allows you to use a common .conf file for all of your mods.
+	if you set this to false you can use the "Edit imperator-tiger.conf" command to change the common .conf file the plugin uses.
+	*/
 	"ImperatorTigerUseDefaultConfig": true,
 
 	// Should errors that imperator-tiger finds be shown in files when they are loaded?
