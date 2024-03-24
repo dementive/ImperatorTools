@@ -2146,7 +2146,7 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     % (goto_right_url)
                 )
         else:
-            if word_line_num != PdxObject.line and view.file_name() != PdxObject.path:
+            if word_line_num != PdxObject.line:
                 if def_value:
                     definition = f"<br>{def_value}<br><br>"
                     definition += f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
