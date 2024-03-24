@@ -1,0 +1,602 @@
+"""
+The main event listener for the plugin, this is where most of the plugin features actually happen.
+The init function of the event listener is treated as the main entry point for the plugin.
+"""
+
+import os
+import time
+import threading
+
+import sublime, sublime_plugin
+from .jomini import PdxScriptObject
+from .imperator_objects import *
+from .game_objects import (
+    check_mod_for_changes,
+    get_objects_from_cache,
+    write_data_to_syntax,
+    cache_all_objects,
+    add_color_scheme_scopes,
+    handle_image_cache,
+)
+from .game_data import GameData
+from .scope_match import ScopeMatch
+from .autocomplete import AutoComplete
+from .hover import Hover
+from .encoding import encoding_check
+from .utils import get_default_game_objects
+
+
+class ImperatorEventListener(
+    Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
+):
+    def on_init(self, views):
+        self.game_objects = get_default_game_objects()
+        self.GameData = GameData()
+        self.settings = sublime.load_settings("Imperator Syntax.sublime-settings")
+        self.imperator_files_path = self.settings.get("ImperatorFilesPath")
+        self.imperator_mod_files = self.settings.get("PathsToModFiles")
+
+        if check_mod_for_changes(self.imperator_mod_files):
+            # Create new objects
+            sublime.set_timeout_async(lambda: self.create_game_objects(), 0)
+            sublime.active_window().run_command("run_tiger")
+        else:
+            # Load cached objects
+            self.game_objects = get_objects_from_cache()
+
+        handle_image_cache(self.settings)
+        add_color_scheme_scopes()
+
+    # Game object creation
+    def create_game_objects(self):
+        t0 = time.time()
+
+        def load_first():
+            self.game_objects["ambition"] = ImperatorAmbition()
+            self.game_objects["building"] = ImperatorBuilding()
+            self.game_objects["culture"] = ImperatorCulture()
+            self.game_objects["culture_group"] = ImperatorCultureGroup()
+            self.game_objects["death_reason"] = ImperatorDeathReason()
+            self.game_objects["deity"] = ImperatorDeity()
+            self.game_objects["diplo_stance"] = ImperatorDiplomaticStance()
+            self.game_objects["econ_policy"] = ImperatorEconomicPolicy()
+            self.game_objects["event_pic"] = ImperatorEventPicture()
+
+        def load_second():
+            self.game_objects["event_theme"] = ImperatorEventTheme()
+            self.game_objects["government"] = ImperatorGovernment()
+            self.game_objects["governor_policy"] = ImperatorGovernorPolicy()
+            self.game_objects["heritage"] = ImperatorHeritage()
+            self.game_objects["idea"] = ImperatorIdea()
+            self.game_objects["invention"] = ImperatorInvention()
+            self.game_objects["law"] = ImperatorLaw()
+            self.game_objects["legion_distinction"] = ImperatorLegionDistinction()
+
+        def load_third():
+            self.game_objects["levy_template"] = ImperatorLevyTemplate()
+            self.game_objects["loyalty"] = ImperatorLoyalty()
+            self.game_objects["mil_tradition"] = ImperatorMilitaryTradition()
+            self.game_objects["modifier"] = ImperatorModifier()
+            self.game_objects["opinion"] = ImperatorOpinion()
+            self.game_objects["office"] = ImperatorOffice()
+            self.game_objects["party"] = ImperatorParty()
+            self.game_objects["pop"] = ImperatorPop()
+            self.game_objects["scripted_list_triggers"] = ImperatorScriptedList()
+            self.game_objects["scripted_list_effects"] = ImperatorScriptedList()
+
+            tri_list = []
+            for obj in self.game_objects["scripted_list_triggers"]:
+                tri_list.append(PdxScriptObject("any_" + obj.key, obj.path, obj.line))
+            self.game_objects["scripted_list_triggers"].clear()
+            for i in tri_list:
+                self.game_objects["scripted_list_triggers"].add(i)
+
+            ef_list = []
+            for obj in self.game_objects["scripted_list_effects"]:
+                ef_list.append(PdxScriptObject(f"random_{obj.key}", obj.path, obj.line))
+                ef_list.append(PdxScriptObject(f"every_{obj.key}", obj.path, obj.line))
+                ef_list.append(
+                    PdxScriptObject(f"ordered_{obj.key}", obj.path, obj.line)
+                )
+            self.game_objects["scripted_list_effects"].clear()
+
+            for i in ef_list:
+                self.game_objects["scripted_list_effects"].add(i)
+            for i in self.game_objects["scripted_list_effects"].keys():
+                self.GameData.EffectsList[i] = "Scripted list effect"
+            for i in self.game_objects["scripted_list_triggers"].keys():
+                self.GameData.TriggersList[i] = "Scripted list trigger"
+
+        def load_fourth():
+            self.game_objects["price"] = ImperatorPrice()
+            self.game_objects["province_rank"] = ImperatorProvinceRank()
+            self.game_objects["religion"] = ImperatorReligion()
+            self.game_objects["script_value"] = ImperatorScriptValue()
+            self.game_objects["scripted_effect"] = ImperatorScriptedEffect()
+            self.game_objects["scripted_modifier"] = ImperatorScriptedModifier()
+            self.game_objects["scripted_trigger"] = ImperatorScriptedTrigger()
+            self.game_objects["subject_type"] = ImperatorSubjectType()
+            self.game_objects["named_colors"] = ImperatorNamedColor()
+
+        def load_fifth():
+            self.game_objects["terrain"] = ImperatorTerrain()
+            self.game_objects["trade_good"] = ImperatorTradeGood()
+            self.game_objects["trait"] = ImperatorTrait()
+            self.game_objects["unit"] = ImperatorUnit()
+            self.game_objects["war_goal"] = ImperatorWargoal()
+            self.game_objects["tech_table"] = ImperatorTechTable()
+            self.game_objects["mission"] = ImperatorMission()
+            self.game_objects["mission_task"] = ImperatorMissionTask()
+            self.game_objects["area"] = ImperatorArea()
+            self.game_objects["region"] = ImperatorRegion()
+
+        thread1 = threading.Thread(target=load_first)
+        thread2 = threading.Thread(target=load_second)
+        thread3 = threading.Thread(target=load_third)
+        thread4 = threading.Thread(target=load_fourth)
+        thread5 = threading.Thread(target=load_fifth)
+        thread1.start()
+        thread2.start()
+        thread3.start()
+        thread4.start()
+        thread5.start()
+        thread1.join()
+        thread2.join()
+        thread3.join()
+        thread4.join()
+        thread5.join()
+
+        # Write syntax data after creating objects so they actually exist when writing
+        sublime.set_timeout_async(lambda: write_data_to_syntax(self.game_objects), 0)
+
+        t1 = time.time()
+        print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
+
+        # Cache created objects
+        sublime.set_timeout_async(
+            lambda: cache_all_objects(self.game_objects), 0
+        )
+
+    def on_deactivated_async(self, view):
+        """
+        Remove field states when view loses focus
+        if cursor was in a field in the old view but not the new view the completions will still be accurate
+        save the id of the view so it can be readded when it regains focus
+        """
+        vid = view.id()
+        for field, views in self.auto_complete_fields.items():
+            if getattr(self, field):
+                setattr(self, field, False)
+                views.append(vid)
+
+    def on_activated_async(self, view):
+        vid = view.id()
+        for field, views in self.auto_complete_fields.items():
+            if vid in views:
+                setattr(self, field, True)
+                views.remove(vid)
+
+    def create_completion_list(self, flag_name, completion_kind):
+        if not getattr(self, flag_name, False):
+            return None
+
+        completions = self.game_objects[flag_name].keys()
+        completions = sorted(completions)
+        return sublime.CompletionList(
+            [
+                sublime.CompletionItem(
+                    trigger=key,
+                    completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                    kind=completion_kind,
+                    details=" ",
+                )
+                # Calling sorted() twice makes it so completions are ordered by
+                # 1. the number of times they appear in the current buffer
+                # 2. if they dont appear they show up alphabetically
+                for key in sorted(completions)
+            ],
+            flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
+            | sublime.INHIBIT_WORD_COMPLETIONS,
+        )
+
+    def on_query_completions(self, view, prefix, locations):
+        if not view:
+            return None
+
+        try:
+            if view.syntax().name != "Imperator Script":
+                return None
+        except AttributeError:
+            return None
+
+        completion_flag_pairs = [
+            ("ambition", (sublime.KIND_ID_FUNCTION, "A", "Ambitions")),
+            ("area", (sublime.KIND_ID_SNIPPET, "A", "Areas")),
+            ("building", (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
+            ("culture", (sublime.KIND_ID_TYPE, "C", "Culture Groups")),
+            ("culture_group", (sublime.KIND_ID_VARIABLE, "C", "Cultures")),
+            ("death_reason", (sublime.KIND_ID_KEYWORD, "D", "Death Reasons")),
+            ("deity", (sublime.KIND_ID_TYPE, "D", "Deities")),
+            ("diplo_stance", (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances")),
+            ("econ_policy", (sublime.KIND_ID_KEYWORD, "E", "Economic Policies")),
+            ("event_pic", (sublime.KIND_ID_MARKUP, "E", "Event Picture")),
+            ("event_theme", (sublime.KIND_ID_TYPE, "E", "Event Themes")),
+            ("government", (sublime.KIND_ID_VARIABLE, "E", "Governements")),
+            ("governor_policy", (sublime.KIND_ID_TYPE, "G", "Governor Policies")),
+            ("heritage", (sublime.KIND_ID_VARIABLE, "G", "Heritages")),
+            ("idea", (sublime.KIND_ID_SNIPPET, "G", "Ideas")),
+            ("invention", (sublime.KIND_ID_MARKUP, "H", "Inventions")),
+            ("law", (sublime.KIND_ID_VARIABLE, "I", "Laws")),
+            ("legion_distinction", (sublime.KIND_ID_TYPE, "I", "Legion Distinction")),
+            ("levy_template", (sublime.KIND_ID_SNIPPET, "L", "Levy Templates")),
+            ("loyalty", (sublime.KIND_ID_VARIABLE, "L", "Loyalties")),
+            ("mil_tradition", (sublime.KIND_ID_VARIABLE, "L", "Military Traditions")),
+            ("mission", (sublime.KIND_ID_SNIPPET, "M", "Missions")),
+            ("mission_task", (sublime.KIND_ID_SNIPPET, "M", "Mission Tasks")),
+            ("modifier", (sublime.KIND_ID_MARKUP, "M", "Modifiers")),
+            ("named_colors", (sublime.KIND_ID_VARIABLE, "N", "Named Colors")),
+            ("office", (sublime.KIND_ID_NAMESPACE, "O", "Offices")),
+            ("opinion", (sublime.KIND_ID_VARIABLE, "O", "Opinions")),
+            ("party", (sublime.KIND_ID_TYPE, "P", "Parties")),
+            ("pop", (sublime.KIND_ID_VARIABLE, "P", "Pops")),
+            ("price", (sublime.KIND_ID_NAVIGATION, "P", "Prices")),
+            ("province_rank", (sublime.KIND_ID_VARIABLE, "P", "Province Ranks")),
+            ("region", (sublime.KIND_ID_SNIPPET, "R", "Regions")),
+            ("religion", (sublime.KIND_ID_VARIABLE, "R", "Religions")),
+            ("subject_type", (sublime.KIND_ID_SNIPPET, "S", "Subject Types")),
+            ("tech_table", (sublime.KIND_ID_VARIABLE, "T", "Tech Tables")),
+            ("terrain", (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
+            ("trade_good", (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),
+            ("trait", (sublime.KIND_ID_VARIABLE, "T", "Traits")),
+            ("unit", (sublime.KIND_ID_FUNCTION, "U", "Units")),
+            ("war_goal", (sublime.KIND_ID_FUNCTION, "W", "War Goals")),
+        ]
+
+        for flag, completion in completion_flag_pairs:
+            completion_list = self.create_completion_list(flag, completion)
+            if completion_list is not None:
+                return completion_list
+
+        fname = view.file_name()
+        if not fname:
+            return
+
+        if "script_values" in fname:
+            e_list = []
+            for i in self.GameData.EffectsList:
+                e_list.append(
+                    sublime.CompletionItem(
+                        trigger=i,
+                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                        kind=(sublime.KIND_ID_FUNCTION, "E", "Effect"),
+                        details=self.GameData.EffectsList[i].split("<br>")[0],
+                    )
+                )
+            t_list = []
+            for i in self.GameData.TriggersList:
+                t_list.append(
+                    sublime.CompletionItem(
+                        trigger=i,
+                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                        kind=(sublime.KIND_ID_NAVIGATION, "T", "Trigger"),
+                        details=self.GameData.TriggersList[i].split("<br>")[0],
+                    )
+                )
+
+            return sublime.CompletionList(e_list + t_list)
+        if "common/prices" in fname:
+            return sublime.CompletionList(
+                [
+                    sublime.CompletionItem(
+                        trigger=key,
+                        completion=key + " = ${1:5}",
+                        completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+                        kind=(sublime.KIND_ID_NAVIGATION, "P", "Price"),
+                        annotation=" " + key.replace("_", " ").title(),
+                        details=self.GameData.PricesDict[key],
+                    )
+                    for key in sorted(self.GameData.PricesDict)
+                ],
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
+                | sublime.INHIBIT_WORD_COMPLETIONS,
+            )
+        if (
+            self.trigger_field
+            or self.mtth_field
+            or "scripted_triggers" in fname
+            or "scripted_modifiers" in fname
+        ):
+            return sublime.CompletionList(
+                [
+                    sublime.CompletionItem(
+                        trigger=key,
+                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                        kind=(sublime.KIND_ID_NAVIGATION, "T", "Trigger"),
+                        details=self.GameData.TriggersList[key].split("<br>")[0],
+                    )
+                    for key in sorted(self.GameData.TriggersList)
+                ]
+            )
+        if self.effect_field or "scripted_effects" in fname:
+            return sublime.CompletionList(
+                [
+                    sublime.CompletionItem(
+                        trigger=key,
+                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                        kind=(sublime.KIND_ID_FUNCTION, "E", "Effect"),
+                        details=self.GameData.EffectsList[key].split("<br>")[0],
+                    )
+                    for key in sorted(self.GameData.EffectsList)
+                ]
+            )
+        if self.modifier_field or re.search(
+            r"modifiers|traits|buildings|governor_policies|trade_goods", fname
+        ):
+            return sublime.CompletionList(
+                [
+                    sublime.CompletionItem(
+                        trigger=key,
+                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                        kind=(sublime.KIND_ID_MARKUP, "M", "Modifier"),
+                        details=self.GameData.ModifersList[key],
+                        annotation=self.GameData.ModifersList[key].replace(
+                            "Category: ", ""
+                        ),
+                    )
+                    for key in sorted(self.GameData.ModifersList)
+                ],
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
+                | sublime.INHIBIT_WORD_COMPLETIONS,
+            )
+        if "/events/" in fname:
+            return sublime.CompletionList(
+                self.GameData.EventsList,
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_REORDER,
+            )
+        return None
+
+    def on_selection_modified_async(self, view):
+        if not view:
+            return
+
+        try:
+            if view.syntax().name != "Imperator Script":
+                return
+        except AttributeError:
+            return
+
+        self.simple_scope_match(view)
+        # Only do when there is 1 selections, doens't make sense with multiple selections
+        if len(view.sel()) == 1:
+            self.check_for_simple_completions(view, view.sel()[0].a)
+            self.check_for_complex_completions(view, view.sel()[0].a)
+
+    def check_for_simple_completions(self, view, point):
+        """
+        Check if the current cursor position should trigger a autocompletion item
+        this is for simple declarations like: remove_building = CursorHere
+        """
+        self.reset_shown()
+
+        if view.substr(point) == "=":
+            return
+
+        line = view.substr(view.line(point))
+
+        for patterns, flag in self.GameData.simple_completion_pattern_flag_pairs:
+            if self.check_for_patterns_and_set_flag(patterns, flag, view, line, point):
+                return
+
+        for pattern, flag in self.GameData.simple_completion_scope_pattern_flag_pairs:
+            self.check_pattern_and_set_flag(pattern, flag, view, line, point)
+
+    def on_hover(self, view, point, hover_zone):
+        if not view:
+            return
+
+        try:
+            if view.syntax().name == "Imperator Script":
+                pass
+            else:
+                return
+        except AttributeError:
+            return
+
+        if self.settings.get("DocsHoverEnabled") == True:
+            if view.match_selector(point, "keyword.effect"):
+                self.show_hover_docs(
+                    view,
+                    point,
+                    "keyword.effect",
+                    self.GameData.EffectsList,
+                    self.settings,
+                )
+                return
+
+            if view.match_selector(point, "string.trigger"):
+                self.GameData.TriggersList.update(self.GameData.CustomTriggersList)
+                self.show_hover_docs(
+                    view,
+                    point,
+                    "string.trigger",
+                    self.GameData.TriggersList,
+                    self.settings,
+                )
+                return
+
+            if view.match_selector(point, "storage.type.scope"):
+                self.GameData.ScopesList.update(self.GameData.CustomScopesList)
+                self.show_hover_docs(
+                    view,
+                    point,
+                    "storage.type.scope",
+                    self.GameData.ScopesList,
+                    self.settings,
+                )
+                return
+
+            # Do everything that requires fetching GameObjects in non-blocking thread
+            sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
+
+        # Texture popups can happen for both script and gui files
+        if self.settings.get("TextureOpenPopup") != True:
+            return
+
+        posLine = view.line(point)
+        linestr = view.substr(posLine)
+        if ".dds" not in view.substr(posLine):
+            return
+
+        texture_raw_start = view.find("gfx", posLine.a)
+        texture_raw_end = view.find(".dds", posLine.a)
+        texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
+        texture_raw_path = view.substr(texture_raw_region)
+        full_texture_path = imperator_files_path + "/" + texture_raw_path
+
+        if os.path.exists(full_texture_path):
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
+            return
+
+        # Check mod paths if it's not vanilla
+        for mod in imperator_mod_files:
+            if os.path.exists(mod) and mod.endswith("mod"):
+                # if it is the path to the mod directory, get all directories in it
+                for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
+                    mod_path = directory + "/" + texture_raw_path
+                    if os.path.exists(mod_path):
+                        full_texture_path = mod_path
+            else:
+                mod_path = mod + "/" + texture_raw_path
+                if os.path.exists(mod_path):
+                    full_texture_path = mod_path
+
+        # The path exists and the point in the view is inside of the path
+        if texture_raw_region.contains(point):
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
+
+    def do_hover_async(self, view, point):
+        word_region = view.word(point)
+        word = view.substr(word_region)
+        fname = view.file_name()
+        current_line_num = view.rowcol(point)[0] + 1
+
+        if view.match_selector(point, "comment.line"):
+            return
+
+        if (
+            view.match_selector(point, "variable.parameter.scope.usage")
+            or view.match_selector(point, "variable.parameter.remove.var")
+            or view.match_selector(point, "variable.parameter.trigger.usage")
+            or view.match_selector(point, "variable.parameter.var.usage")
+        ):
+            if view.match_selector(point, "variable.parameter.scope.usage"):
+                self.show_popup_default(
+                    view,
+                    point,
+                    word,
+                    PdxScriptObject(word, fname, current_line_num),
+                    "Saved Scope",
+                )
+            else:
+                self.show_popup_default(
+                    view,
+                    point,
+                    word,
+                    PdxScriptObject(word, fname, current_line_num),
+                    "Saved Variable",
+                )
+            return
+
+        if view.match_selector(point, "entity.name.function.var.declaration"):
+            self.show_popup_default(
+                view,
+                point,
+                word,
+                PdxScriptObject(word, fname, current_line_num),
+                "Saved Variable",
+            )
+            return
+        if view.match_selector(point, "entity.name.function.scope.declaration"):
+            self.show_popup_default(
+                view,
+                point,
+                word,
+                PdxScriptObject(word, fname, current_line_num),
+                "Saved Scope",
+            )
+            return
+
+        hover_objects = [
+            ("ambition", "Ambition"),
+            ("building", "Building"),
+            ("culture", "Culture"),
+            ("culture_group", "Culture Group"),
+            ("death_reason", "Death Reason"),
+            ("deity", "Deity"),
+            ("diplo_stance", "Diplomatic Stance"),
+            ("econ_policy", "Economic Policy"),
+            ("event_pic", "Event Picture"),
+            ("event_theme", "Event Theme"),
+            ("government", "Government"),
+            ("governor_policy", "Governor Policy"),
+            ("heritage", "Heritage"),
+            ("named_colors", "Named Color"),
+            ("idea", "Idea"),
+            ("invention", "Invention"),
+            ("law", "law"),
+            ("legion_distinction", "Legion Distinction"),
+            ("levy_template", "Levy Template"),
+            ("loyalty", "Loyalty"),
+            ("mil_tradition", "Military Tradition"),
+            ("modifier", "Modifier"),
+            ("opinion", "Opinion"),
+            ("office", "Office"),
+            ("party", "Party"),
+            ("pop", "Pop Type"),
+            ("price", "Price"),
+            ("province_rank", "Province Rank"),
+            ("religion", "Religion"),
+            ("script_value", "Script Value"),
+            ("scripted_effect", "Scripted Effect"),
+            ("scripted_modifier", "Scripted Modifier"),
+            ("scripted_trigger", "Scripted Trigger"),
+            ("subject_type", "Subject Type"),
+            ("tech_table", "Technology Table"),
+            ("terrain", "Terrain"),
+            ("trade_good", "Trade Good"),
+            ("trait", "Trait"),
+            ("unit", "Unit"),
+            ("war_goal", "War Goal"),
+            ("mission", "Mission"),
+            ("mission_task", "Mission Task"),
+            ("area", "Area"),
+            ("region", "Region"),
+            ("scripted_list_triggers", "Scripted List"),
+            ("scripted_list_effects", "Scripted List"),
+        ]
+
+        # Iterate over the list and call show_popup_default for each game object
+        for hover_object, name in hover_objects:
+            if self.game_objects[hover_object].contains(word):
+                self.show_popup_default(
+                    view,
+                    point,
+                    word,
+                    self.game_objects[hover_object].access(word),
+                    name,
+                )
+
+    def on_post_save_async(self, view):
+        if view is None:
+            return
+        try:
+            if view.syntax().name != "Imperator Script":
+                return
+        except AttributeError:
+            return
+        if self.settings.get("ScriptValidator") == False:
+            return
+
+        encoding_check(view)

@@ -1,3 +1,8 @@
+"""
+Representation of a Tiger json object and a way to display the output as a string with the same look as the actual tiger output.
+"""
+
+
 class Location:
     def __init__(self, column, origin, fullpath, length, line, linenr, path, tag=None):
         self.column = column
@@ -59,7 +64,7 @@ class TigerJsonObject:
             low_num_arrow_padding = ""
             arrows = ""
             line_len = len(str(location.linenr))
-            
+
             # The initial padding is dependent on the line number with the longest length
             if line_len < self._max_line_num_length:
                 for j in range(self._max_line_num_length - line_len):
@@ -88,16 +93,14 @@ class TigerJsonObject:
                 # This is used in Tiger.sublime-syntax to indicate where the embedding for script lines starts and ends
                 # Without it there isn't a good way to indicate where the embedding needs to end due to limitations with the 'escape' keyword of sublime-syntaxes
                 out_str += f"{low_num_padding}{location.linenr} |⁭{line}⁭\n"
-                out_str += (
-                    f"{low_num_padding}{line_num_padding}|{column_padding}{arrows} {tag}\n"
-                )
+                out_str += f"{low_num_padding}{line_num_padding}|{column_padding}{arrows} {tag}\n"
 
                 if i + 1 == len(self.locations):
                     if self.info:
                         out_str += f"{line_num_padding}= Info: {self.info}\n"
                     out_str += "\n"
             else:
-                # If no column exists than it is just a "Info" message 
+                # If no column exists than it is just a "Info" message
                 added_arrow = "--> " if i < 1 else "--> "
 
                 if location.path not in previous_paths:

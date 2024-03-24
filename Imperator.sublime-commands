@@ -35,13 +35,6 @@
 		},
 	},
 	{
-		"caption": "Imperator: Reload plugin objects and regenerate syntax",
-		"command": "imp_reload_plugin",
-		"args": {
-
-		},
-	},
-	{
 		"caption": "Imperator: Toggle All Textures",
 		"command": "imperator_toggle_all_textures",
 		"args": {

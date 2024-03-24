@@ -1,3 +1,5 @@
+# Static Imperator Rome game data used in for autocomplete, documentation on hover, and more
+
 import sublime
 
 country_event = """
