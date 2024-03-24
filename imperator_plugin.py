@@ -1904,38 +1904,101 @@ class ScriptHoverListener(sublime_plugin.EventListener):
             sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
 
         # Texture popups can happen for both script and gui files
-        if settings.get("TextureOpenPopup") == True:
-            posLine = view.line(point)
-            if ".dds" in view.substr(posLine):
-                texture_raw_start = view.find("gfx", posLine.a)
-                texture_raw_end = view.find(".dds", posLine.a)
-                texture_raw_region = sublime.Region(
-                    texture_raw_start.a, texture_raw_end.b
+        if settings.get("TextureOpenPopup") != True:
+            return 
+
+        posLine = view.line(point)
+        linestr = view.substr(posLine)
+        if ".dds" not in view.substr(posLine):
+            return 
+
+        if "common\\coat_of_arms" in view.file_name():
+            if "pattern" in linestr:
+                raw_start = view.find("pattern", posLine.a)
+                raw_end = (
+                    view.find(".dds", posLine.a)
+                    if ".dds" in linestr
+                    else view.find(".tga", posLine.a)
                 )
-                texture_raw_path = view.substr(texture_raw_region)
-                full_texture_path = imperator_files_path + "/" + texture_raw_path
-                if not os.path.exists(full_texture_path):
-                    # Check mod paths if it's not vanilla
-                    for mod in imperator_mod_files:
-                        if os.path.exists(mod):
-                            if mod.endswith("mod"):
-                                # if it is the path to the mod directory, get all directories in it
-                                for directory in [
-                                    f.path for f in os.scandir(mod) if f.is_dir()
-                                ]:
-                                    mod_path = directory + "/" + texture_raw_path
-                                    if os.path.exists(mod_path):
-                                        full_texture_path = mod_path
-                            else:
-                                mod_path = mod + "/" + texture_raw_path
-                                if os.path.exists(mod_path):
-                                    full_texture_path = mod_path
-                # The path exists and the point in the view is inside of the path
-                if texture_raw_region.__contains__(point):
-                    texture_name = view.substr(view.word(texture_raw_end.a - 1))
+                raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
+                raw_path = view.substr(raw_region).replace('"', "")
+                full_texture_path = (
+                    imperator_files_path + "\\gfx\\coat_of_arms\\patterns\\" + raw_path
+                )
+                full_texture_path = full_texture_path
+                if raw_region.contains(point) and os.path.exists(
+                    full_texture_path
+                ):
+                    texture_name = view.substr(view.word(raw_end.a - 1))
                     self.show_texture_hover_popup(
                         view, point, texture_name, full_texture_path
                     )
+                    return
+            if "texture" in linestr:
+                raw_start = view.find("texture", posLine.a)
+                raw_end = (
+                    view.find(".dds", posLine.a)
+                    if ".dds" in linestr
+                    else view.find(".tga", posLine.a)
+                )
+                raw_region = sublime.Region(raw_start.a + 10, raw_end.b)
+                raw_path = view.substr(raw_region).replace('"', "")
+                full_texture_path = (
+                    imperator_files_path
+                    + "\\gfx\\coat_of_arms\\colored_emblems\\"
+                    + raw_path
+                )
+                if not os.path.exists(full_texture_path):
+                    full_texture_path = (
+                        imperator_files_path
+                        + "\\gfx\\coat_of_arms\\textured_emblems\\"
+                        + raw_path
+                    )
+                if raw_region.contains(point) and os.path.exists(
+                    full_texture_path
+                ):
+                    texture_name = view.substr(view.word(raw_end.a - 1))
+                    self.show_texture_hover_popup(
+                        view, point, texture_name, full_texture_path
+                    )
+                    return
+
+        texture_raw_start = view.find("gfx", posLine.a)
+        texture_raw_end = view.find(".dds", posLine.a)
+        texture_raw_region = sublime.Region(
+            texture_raw_start.a, texture_raw_end.b
+        )
+        texture_raw_path = view.substr(texture_raw_region)
+        full_texture_path = imperator_files_path + "/" + texture_raw_path
+
+        if os.path.exists(full_texture_path):
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(
+                view, point, texture_name, full_texture_path
+            )
+            return
+
+        # Check mod paths if it's not vanilla
+        for mod in imperator_mod_files:
+            if os.path.exists(mod) and mod.endswith("mod"):
+                # if it is the path to the mod directory, get all directories in it
+                for directory in [
+                    f.path for f in os.scandir(mod) if f.is_dir()
+                ]:
+                    mod_path = directory + "/" + texture_raw_path
+                    if os.path.exists(mod_path):
+                        full_texture_path = mod_path
+            else:
+                mod_path = mod + "/" + texture_raw_path
+                if os.path.exists(mod_path):
+                    full_texture_path = mod_path
+
+        # The path exists and the point in the view is inside of the path
+        if texture_raw_region.contains(point):
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(
+                view, point, texture_name, full_texture_path
+            )
 
     def do_hover_async(self, view, point):
         word_region = view.word(point)
@@ -2083,32 +2146,34 @@ class ScriptHoverListener(sublime_plugin.EventListener):
         if header == "Saved Scope" or header == "Saved Variable":
             for win in sublime.windows():
                 for i in [v for v in win.views() if v and v.file_name()]:
-                    if i.file_name().endswith(".txt") or i.file_name().endswith(".py"):
-                        variables = [
+                    if not i.file_name().endswith(".txt"):
+                        continue
+
+                    variables = [
+                        x
+                        for x in i.find_by_selector(
+                            "entity.name.function.var.declaration"
+                        )
+                        if i.substr(x) == PdxObject.key
+                    ]
+                    variables.extend(
+                        [
                             x
                             for x in i.find_by_selector(
-                                "entity.name.function.var.declaration"
+                                "entity.name.function.scope.declaration"
                             )
                             if i.substr(x) == PdxObject.key
                         ]
-                        variables.extend(
-                            [
-                                x
-                                for x in i.find_by_selector(
-                                    "entity.name.function.scope.declaration"
-                                )
-                                if i.substr(x) == PdxObject.key
-                            ]
-                        )
-                        for r in variables:
-                            line = i.rowcol(r.a)[0] + 1
-                            path = i.file_name()
-                            if line == word_line_num and path == PdxObject.path:
-                                continue
-                            else:
-                                definitions.append(
-                                    PdxScriptObject(PdxObject.key, path, line)
-                                )
+                    )
+                    for r in variables:
+                        line = i.rowcol(r.a)[0] + 1
+                        path = i.file_name()
+                        if line == word_line_num and path == PdxObject.path:
+                            continue
+                        else:
+                            definitions.append(
+                                PdxScriptObject(PdxObject.key, path, line)
+                            )
 
             if len(definitions) == 1:
                 if def_value:
@@ -2145,39 +2210,40 @@ class ScriptHoverListener(sublime_plugin.EventListener):
                     """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
                     % (goto_right_url)
                 )
-        else:
-            if word_line_num != PdxObject.line:
-                if def_value:
-                    definition = f"<br>{def_value}<br><br>"
-                    definition += f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
-                else:
-                    definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
-                goto_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_url = sublime.command_url(
-                    "goto_script_object_definition", goto_args
+                return definition
+
+        if word_line_num != PdxObject.line:
+            if def_value:
+                definition = f"<br>{def_value}<br><br>"
+                definition += f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+            else:
+                definition = f'<p><b>Definition of&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
+            goto_args = {"path": PdxObject.path, "line": PdxObject.line}
+            goto_url = sublime.command_url(
+                "goto_script_object_definition", goto_args
+            )
+            definition += (
+                """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
+                % (
+                    goto_url,
+                    PdxObject.path.replace("\\", "/")
+                    .rstrip("/")
+                    .rpartition("/")[2],
+                    PdxObject.line,
+                    PdxObject.path.replace("\\", "/")
+                    .rstrip("/")
+                    .rpartition("/")[2],
+                    PdxObject.line,
                 )
-                definition += (
-                    """<a href="%s" title="Open %s and goto line %d">%s:%d</a>&nbsp;"""
-                    % (
-                        goto_url,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
-                        PdxObject.path.replace("\\", "/")
-                        .rstrip("/")
-                        .rpartition("/")[2],
-                        PdxObject.line,
-                    )
-                )
-                goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
-                goto_right_url = sublime.command_url(
-                    "goto_script_object_definition_right", goto_right_args
-                )
-                definition += (
-                    """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
-                    % (goto_right_url)
-                )
+            )
+            goto_right_args = {"path": PdxObject.path, "line": PdxObject.line}
+            goto_right_url = sublime.command_url(
+                "goto_script_object_definition_right", goto_right_args
+            )
+            definition += (
+                """<a class="icon" href="%s"title="Open Tab to Right of Current Selection">◨</a>&nbsp;<br>"""
+                % (goto_right_url)
+            )
 
         return definition
 
