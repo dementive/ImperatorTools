@@ -2,6 +2,7 @@
 Utility functions used in various places
 """
 
+import os
 from collections import deque
 from .jomini import GameObjectBase
 
@@ -9,7 +10,6 @@ from .jomini import GameObjectBase
 def get_default_game_objects():
     base_object = GameObjectBase()
 
-    # global dictionary of game objects used everywhere
     game_objects = {
         "ambition": base_object,
         "building": base_object,
@@ -61,6 +61,19 @@ def get_default_game_objects():
 
     return game_objects
 
+def is_file_in_directory(file_path, directory_path):
+    if not os.path.exists(file_path):
+        return False
+
+    if not os.path.exists(directory_path):
+        return False
+
+    absolute_file_path = os.path.abspath(file_path)
+    absolute_directory_path = os.path.abspath(directory_path)
+
+    common_path = os.path.commonpath([absolute_file_path, absolute_directory_path])
+
+    return common_path == absolute_directory_path
 
 # Get the index of a closing bracket in a string given the starting brackets index
 def get_index(string, index):

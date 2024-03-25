@@ -23,7 +23,7 @@ from .scope_match import ScopeMatch
 from .autocomplete import AutoComplete
 from .hover import Hover
 from .encoding import encoding_check
-from .utils import get_default_game_objects
+from .utils import get_default_game_objects, is_file_in_directory
 
 
 class ImperatorEventListener(
@@ -209,50 +209,7 @@ class ImperatorEventListener(
         except AttributeError:
             return None
 
-        completion_flag_pairs = [
-            ("ambition", (sublime.KIND_ID_FUNCTION, "A", "Ambitions")),
-            ("area", (sublime.KIND_ID_SNIPPET, "A", "Areas")),
-            ("building", (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
-            ("culture", (sublime.KIND_ID_TYPE, "C", "Culture Groups")),
-            ("culture_group", (sublime.KIND_ID_VARIABLE, "C", "Cultures")),
-            ("death_reason", (sublime.KIND_ID_KEYWORD, "D", "Death Reasons")),
-            ("deity", (sublime.KIND_ID_TYPE, "D", "Deities")),
-            ("diplo_stance", (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances")),
-            ("econ_policy", (sublime.KIND_ID_KEYWORD, "E", "Economic Policies")),
-            ("event_pic", (sublime.KIND_ID_MARKUP, "E", "Event Picture")),
-            ("event_theme", (sublime.KIND_ID_TYPE, "E", "Event Themes")),
-            ("government", (sublime.KIND_ID_VARIABLE, "E", "Governements")),
-            ("governor_policy", (sublime.KIND_ID_TYPE, "G", "Governor Policies")),
-            ("heritage", (sublime.KIND_ID_VARIABLE, "G", "Heritages")),
-            ("idea", (sublime.KIND_ID_SNIPPET, "G", "Ideas")),
-            ("invention", (sublime.KIND_ID_MARKUP, "H", "Inventions")),
-            ("law", (sublime.KIND_ID_VARIABLE, "I", "Laws")),
-            ("legion_distinction", (sublime.KIND_ID_TYPE, "I", "Legion Distinction")),
-            ("levy_template", (sublime.KIND_ID_SNIPPET, "L", "Levy Templates")),
-            ("loyalty", (sublime.KIND_ID_VARIABLE, "L", "Loyalties")),
-            ("mil_tradition", (sublime.KIND_ID_VARIABLE, "L", "Military Traditions")),
-            ("mission", (sublime.KIND_ID_SNIPPET, "M", "Missions")),
-            ("mission_task", (sublime.KIND_ID_SNIPPET, "M", "Mission Tasks")),
-            ("modifier", (sublime.KIND_ID_MARKUP, "M", "Modifiers")),
-            ("named_colors", (sublime.KIND_ID_VARIABLE, "N", "Named Colors")),
-            ("office", (sublime.KIND_ID_NAMESPACE, "O", "Offices")),
-            ("opinion", (sublime.KIND_ID_VARIABLE, "O", "Opinions")),
-            ("party", (sublime.KIND_ID_TYPE, "P", "Parties")),
-            ("pop", (sublime.KIND_ID_VARIABLE, "P", "Pops")),
-            ("price", (sublime.KIND_ID_NAVIGATION, "P", "Prices")),
-            ("province_rank", (sublime.KIND_ID_VARIABLE, "P", "Province Ranks")),
-            ("region", (sublime.KIND_ID_SNIPPET, "R", "Regions")),
-            ("religion", (sublime.KIND_ID_VARIABLE, "R", "Religions")),
-            ("subject_type", (sublime.KIND_ID_SNIPPET, "S", "Subject Types")),
-            ("tech_table", (sublime.KIND_ID_VARIABLE, "T", "Tech Tables")),
-            ("terrain", (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
-            ("trade_good", (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),
-            ("trait", (sublime.KIND_ID_VARIABLE, "T", "Traits")),
-            ("unit", (sublime.KIND_ID_FUNCTION, "U", "Units")),
-            ("war_goal", (sublime.KIND_ID_FUNCTION, "W", "War Goals")),
-        ]
-
-        for flag, completion in completion_flag_pairs:
+        for flag, completion in self.GameData.completion_flag_pairs:
             completion_list = self.create_completion_list(flag, completion)
             if completion_list is not None:
                 return completion_list
@@ -451,7 +408,7 @@ class ImperatorEventListener(
         texture_raw_end = view.find(".dds", posLine.a)
         texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
         texture_raw_path = view.substr(texture_raw_region)
-        full_texture_path = imperator_files_path + "/" + texture_raw_path
+        full_texture_path = os.path.join(self.imperator_files_path, texture_raw_path)
 
         if os.path.exists(full_texture_path):
             texture_name = view.substr(view.word(texture_raw_end.a - 1))
@@ -463,11 +420,11 @@ class ImperatorEventListener(
             if os.path.exists(mod) and mod.endswith("mod"):
                 # if it is the path to the mod directory, get all directories in it
                 for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
-                    mod_path = directory + "/" + texture_raw_path
+                    mod_path = os.path.join(directory, texture_raw_path)
                     if os.path.exists(mod_path):
                         full_texture_path = mod_path
             else:
-                mod_path = mod + "/" + texture_raw_path
+                mod_path = os.path.join(mod, texture_raw_path)
                 if os.path.exists(mod_path):
                     full_texture_path = mod_path
 
@@ -599,4 +556,13 @@ class ImperatorEventListener(
         if self.settings.get("ScriptValidator") == False:
             return
 
-        encoding_check(view)
+        in_mod_dir = any(
+            [
+                x
+                for x in self.imperator_mod_files
+                if is_file_in_directory(self.view.file_name(), x)
+            ]
+        )
+
+        if in_mod_dir:
+            encoding_check(view)
