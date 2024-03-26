@@ -304,15 +304,15 @@ class Hover:
 
     def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
         args = {"path": full_texture_path}
-        open_texture_url = sublime.command_url("open_victoria_texture ", args)
+        open_texture_url = sublime.command_url("open_imperator_texture ", args)
         folder_args = {"path": full_texture_path, "folder": True}
-        open_folder_url = sublime.command_url("open_victoria_texture ", folder_args)
+        open_folder_url = sublime.command_url("open_imperator_texture ", folder_args)
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         open_in_sublime_url = sublime.command_url(
-            "open_victoria_texture ", in_sublime_args
+            "open_imperator_texture ", in_sublime_args
         )
-        open_inline_url = sublime.command_url("v3_show_texture ", inline_args)
+        open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
         hover_body = """
             <body id=\"imperator-body\">
                 <style>%s</style>
@@ -385,38 +385,3 @@ class Hover:
                 location=point,
                 max_width=1024,
             )
-
-
-class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
-    def run(self, path, line):
-        if os.path.exists(path):
-            file_path = "{}:{}:{}".format(path, line, 0)
-            self.open_location(self.window, file_path)
-
-    def open_location(self, window, l):
-        flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
-        window.open_file(l, flags)
-
-
-class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
-    def run(self, path, line):
-        if os.path.exists(path):
-            file_path = "{}:{}:{}".format(path, line, 0)
-            self.open_location(
-                self.window, file_path, side_by_side=True, clear_to_right=True
-            )
-
-    def open_location(
-        self, window, location, side_by_side=False, replace=False, clear_to_right=False
-    ):
-        flags = sublime.ENCODED_POSITION | sublime.FORCE_GROUP
-
-        if side_by_side:
-            flags |= sublime.ADD_TO_SELECTION | sublime.SEMI_TRANSIENT
-            if clear_to_right:
-                flags |= sublime.CLEAR_TO_RIGHT
-
-        elif replace:
-            flags |= sublime.REPLACE_MRU | sublime.SEMI_TRANSIENT
-
-        window.open_file(location, flags)

@@ -560,7 +560,7 @@ class ImperatorEventListener(
             [
                 x
                 for x in self.imperator_mod_files
-                if is_file_in_directory(self.view.file_name(), x)
+                if is_file_in_directory(view.file_name(), x)
             ]
         )
 
