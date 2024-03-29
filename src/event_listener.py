@@ -153,9 +153,7 @@ class ImperatorEventListener(
         print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
 
         # Cache created objects
-        sublime.set_timeout_async(
-            lambda: cache_all_objects(self.game_objects), 0
-        )
+        sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
 
     def on_deactivated_async(self, view):
         """
@@ -352,11 +350,21 @@ class ImperatorEventListener(
             return
 
         try:
-            if view.syntax().name == "Imperator Script":
+            if (
+                view.syntax().name == "Imperator Script"
+                or view.syntax().name == "Imperator Localization"
+            ):
                 pass
             else:
                 return
         except AttributeError:
+            return
+
+        # Do everything that requires fetching GameObjects in non-blocking thread
+        sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
+
+        if view.syntax().name == "Imperator Localization":
+            # For yml only the saved scopes/variables/game objects get hover
             return
 
         if self.settings.get("DocsHoverEnabled") == True:
@@ -392,15 +400,11 @@ class ImperatorEventListener(
                 )
                 return
 
-            # Do everything that requires fetching GameObjects in non-blocking thread
-            sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
-
         # Texture popups can happen for both script and gui files
         if self.settings.get("TextureOpenPopup") != True:
             return
 
         posLine = view.line(point)
-        linestr = view.substr(posLine)
         if ".dds" not in view.substr(posLine):
             return
 

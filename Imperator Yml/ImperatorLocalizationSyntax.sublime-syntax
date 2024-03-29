@@ -72,6 +72,39 @@ contexts:
       push:
         - clear_scopes: true
         - meta_content_scope: empty.scope
+        - match: \b(sArea|sC|sChar|sCharacter|sCountry|sCountryCulture|sCulture|sCultureGroup|sDeity|sFamily|sGovernorship|sGreatWork|sJob|sLegion|sP|sParty|sPop|sProvince|sRegion|sReligion|sState|sSubUnit|sTreasure|sUnit|sWar)\b
+          scope: keyword
+          push:
+            - match: \(\'
+              push:
+                - match: ({{valid_variable}})
+                  scope: variable.parameter.scope.usage
+                  pop: 2
+                - match: \'
+                  scope: empty.scope.prompt # Mark char for autocomplete to fire on
+                  pop: 2
+        - match: \b(GetVariable|Var)\b
+          scope: keyword
+          push:
+            - match: \(\'
+              push:
+                - match: ({{valid_variable}})
+                  scope: variable.parameter.var.usage
+                  pop: 2
+                - match: \'
+                  scope: empty.scope.variable # Mark char for autocomplete to fire on
+                  pop: 2
+        - match: \b(ScriptValue)\b
+          scope: keyword
+          push:
+            - match: \(\'
+              push:
+                - match: ({{valid_variable}})
+                  scope: storage.type.script.value
+                  pop: 2
+                - match: \'
+                  scope: empty.scope.script.value # Mark char for autocomplete to fire on
+                  pop: 2
         - include: line_ending
         - match: \]
           scope: keyword.operator
@@ -205,7 +238,6 @@ contexts:
     - include: text-formatting-grey
     - include: text-formatting-red
     - include: text-formatting-green
-    - include: text-formatting-yellow
     - include: text-formatting-blue
     - include: text-formatting-gold
     - include: text-formatting-bold
