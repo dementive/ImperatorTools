@@ -3,11 +3,7 @@ Code related to loading, saving, and caching imperator game objects
 """
 import sublime
 import os
-import sys
 import hashlib
-
-parent_directory = os.path.abspath("..")
-sys.path.append(parent_directory)
 
 from ImperatorTools.object_cache import GameObjectCache
 from .jomini import dict_to_game_object as make_object
@@ -303,6 +299,9 @@ def write_data_to_syntax(game_objects):
     )
     lines += write_syntax(
         game_objects["region"].keys(), "Region", "entity.name.imperator.region"
+    )
+    lines += write_syntax(
+        game_objects["scripted_gui"].keys(), "Scripted Gui", "entity.name.imperator.scripted.gui"
     )
 
     with open(real_syntax_path, "r") as file:

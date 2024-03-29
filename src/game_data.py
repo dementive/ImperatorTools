@@ -2264,3 +2264,7 @@ class GameData:
             ("unit", (sublime.KIND_ID_FUNCTION, "U", "Units")),
             ("war_goal", (sublime.KIND_ID_FUNCTION, "W", "War Goals")),
         ]
+
+        self.data_system_completion_flag_pairs = [
+            ("scripted_gui", (sublime.KIND_ID_SNIPPET, "S", "Scripted Gui")),
+        ]

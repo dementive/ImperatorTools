@@ -18,13 +18,14 @@ from .game_objects import (
     add_color_scheme_scopes,
     handle_image_cache,
 )
+from .data_system import check_data_system_completions
 from .game_data import GameData
 from .scope_match import ScopeMatch
 from .autocomplete import AutoComplete
 from .hover import Hover
 from .encoding import encoding_check
 from .utils import get_default_game_objects, is_file_in_directory
-
+from ImperatorTools.object_cache import GameObjectCache
 
 class ImperatorEventListener(
     Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
@@ -36,7 +37,7 @@ class ImperatorEventListener(
         self.imperator_files_path = self.settings.get("ImperatorFilesPath")
         self.imperator_mod_files = self.settings.get("PathsToModFiles")
 
-        if check_mod_for_changes(self.imperator_mod_files):
+        if check_mod_for_changes(self.imperator_mod_files) or len(self.game_objects) != len(GameObjectCache().__dict__):
             # Create new objects
             sublime.set_timeout_async(lambda: self.create_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")
@@ -71,6 +72,7 @@ class ImperatorEventListener(
             self.game_objects["invention"] = ImperatorInvention()
             self.game_objects["law"] = ImperatorLaw()
             self.game_objects["legion_distinction"] = ImperatorLegionDistinction()
+            self.game_objects["scripted_gui"] = ImperatorScriptedGui()
 
         def load_third():
             self.game_objects["levy_template"] = ImperatorLevyTemplate()
@@ -202,10 +204,17 @@ class ImperatorEventListener(
             return None
 
         try:
-            if view.syntax().name != "Imperator Script":
+            if view.syntax().name != "Imperator Script" and view.syntax().name != "Imperator Localization":
                 return None
         except AttributeError:
             return None
+
+        if view.syntax().name == "Imperator Localization":
+            for flag, completion in self.GameData.data_system_completion_flag_pairs:
+                completion_list = self.create_completion_list(flag, completion)
+                if completion_list is not None:
+                    return completion_list
+            return # Don't need to check anything else for data system
 
         for flag, completion in self.GameData.completion_flag_pairs:
             completion_list = self.create_completion_list(flag, completion)
@@ -315,16 +324,27 @@ class ImperatorEventListener(
             return
 
         try:
-            if view.syntax().name != "Imperator Script":
+            if (
+                view.syntax().name != "Imperator Script"
+                and view.syntax().name != "Imperator Localization"
+            ):
                 return
         except AttributeError:
             return
 
-        self.simple_scope_match(view)
+        if view.syntax().name != "Imperator Localization":
+            self.simple_scope_match(view)
+
         # Only do when there is 1 selections, doens't make sense with multiple selections
         if len(view.sel()) == 1:
-            self.check_for_simple_completions(view, view.sel()[0].a)
-            self.check_for_complex_completions(view, view.sel()[0].a)
+            point = view.sel()[0].a
+            if view.syntax().name == "Imperator Localization":
+                if view.match_selector(point, "empty.scope.scripted.gui"):
+                    setattr(self, "scripted_gui", True)
+                    view.run_command("auto_complete")
+                    return
+            self.check_for_simple_completions(view, point)
+            self.check_for_complex_completions(view, point)
 
     def check_for_simple_completions(self, view, point):
         """
@@ -489,54 +509,63 @@ class ImperatorEventListener(
             )
             return
 
-        hover_objects = [
-            ("ambition", "Ambition"),
-            ("building", "Building"),
-            ("culture", "Culture"),
-            ("culture_group", "Culture Group"),
-            ("death_reason", "Death Reason"),
-            ("deity", "Deity"),
-            ("diplo_stance", "Diplomatic Stance"),
-            ("econ_policy", "Economic Policy"),
-            ("event_pic", "Event Picture"),
-            ("event_theme", "Event Theme"),
-            ("government", "Government"),
-            ("governor_policy", "Governor Policy"),
-            ("heritage", "Heritage"),
-            ("named_colors", "Named Color"),
-            ("idea", "Idea"),
-            ("invention", "Invention"),
-            ("law", "law"),
-            ("legion_distinction", "Legion Distinction"),
-            ("levy_template", "Levy Template"),
-            ("loyalty", "Loyalty"),
-            ("mil_tradition", "Military Tradition"),
-            ("modifier", "Modifier"),
-            ("opinion", "Opinion"),
-            ("office", "Office"),
-            ("party", "Party"),
-            ("pop", "Pop Type"),
-            ("price", "Price"),
-            ("province_rank", "Province Rank"),
-            ("religion", "Religion"),
-            ("script_value", "Script Value"),
-            ("scripted_effect", "Scripted Effect"),
-            ("scripted_modifier", "Scripted Modifier"),
-            ("scripted_trigger", "Scripted Trigger"),
-            ("subject_type", "Subject Type"),
-            ("tech_table", "Technology Table"),
-            ("terrain", "Terrain"),
-            ("trade_good", "Trade Good"),
-            ("trait", "Trait"),
-            ("unit", "Unit"),
-            ("war_goal", "War Goal"),
-            ("mission", "Mission"),
-            ("mission_task", "Mission Task"),
-            ("area", "Area"),
-            ("region", "Region"),
-            ("scripted_list_triggers", "Scripted List"),
-            ("scripted_list_effects", "Scripted List"),
-        ]
+        hover_objects = list()
+        if view.syntax().name == "Imperator Script":
+            hover_objects = [
+                ("ambition", "Ambition"),
+                ("area", "Area"),
+                ("building", "Building"),
+                ("culture", "Culture"),
+                ("culture_group", "Culture Group"),
+                ("death_reason", "Death Reason"),
+                ("deity", "Deity"),
+                ("diplo_stance", "Diplomatic Stance"),
+                ("econ_policy", "Economic Policy"),
+                ("event_pic", "Event Picture"),
+                ("event_theme", "Event Theme"),
+                ("government", "Government"),
+                ("governor_policy", "Governor Policy"),
+                ("heritage", "Heritage"),
+                ("idea", "Idea"),
+                ("invention", "Invention"),
+                ("law", "law"),
+                ("legion_distinction", "Legion Distinction"),
+                ("levy_template", "Levy Template"),
+                ("loyalty", "Loyalty"),
+                ("mil_tradition", "Military Tradition"),
+                ("mission", "Mission"),
+                ("mission_task", "Mission Task"),
+                ("modifier", "Modifier"),
+                ("named_colors", "Named Color"),
+                ("office", "Office"),
+                ("opinion", "Opinion"),
+                ("party", "Party"),
+                ("pop", "Pop Type"),
+                ("price", "Price"),
+                ("province_rank", "Province Rank"),
+                ("region", "Region"),
+                ("religion", "Religion"),
+                ("scripted_gui", "Scripted Gui"),
+                ("script_value", "Script Value"),
+                ("scripted_effect", "Scripted Effect"),
+                ("scripted_list_effects", "Scripted List"),
+                ("scripted_list_triggers", "Scripted List"),
+                ("scripted_modifier", "Scripted Modifier"),
+                ("scripted_trigger", "Scripted Trigger"),
+                ("subject_type", "Subject Type"),
+                ("tech_table", "Technology Table"),
+                ("terrain", "Terrain"),
+                ("trade_good", "Trade Good"),
+                ("trait", "Trait"),
+                ("unit", "Unit"),
+                ("war_goal", "War Goal"),
+            ]
+
+        if view.syntax().name == "Imperator Localization":
+            hover_objects = [
+                ("scripted_gui", "Scripted Gui"),
+                ("script_value", "Script Value"),
+            ]
 
         # Iterate over the list and call show_popup_default for each game object
         for hover_object, name in hover_objects:
@@ -548,6 +577,7 @@ class ImperatorEventListener(
                     self.game_objects[hover_object].access(word),
                     name,
                 )
+                break
 
     def on_post_save_async(self, view):
         if view is None:

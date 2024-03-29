@@ -73,7 +73,7 @@ contexts:
         - clear_scopes: true
         - meta_content_scope: empty.scope
         - match: \b(sArea|sC|sChar|sCharacter|sCountry|sCountryCulture|sCulture|sCultureGroup|sDeity|sFamily|sGovernorship|sGreatWork|sJob|sLegion|sP|sParty|sPop|sProvince|sRegion|sReligion|sState|sSubUnit|sTreasure|sUnit|sWar)\b
-          scope: keyword
+          scope: variable.function
           push:
             - match: \(\'
               push:
@@ -84,7 +84,7 @@ contexts:
                   scope: empty.scope.prompt # Mark char for autocomplete to fire on
                   pop: 2
         - match: \b(GetVariable|Var)\b
-          scope: keyword
+          scope: variable.function
           push:
             - match: \(\'
               push:
@@ -95,7 +95,7 @@ contexts:
                   scope: empty.scope.variable # Mark char for autocomplete to fire on
                   pop: 2
         - match: \b(ScriptValue)\b
-          scope: keyword
+          scope: variable.function
           push:
             - match: \(\'
               push:
@@ -104,6 +104,17 @@ contexts:
                   pop: 2
                 - match: \'
                   scope: empty.scope.script.value # Mark char for autocomplete to fire on
+                  pop: 2
+        - match: \b(GetScriptedGui)\b
+          scope: variable.function
+          push:
+            - match: \(\'
+              push:
+                - match: ({{valid_variable}})
+                  scope: variable.parameter.scripted.gui
+                  pop: 2
+                - match: \'
+                  scope: empty.scope.scripted.gui # Mark char for autocomplete to fire on
                   pop: 2
         - include: line_ending
         - match: \]

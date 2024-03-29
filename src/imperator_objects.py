@@ -16,6 +16,7 @@ def plugin_loaded():
     imperator_files_path = settings.get("ImperatorFilesPath")
     imperator_mod_files = settings.get("PathsToModFiles")
 
+
 class ImperatorAmbition(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
@@ -286,6 +287,12 @@ class ImperatorScriptedList(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
         self.get_data("common\\scripted_lists")
+
+
+class ImperatorScriptedGui(GameObjectBase):
+    def __init__(self):
+        super().__init__(imperator_mod_files, imperator_files_path)
+        self.get_data("common\\scripted_guis")
 
 
 def hsv2rgb(h, s, v):

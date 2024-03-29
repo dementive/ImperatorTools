@@ -40,39 +40,50 @@ class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
         if len(view.sel()) == 1:
             point = view.sel()[0].a
             if view.match_selector(point, "empty.scope.prompt"):
-                return self.get_prompt_completions(
+                return get_prompt_completions(
                     "Scope", "entity.name.function.scope.declaration"
                 )
             if view.match_selector(point, "empty.scope.variable"):
-                return self.get_prompt_completions(
+                return get_prompt_completions(
                     "Variable", "entity.name.function.var.declaration"
                 )
 
-    def get_prompt_completions(self, kind, selector):
-        found_words = set()
 
-        for win in sublime.windows():
-            for view in [v for v in win.views() if v and v.syntax()]:
-                if view.syntax().name != "Imperator Script":
-                    continue
+def check_data_system_completions(view, point):
+    if view.syntax().name == "Imperator Localization":
+        if view.match_selector(point, "empty.scope.scripted.gui"):
+            print("OPENEING AUTO COMPLETE!")
+            view.run_command("auto_complete")
+            return True
 
-                scope_regions = view.find_by_selector(selector)
-                for region in scope_regions:
-                    found_words.add(view.substr(region))
+    return False
 
-        if not found_words:
-            return None
 
-        return sublime.CompletionList(
-            [
-                sublime.CompletionItem(
-                    trigger=key,
-                    completion=key,
-                    completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
-                    kind=(sublime.KIND_ID_NAMESPACE, kind[0], kind),
-                )
-                for key in sorted(found_words)
-            ],
-            flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-            | sublime.INHIBIT_WORD_COMPLETIONS,
-        )
+def get_prompt_completions(kind, selector):
+    found_words = set()
+
+    for win in sublime.windows():
+        for view in [v for v in win.views() if v and v.syntax()]:
+            if view.syntax().name != "Imperator Script":
+                continue
+
+            scope_regions = view.find_by_selector(selector)
+            for region in scope_regions:
+                found_words.add(view.substr(region))
+
+    if not found_words:
+        return None
+
+    return sublime.CompletionList(
+        [
+            sublime.CompletionItem(
+                trigger=key,
+                completion=key,
+                completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
+                kind=(sublime.KIND_ID_NAMESPACE, kind[0], kind),
+            )
+            for key in sorted(found_words)
+        ],
+        flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
+        | sublime.INHIBIT_WORD_COMPLETIONS,
+    )

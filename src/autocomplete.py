@@ -47,6 +47,7 @@ class AutoComplete:
             "province_rank": [],
             "region": [],
             "religion": [],
+            "scripted_gui": [],
             "subject_type": [],
             "tech_table": [],
             "terrain": [],
