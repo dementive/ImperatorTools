@@ -48,17 +48,6 @@ class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
                     "Variable", "entity.name.function.var.declaration"
                 )
 
-
-def check_data_system_completions(view, point):
-    if view.syntax().name == "Imperator Localization":
-        if view.match_selector(point, "empty.scope.scripted.gui"):
-            print("OPENEING AUTO COMPLETE!")
-            view.run_command("auto_complete")
-            return True
-
-    return False
-
-
 def get_prompt_completions(kind, selector):
     found_words = set()
 

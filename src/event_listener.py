@@ -18,7 +18,6 @@ from .game_objects import (
     add_color_scheme_scopes,
     handle_image_cache,
 )
-from .data_system import check_data_system_completions
 from .game_data import GameData
 from .scope_match import ScopeMatch
 from .autocomplete import AutoComplete
@@ -338,11 +337,13 @@ class ImperatorEventListener(
         # Only do when there is 1 selections, doens't make sense with multiple selections
         if len(view.sel()) == 1:
             point = view.sel()[0].a
-            if view.syntax().name == "Imperator Localization":
-                if view.match_selector(point, "empty.scope.scripted.gui"):
-                    setattr(self, "scripted_gui", True)
-                    view.run_command("auto_complete")
-                    return
+            if view.syntax().name == "Imperator Localization" and view.substr(point) == "'":
+                for i in self.GameData.data_system_completion_functions:
+                    function_start = point - len(i[1] + "('")
+                    if view.substr(view.word(function_start)) == i[1]:
+                        setattr(self, i[0], True)
+                        view.run_command("auto_complete")
+                        return
             self.check_for_simple_completions(view, point)
             self.check_for_complex_completions(view, point)
 
@@ -563,8 +564,26 @@ class ImperatorEventListener(
 
         if view.syntax().name == "Imperator Localization":
             hover_objects = [
-                ("scripted_gui", "Scripted Gui"),
+                ("building", "Building"),
+                ("culture", "Culture"),
+                ("culture_group", "Culture Group"),
+                ("deity", "Deity"),
+                ("diplo_stance", "Diplomatic Stance"),
+                ("heritage", "Heritage"),
+                ("invention", "Invention"),
+                ("legion_distinction", "Legion Distinction"),
+                ("loyalty", "Loyalty"),
+                ("mil_tradition", "Military Tradition"),
+                ("modifier", "Modifier"),
+                ("office", "Office"),
+                ("price", "Price"),
+                ("province_rank", "Province Rank"),
+                ("religion", "Religion"),
                 ("script_value", "Script Value"),
+                ("scripted_gui", "Scripted Gui"),
+                ("terrain", "Terrain"),
+                ("trade_good", "Trade Good"),
+                ("trait", "Trait"),
             ]
 
         # Iterate over the list and call show_popup_default for each game object

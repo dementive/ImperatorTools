@@ -72,54 +72,61 @@ contexts:
       push:
         - clear_scopes: true
         - meta_content_scope: empty.scope
-        - match: \b(sArea|sC|sChar|sCharacter|sCountry|sCountryCulture|sCulture|sCultureGroup|sDeity|sFamily|sGovernorship|sGreatWork|sJob|sLegion|sP|sParty|sPop|sProvince|sRegion|sReligion|sState|sSubUnit|sTreasure|sUnit|sWar)\b
-          scope: variable.function
-          push:
-            - match: \(\'
-              push:
-                - match: ({{valid_variable}})
-                  scope: variable.parameter.scope.usage
-                  pop: 2
-                - match: \'
-                  scope: empty.scope.prompt # Mark char for autocomplete to fire on
-                  pop: 2
-        - match: \b(GetVariable|Var)\b
-          scope: variable.function
-          push:
-            - match: \(\'
-              push:
-                - match: ({{valid_variable}})
-                  scope: variable.parameter.var.usage
-                  pop: 2
-                - match: \'
-                  scope: empty.scope.variable # Mark char for autocomplete to fire on
-                  pop: 2
-        - match: \b(ScriptValue)\b
-          scope: variable.function
-          push:
-            - match: \(\'
-              push:
-                - match: ({{valid_variable}})
-                  scope: storage.type.script.value
-                  pop: 2
-                - match: \'
-                  scope: empty.scope.script.value # Mark char for autocomplete to fire on
-                  pop: 2
-        - match: \b(GetScriptedGui)\b
-          scope: variable.function
-          push:
-            - match: \(\'
-              push:
-                - match: ({{valid_variable}})
-                  scope: variable.parameter.scripted.gui
-                  pop: 2
-                - match: \'
-                  scope: empty.scope.scripted.gui # Mark char for autocomplete to fire on
-                  pop: 2
         - include: line_ending
+        - include: data-system-functions
         - match: \]
           scope: keyword.operator
           pop: true
+
+  data-system-functions:
+    - match: \b(sArea|sC|sChar|sCharacter|sCountry|sCountryCulture|sCulture|sCultureGroup|sDeity|sFamily|sGovernorship|sGreatWork|sJob|sLegion|sP|sParty|sPop|sProvince|sRegion|sReligion|sState|sSubUnit|sTreasure|sUnit|sWar)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.scope.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope.prompt # Mark char for autocomplete to fire on
+              pop: 2
+    - match: \b(GetVariable|Var)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter.var.usage
+              pop: 2
+            - match: \'
+              scope: empty.scope.variable
+              pop: 2
+    - match: \b(ScriptValue)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: storage.type.script.value
+              pop: 2
+            - match: \'
+              scope: empty.scope.script.value
+              pop: 2
+    - include: data-system-functions-game-link
+
+
+  data-system-functions-game-link:
+    - match: \b(GetScriptedGui|GetMilitaryBonus|GetBuildingGetBuilding|GetCulture|GetCultureGroup|GetDeityDefinition|GetDiplomaticStance|GetHeritage|GetInvention|GetLegionDistinction|GetLoyaltyEntry|GetModifier|GetOffice|GetPrice|GetProvinceRank|GetReligion|GetTerrainType|GetTradeGood|GetTrait)\b
+      scope: variable.function
+      push:
+        - match: \(\'
+          push:
+            - match: ({{valid_variable}})
+              scope: variable.parameter
+              pop: 2
+            - match: \'
+              scope: empty.scope
+              pop: 2
 
   loc-key-call:
     - match: \@

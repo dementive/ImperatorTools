@@ -2222,6 +2222,50 @@ class GameData:
             ("religion:", "religion"),
         ]
 
+        self.data_system_completion_flag_pairs = [
+            ("mil_tradition", (sublime.KIND_ID_VARIABLE, "L", "Military Traditions")),
+            ("scripted_gui", (sublime.KIND_ID_SNIPPET, "S", "Scripted Gui")),
+            ("building", (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
+            ("culture", (sublime.KIND_ID_TYPE, "C", "Culture Groups")),
+            ("culture_group", (sublime.KIND_ID_VARIABLE, "C", "Cultures")),
+            ("deity", (sublime.KIND_ID_TYPE, "D", "Deities")),
+            ("diplo_stance", (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances")),
+            ("heritage", (sublime.KIND_ID_VARIABLE, "G", "Heritages")),
+            ("invention", (sublime.KIND_ID_MARKUP, "H", "Inventions")),
+            ("legion_distinction", (sublime.KIND_ID_TYPE, "I", "Legion Distinction")),
+            ("loyalty", (sublime.KIND_ID_VARIABLE, "L", "Loyalties")),
+            ("modifier", (sublime.KIND_ID_MARKUP, "M", "Modifiers")),
+            ("office", (sublime.KIND_ID_NAMESPACE, "O", "Offices")),
+            ("price", (sublime.KIND_ID_NAVIGATION, "P", "Prices")),
+            ("province_rank", (sublime.KIND_ID_VARIABLE, "P", "Province Ranks")),
+            ("religion", (sublime.KIND_ID_VARIABLE, "R", "Religions")),
+            ("terrain", (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
+            ("trade_good", (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),
+            ("trait", (sublime.KIND_ID_VARIABLE, "T", "Traits")),
+        ]
+
+        self.data_system_completion_functions = [
+            ("building", "GetBuilding"),
+            ("culture", "GetCulture"),
+            ("culture_group", "GetCultureGroup"),
+            ("deity", "GetDeityDefinition"),
+            ("diplo_stance", "GetDiplomaticStance"),
+            ("heritage", "GetHeritage"),
+            ("invention", "GetInvention"),
+            ("legion_distinction", "GetLegionDistinction"),
+            ("loyalty", "GetLoyaltyEntry"),
+            ("mil_tradition", "GetMilitaryBonus"),
+            ("modifier", "GetModifier"),
+            ("office", "GetOffice"),
+            ("price", "GetPrice"),
+            ("province_rank", "GetProvinceRank"),
+            ("religion", "GetReligion"),
+            ("scripted_gui", "GetScriptedGui"),
+            ("terrain", "GetTerrainType"),
+            ("trade_good", "GetTradeGood"),
+            ("trait", "GetTrait"),
+        ]
+
         self.completion_flag_pairs = [
             ("ambition", (sublime.KIND_ID_FUNCTION, "A", "Ambitions")),
             ("area", (sublime.KIND_ID_SNIPPET, "A", "Areas")),
@@ -2263,8 +2307,4 @@ class GameData:
             ("trait", (sublime.KIND_ID_VARIABLE, "T", "Traits")),
             ("unit", (sublime.KIND_ID_FUNCTION, "U", "Units")),
             ("war_goal", (sublime.KIND_ID_FUNCTION, "W", "War Goals")),
-        ]
-
-        self.data_system_completion_flag_pairs = [
-            ("scripted_gui", (sublime.KIND_ID_SNIPPET, "S", "Scripted Gui")),
         ]
