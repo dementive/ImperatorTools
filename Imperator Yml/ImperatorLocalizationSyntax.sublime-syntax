@@ -6,7 +6,7 @@ scope: imperator.yml
 
 variables:
   localization_key: '([A-Za-z_0-9\.][A-Za-z_0-9\.]*)'
-  valid_variable: '[A-Za-z_][A-Za-z_0-9]*'
+  valid_variable: '[A-Za-z_0-9][A-Za-z_0-9]*'
   languages: '(english|french|german|spanish|simp_chinese|russian)'
 
 contexts:

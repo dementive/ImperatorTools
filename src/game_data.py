@@ -2242,6 +2242,7 @@ class GameData:
             ("terrain", (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
             ("trade_good", (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),
             ("trait", (sublime.KIND_ID_VARIABLE, "T", "Traits")),
+            ("script_value", (sublime.KIND_ID_NAMESPACE, "S", "Script Value")),
         ]
 
         self.data_system_completion_functions = [
@@ -2259,6 +2260,7 @@ class GameData:
             ("office", "GetOffice"),
             ("price", "GetPrice"),
             ("province_rank", "GetProvinceRank"),
+            ("script_value", "ScriptValue"),
             ("religion", "GetReligion"),
             ("scripted_gui", "GetScriptedGui"),
             ("terrain", "GetTerrainType"),

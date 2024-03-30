@@ -26,6 +26,7 @@ from .encoding import encoding_check
 from .utils import get_default_game_objects, is_file_in_directory
 from ImperatorTools.object_cache import GameObjectCache
 
+
 class ImperatorEventListener(
     Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
 ):
@@ -36,7 +37,9 @@ class ImperatorEventListener(
         self.imperator_files_path = self.settings.get("ImperatorFilesPath")
         self.imperator_mod_files = self.settings.get("PathsToModFiles")
 
-        if check_mod_for_changes(self.imperator_mod_files) or len(self.game_objects) != len(GameObjectCache().__dict__):
+        if check_mod_for_changes(self.imperator_mod_files) or len(
+            self.game_objects
+        ) != len(GameObjectCache().__dict__):
             # Create new objects
             sublime.set_timeout_async(lambda: self.create_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")
@@ -203,17 +206,29 @@ class ImperatorEventListener(
             return None
 
         try:
-            if view.syntax().name != "Imperator Script" and view.syntax().name != "Imperator Localization":
+            if (
+                view.syntax().name != "Imperator Script"
+                and view.syntax().name != "Imperator Localization"
+                and view.syntax().name != "Jomini Gui"
+            ):
                 return None
         except AttributeError:
             return None
 
-        if view.syntax().name == "Imperator Localization":
+        if view.syntax().name == "Jomini Gui" and not self.settings.get(
+            "ImperatorGuiFeatures"
+        ):
+            return
+
+        if (
+            view.syntax().name == "Imperator Localization"
+            or view.syntax().name == "Jomini Gui"
+        ):
             for flag, completion in self.GameData.data_system_completion_flag_pairs:
                 completion_list = self.create_completion_list(flag, completion)
                 if completion_list is not None:
                     return completion_list
-            return # Don't need to check anything else for data system
+            return  # Don't need to check anything else for data system
 
         for flag, completion in self.GameData.completion_flag_pairs:
             completion_list = self.create_completion_list(flag, completion)
@@ -326,18 +341,31 @@ class ImperatorEventListener(
             if (
                 view.syntax().name != "Imperator Script"
                 and view.syntax().name != "Imperator Localization"
+                and view.syntax().name != "Jomini Gui"
             ):
                 return
         except AttributeError:
             return
 
-        if view.syntax().name != "Imperator Localization":
+        if (
+            view.syntax().name == "Jomini Gui"
+            and self.settings.get("ImperatorGuiFeatures") is not True
+        ):
+            return
+
+        if (
+            view.syntax().name != "Imperator Localization"
+            and view.syntax().name != "Jomini Gui"
+        ):
             self.simple_scope_match(view)
 
         # Only do when there is 1 selections, doens't make sense with multiple selections
         if len(view.sel()) == 1:
             point = view.sel()[0].a
-            if view.syntax().name == "Imperator Localization" and view.substr(point) == "'":
+            if (
+                view.syntax().name == "Imperator Localization"
+                or view.syntax().name == "Jomini Gui"
+            ) and view.substr(point) == "'":
                 for i in self.GameData.data_system_completion_functions:
                     function_start = point - len(i[1] + "('")
                     if view.substr(view.word(function_start)) == i[1]:
@@ -374,6 +402,7 @@ class ImperatorEventListener(
             if (
                 view.syntax().name == "Imperator Script"
                 or view.syntax().name == "Imperator Localization"
+                or view.syntax().name == "Jomini Gui"
             ):
                 pass
             else:
@@ -381,10 +410,19 @@ class ImperatorEventListener(
         except AttributeError:
             return
 
+        if (
+            view.syntax().name == "Jomini Gui"
+            and self.settings.get("ImperatorGuiFeatures") is not True
+        ):
+            return
+
         # Do everything that requires fetching GameObjects in non-blocking thread
         sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
 
-        if view.syntax().name == "Imperator Localization":
+        if (
+            view.syntax().name == "Imperator Localization"
+            or view.syntax().name == "Jomini Gui"
+        ):
             # For yml only the saved scopes/variables/game objects get hover
             return
 
@@ -562,7 +600,10 @@ class ImperatorEventListener(
                 ("war_goal", "War Goal"),
             ]
 
-        if view.syntax().name == "Imperator Localization":
+        if (
+            view.syntax().name == "Imperator Localization"
+            or view.syntax().name == "Jomini Gui"
+        ):
             hover_objects = [
                 ("building", "Building"),
                 ("culture", "Culture"),

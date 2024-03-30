@@ -48,6 +48,12 @@
 	// Should on save validation for script files be enabled?
 	"ScriptValidator": true,
 
+	// Should autocomplete, hover, and go to definition be enable for imperator gui?
+	// This setting is only relevant if you are doing gui modding in Vic3 AND have both Victoria3Tools and ImperatorTools installed.
+	// This allows you to disable the gui features coming from the imperator plugin so they don't conflict with the same features from the Vic3 plugin so it doens't mix up game objects between both games.
+	// So set this to false if you are modding the victoria 3 gui while also having imperator tools installed, if you are modding imperator gui you won't need to change this.
+	"ImperatorGuiFeatures": true,
+
 	// What style should the documentation popups use?
 	// dark = grey border with black background
 	// none = no css styling
