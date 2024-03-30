@@ -1,5 +1,6 @@
 """
 Plugin features related to the game's data system functions.
+Data system features that are not coupled to game objects should go here.
 """
 
 import sublime, sublime_plugin

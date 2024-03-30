@@ -303,6 +303,9 @@ def write_data_to_syntax(game_objects):
     lines += write_syntax(
         game_objects["scripted_gui"].keys(), "Scripted Gui", "entity.name.imperator.scripted.gui"
     )
+    lines += write_syntax(
+        game_objects["custom_loc"].keys(), "Custom Loc", "entity.name.imperator.custom.loc"
+    )
 
     with open(real_syntax_path, "r") as file:
         real_lines = file.read()

@@ -19,6 +19,7 @@ class AutoComplete:
             "building": [],
             "culture": [],
             "culture_group": [],
+            "custom_loc": [],
             "death_reason": [],
             "deity": [],
             "diplo_stance": [],

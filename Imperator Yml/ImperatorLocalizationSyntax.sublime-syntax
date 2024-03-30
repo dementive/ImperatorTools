@@ -116,7 +116,7 @@ contexts:
 
 
   data-system-functions-game-link:
-    - match: \b(GetScriptedGui|GetMilitaryBonus|GetBuildingGetBuilding|GetCulture|GetCultureGroup|GetDeityDefinition|GetDiplomaticStance|GetHeritage|GetInvention|GetLegionDistinction|GetLoyaltyEntry|GetModifier|GetOffice|GetPrice|GetProvinceRank|GetReligion|GetTerrainType|GetTradeGood|GetTrait)\b
+    - match: \b(Custom|GetScriptedGui|GetMilitaryBonus|GetBuildingGetBuilding|GetCulture|GetCultureGroup|GetDeityDefinition|GetDiplomaticStance|GetHeritage|GetInvention|GetLegionDistinction|GetLoyaltyEntry|GetModifier|GetOffice|GetPrice|GetProvinceRank|GetReligion|GetTerrainType|GetTradeGood|GetTrait)\b
       scope: variable.function
       push:
         - match: \(\'

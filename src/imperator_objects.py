@@ -40,6 +40,11 @@ class ImperatorCulture(GameObjectBase):
         super().__init__(imperator_mod_files, imperator_files_path, level=2)
         self.get_data("common\\cultures")
 
+class ImperatorCustomLoc(GameObjectBase):
+    def __init__(self):
+        super().__init__(imperator_mod_files, imperator_files_path, ignored_files=["de_custom_loc.txt", "00_FR_custom_loc.txt"],)
+        self.get_data("common\\customizable_localization")
+
 
 class ImperatorDeathReason(GameObjectBase):
     def __init__(self):

@@ -16,6 +16,7 @@ def get_default_game_objects():
         "building": base_object,
         "culture": base_object,
         "culture_group": base_object,
+        "custom_loc": base_object,
         "death_reason": base_object,
         "deity": base_object,
         "diplo_stance": base_object,

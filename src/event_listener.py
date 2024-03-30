@@ -121,6 +121,7 @@ class ImperatorEventListener(
             self.game_objects["scripted_trigger"] = ImperatorScriptedTrigger()
             self.game_objects["subject_type"] = ImperatorSubjectType()
             self.game_objects["named_colors"] = ImperatorNamedColor()
+            self.game_objects["custom_loc"] = ImperatorCustomLoc()
 
         def load_fifth():
             self.game_objects["terrain"] = ImperatorTerrain()
@@ -608,6 +609,7 @@ class ImperatorEventListener(
                 ("building", "Building"),
                 ("culture", "Culture"),
                 ("culture_group", "Culture Group"),
+                ("custom_loc", "Culture"),
                 ("deity", "Deity"),
                 ("diplo_stance", "Diplomatic Stance"),
                 ("heritage", "Heritage"),
