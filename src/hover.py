@@ -9,6 +9,7 @@ import re
 import sublime, sublime_plugin
 from .jomini import PdxScriptObject
 from .css import CSS
+from .utils import get_syntax_name
 
 css_basic_style = CSS().default
 
@@ -145,8 +146,8 @@ class Hover:
         definitions = []
         if header == "Saved Scope" or header == "Saved Variable":
             for win in sublime.windows():
-                for i in [v for v in win.views() if v and v.syntax()]:
-                    if i.syntax().name != "Imperator Script":
+                for i in win.views():
+                    if get_syntax_name(i) != "Imperator Script":
                         continue
 
                     variables = [
@@ -247,10 +248,11 @@ class Hover:
         references = []
         ref = ""
         for win in sublime.windows():
-            for i in [v for v in win.views() if v and v.syntax()]:
+            for i in win.views():
+                syntax_name = get_syntax_name(i)
                 if (
-                    i.syntax().name != "Imperator Script"
-                    and i.syntax().name != "Imperator Localization"
+                    syntax_name != "Imperator Script"
+                    and syntax_name != "Imperator Localization"
                 ):
                     continue
                 view_region = sublime.Region(0, i.size())

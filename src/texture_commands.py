@@ -8,7 +8,7 @@ import subprocess
 import struct
 
 import sublime, sublime_plugin
-
+from .utils import get_syntax_name
 
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
     def run(self, path, folder=False, mode="default_program"):
@@ -64,7 +64,7 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
 class ImperatorTextureEventListener(sublime_plugin.EventListener):
     def on_post_text_command(self, view, command_name, args):
         if command_name in ("left_delete", "insert"):
-            if view.file_name() and view.syntax().name == "Imperator Script":
+            if view.file_name() and get_syntax_name(view) == "Imperator Script":
                 x = [v for v in views_with_shown_textures if v.id() == view.id()]
                 if x:
                     x[0].update_line_count(view.rowcol(view.size())[0] + 1)
@@ -73,10 +73,7 @@ class ImperatorTextureEventListener(sublime_plugin.EventListener):
         if not view:
             return
 
-        try:
-            if view.syntax().name != "Imperator Script":
-                return
-        except AttributeError:
+        if get_syntax_name(view) != "Imperator Script":
             return
 
         settings = sublime.load_settings("Imperator Syntax.sublime-settings")
@@ -251,10 +248,7 @@ class ImperatorToggleAllTexturesCommand(sublime_plugin.ApplicationCommand):
         if not view:
             return None
 
-        try:
-            if view.syntax().name != "Imperator Script":
-                return None
-        except AttributeError:
+        if get_syntax_name(view) != "Imperator Script":
             return None
 
         if self.shown or len(views_with_shown_textures) > 0:

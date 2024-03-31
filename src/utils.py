@@ -79,6 +79,15 @@ def is_file_in_directory(file_path, directory_path):
     return common_path == absolute_directory_path
 
 
+def get_syntax_name(view):
+    syntax = view.syntax()
+    if syntax is None:
+        return ""
+
+    name = view.syntax().name
+    return name
+
+
 # Get the index of a closing bracket in a string given the starting brackets index
 def get_index(string, index):
     if string[index] != "{":

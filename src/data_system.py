@@ -4,7 +4,7 @@ Data system features that are not coupled to game objects should go here.
 """
 
 import sublime, sublime_plugin
-
+from .utils import get_syntax_name
 
 class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
     def on_init(self, views):
@@ -14,16 +14,15 @@ class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
         if not view:
             return
 
-        try:
-            if (
-                view.syntax().name != "Imperator Localization"
-                and view.syntax().name != "Jomini Gui"
-            ):
-                return
-        except AttributeError:
+        syntax_name = get_syntax_name(view)
+
+        if (
+            syntax_name != "Imperator Localization"
+            and syntax_name != "Jomini Gui"
+        ):
             return
 
-        if view.syntax().name == "Jomini Gui" and not self.settings.get(
+        if syntax_name == "Jomini Gui" and not self.settings.get(
             "ImperatorGuiFeatures"
         ):
             return
@@ -39,14 +38,13 @@ class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
         if not view:
             return None
 
-        try:
-            if (
-                view.syntax().name != "Imperator Localization"
-                and view.syntax().name != "Jomini Gui"
-            ):
-                return None
-        except AttributeError:
-            return None
+        syntax_name = get_syntax_name(view)
+
+        if (
+            syntax_name != "Imperator Localization"
+            and syntax_name != "Jomini Gui"
+        ):
+            return
 
         fname = view.file_name()
         if not fname:
@@ -68,8 +66,8 @@ def get_prompt_completions(kind, selector):
     found_words = set()
 
     for win in sublime.windows():
-        for view in [v for v in win.views() if v and v.syntax()]:
-            if view.syntax().name != "Imperator Script":
+        for view in win.views():
+            if get_syntax_name(view) != "Imperator Script":
                 continue
 
             scope_regions = view.find_by_selector(selector)
