@@ -8,7 +8,7 @@ import time
 import threading
 
 import sublime, sublime_plugin
-from .jomini import PdxScriptObject
+from .jomini import PdxScriptObject, GameObjectBase
 from .imperator_objects import *
 from .game_objects import (
     get_objects_from_cache,
@@ -17,6 +17,7 @@ from .game_objects import (
     add_color_scheme_scopes,
     handle_image_cache,
     check_mod_for_changes,
+    check_for_syntax_changes,
 )
 from .game_data import GameData
 from .scope_match import ScopeMatch
@@ -28,6 +29,7 @@ from .utils import (
     is_file_in_directory,
     get_syntax_name,
     get_game_object_to_class_dict,
+    get_dir_to_game_object_dict,
 )
 from ImperatorTools.object_cache import GameObjectCache
 
@@ -41,32 +43,23 @@ class ImperatorEventListener(
         self.settings = sublime.load_settings("Imperator Syntax.sublime-settings")
         self.imperator_files_path = self.settings.get("ImperatorFilesPath")
         self.imperator_mod_files = self.settings.get("PathsToModFiles")
+        self.game_object_cache = GameObjectCache()
 
+        syntax_changes = check_for_syntax_changes()
         changed_objects_set = check_mod_for_changes(self.imperator_mod_files)
-        if len(GameObjectCache().__dict__) == 0:
+        if len(self.game_object_cache.__dict__) == 0:
             # Create all objects for the first time
             sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")
         elif changed_objects_set:
-            # Load objects that have changed since they were last cached
-            self.game_objects = get_objects_from_cache()
-            t0 = time.time()
-
-            sublime.set_timeout_async(
-                lambda: self.create_game_objects(changed_objects_set), 0
-            )
-            sublime.set_timeout_async(
-                lambda: write_data_to_syntax(self.game_objects), 0
-            )
-
-            t1 = time.time()
-            print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
-
-            # Cache created objects
-            sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
+            self.load_changed_objects(changed_objects_set)
         else:
             # Load cached objects
             self.game_objects = get_objects_from_cache()
+            if syntax_changes:
+                sublime.set_timeout_async(
+                    lambda: write_data_to_syntax(self.game_objects), 0
+                )
 
         # Uncomment this and use the output to balance the load between the threads in create_all_game_objects
         # from .utils import print_load_balanced_game_object_creation
@@ -76,6 +69,21 @@ class ImperatorEventListener(
 
         handle_image_cache(self.settings)
         add_color_scheme_scopes()
+
+    def load_changed_objects(self, changed_objects_set, write_syntax=True):
+        # Load objects that have changed since they were last cached
+        self.game_objects = get_objects_from_cache()
+
+        sublime.set_timeout_async(
+            lambda: self.create_game_objects(changed_objects_set), 0
+        )
+        if write_syntax:
+            sublime.set_timeout_async(
+                lambda: write_data_to_syntax(self.game_objects), 0
+            )
+
+        # Cache created objects
+        sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
 
     def create_game_objects(
         self,
@@ -432,9 +440,9 @@ class ImperatorEventListener(
         syntax_name = get_syntax_name(view)
 
         if (
-            syntax_name == "Imperator Script"
-            or syntax_name == "Imperator Localization"
-            or syntax_name == "Jomini Gui"
+            syntax_name != "Imperator Script"
+            and syntax_name != "Imperator Localization"
+            and syntax_name != "Jomini Gui"
         ):
             return
 
@@ -671,13 +679,70 @@ class ImperatorEventListener(
         if self.settings.get("ScriptValidator") == False:
             return
 
-        in_mod_dir = any(
-            [
-                x
-                for x in self.imperator_mod_files
-                if is_file_in_directory(view.file_name(), x)
-            ]
-        )
+        mod_dir = [
+            x
+            for x in self.imperator_mod_files
+            if is_file_in_directory(view.file_name(), x)
+        ]
+        in_mod_dir = any(mod_dir)
+        if not in_mod_dir:
+            return
 
-        if in_mod_dir:
-            encoding_check(view)
+        encoding_check(view)
+
+        if self.settings.get("UpdateObjectsOnSave"):
+            self.update_saved_game_objects(view, mod_dir)
+
+    def update_saved_game_objects(self, view, mod_dir):
+        dir_to_game_object_dict = get_dir_to_game_object_dict()
+        relative_path = view.file_name().replace(mod_dir[-1], "")[1:]
+        directory_path = os.path.dirname(relative_path)
+        if directory_path not in dir_to_game_object_dict:
+            return
+
+        write_syntax = self.settings.get("UpdateSyntaxOnNewObjectCreation")
+        if write_syntax:
+            changed_objects_set = check_mod_for_changes(self.imperator_mod_files)
+        else:
+            changed_objects_set = check_mod_for_changes(self.imperator_mod_files, True)
+        if changed_objects_set:
+            # This checks if an object has actually been added in this save
+
+            game_object_to_check = dir_to_game_object_dict[directory_path]
+            game_objects = self.game_objects[game_object_to_check].keys()
+            game_objects_in_file = set()
+
+            view_lines = view.lines(sublime.Region(0, len(view)))
+
+            level_1_dirs = {
+                "common\\inventions",
+                "common\\laws",
+                "common\\military_traditions",
+                "common\\missions",
+                "common\\named_colors",
+            }
+            level_2_dirs = {"common\\cultures"}
+            if relative_path in level_1_dirs:
+                base_object = GameObjectBase(level=1)
+            elif relative_path in level_2_dirs:
+                base_object = GameObjectBase(level=2)
+            else:
+                base_object = GameObjectBase()
+            for line in view_lines:
+                line = view.substr(line)
+                if base_object.should_read(line):
+                    found_item = (
+                        line.split("=").pop(0).replace(" ", "").replace("\t", "")
+                    )
+                    if not found_item:
+                        continue
+                    game_objects_in_file.add(found_item)
+
+            common_objects = [x in game_objects for x in game_objects_in_file]
+
+            # If the loaded objects from this file are not the same as the objects in the cache a new object has been added.
+            if not all(common_objects):
+                self.load_changed_objects(
+                    changed_objects_set,
+                    write_syntax,
+                )

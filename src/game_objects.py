@@ -15,7 +15,7 @@ from .utils import (
 )
 
 
-def check_mod_for_changes(imperator_mod_files):
+def check_mod_for_changes(imperator_mod_files, write_syntax=False):
     """
     Check if any changes have been made to mod files
     if changes have been made this returns a set of game objects that need to be recreated and cached
@@ -56,12 +56,17 @@ def check_mod_for_changes(imperator_mod_files):
             ).hexdigest()
 
     with open(mod_cache_path, "w") as f:
-        f.write(json.dumps(game_object_dirs))
+        if write_syntax:
+            json_to_write = [game_object_dirs, "write_syntax"]
+        else:
+            json_to_write = [game_object_dirs]
+
+        f.write(json.dumps(json_to_write))
 
     changed_objects = set()
     dir_to_game_object_dict = get_dir_to_game_object_dict()
 
-    for i in compare_dicts(game_object_dirs, data):
+    for i in compare_dicts(game_object_dirs, data[0]):
         if i in dir_to_game_object_dict:
             changed_objects.add(dir_to_game_object_dict[i])
 
@@ -78,6 +83,15 @@ def compare_dicts(dict1, dict2):
             unequal_keys.add(key)
 
     return unequal_keys
+
+
+def check_for_syntax_changes():
+    mod_cache_path = sublime.packages_path() + f"/ImperatorTools/mod_cache.json"
+    with open(mod_cache_path, "r", encoding="utf-8") as file:
+        data = json.load(file)
+    if len(data) > 1:
+        return True
+    return False
 
 
 def get_objects_from_cache():

@@ -38,11 +38,20 @@
 	// but if it is outdated or not working for some reason you can use a different one with this setting.
 	"ImperatorTigerBinaryPath": "",
 
+	// Should the game objects the plugin is aware of be updated when you create new game objects in your mod?
+	// If this is set to false game objects will only be updated when sublime is first started.
+	"UpdateObjectsOnSave": true,
+
+	// Should the syntax highlighting be reloaded when a new game object is created?
+	// This will only have an effect if UpdateObjectsOnSave is true
+	// This is slow and can lag sublime a tiny bit when you save a new object but new objects are not created very often so it won't be too noticeable
+	"UpdateSyntaxOnNewObjectCreation": false,
+
 	// How should textures be opened when clicked in hover popups? 2 options:
 	// 1. default_program - open the texture in whatever the OS thinks it should be opened in
 	// 2. in_sublime - open the texture directly in sublime,
 	// the plugin will convert the dds texture to a png and display it in a sublime tab
-	// converted files will be cached so when opened a second time it is faster, the cache can be cleared with a command in the command pallete.
+	// converted files will be cached so when opened a second time it is faster, the cache can be cleared with a command in the command palette.
 	"OpenTextureMode": "in_sublime",
 
 	// Should on save validation for script files be enabled?
@@ -50,7 +59,7 @@
 
 	// Should autocomplete, hover, and go to definition be enable for imperator gui?
 	// This setting is only relevant if you are doing gui modding in Vic3 AND have both Victoria3Tools and ImperatorTools installed.
-	// This allows you to disable the gui features coming from the imperator plugin so they don't conflict with the same features from the Vic3 plugin so it doens't mix up game objects between both games.
+	// This allows you to disable the gui features coming from the imperator plugin so they don't conflict with the same features from the Vic3 plugin so it doesn't mix up game objects between both games.
 	// So set this to false if you are modding the victoria 3 gui while also having imperator tools installed, if you are modding imperator gui you won't need to change this.
 	"ImperatorGuiFeatures": true,
 

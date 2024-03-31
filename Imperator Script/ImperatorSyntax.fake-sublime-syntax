@@ -40,6 +40,7 @@ contexts:
     - include: save-scope
     - include: one-line-var-trigger
 
+    - include: case-insensitive-scopes
     - include: auto-generated-content
     - include: manually-entered-content
 
@@ -533,9 +534,13 @@ contexts:
     - match: \b(on_actions|events|random_events)\b
       scope: entity.name
 
+  case-insensitive-scopes:
+    - match: \b(?i)(nand|nor|not|or|and|no|root|scope|this|yes)(?-i)\b
+      scope: storage.type.logical.operator
+
   auto-generated-content:
     # Scopes
-    - match: \b(?i)(and|nand|nor|not|or|character_party|employer|family|father|home_country|job|mother|next_in_family|preferred_heir|ruler|spouse|treasure_owner|color1|color2|color3|consort|current_co_ruler|current_heir|current_ruler|fam|overlord|party|primary_heir|secondary_heir|country|legion|religion|party_country|party_leader|color|siege_controller|area|governorship|country_culture|deified_ruler|holy_site|location|region|blue|brightness|green|hue|red|saturation|commander|unit_destination|unit_location|unit_next_location|unit_objective_destination|unit_owner|culture_group|owning_unit|personal_loyalty|character|owner|family_country|head_of_family|culture|governor|governor_or_ruler|job|job_holder|attacker_warleader|defender_warleader|controller|dominant_province_culture|dominant_province_culture_group|dominant_province_religion|holding_owner|province_deity|state|area|array_define|c|char|compare_value|culture|culture_group|custom|define|deity|flag|global_var|local_var|named_script_value|no|p|prev|region|religion|root|scope|this|treasure|value|var|yes|siege|capital_scope|)(?-i)\b
+    - match: \b(character_party|employer|family|father|home_country|job|mother|next_in_family|preferred_heir|ruler|spouse|treasure_owner|color1|color2|color3|consort|current_co_ruler|current_heir|current_ruler|fam|overlord|party|primary_heir|secondary_heir|country|legion|religion|party_country|party_leader|color|siege_controller|area|governorship|country_culture|deified_ruler|holy_site|location|region|blue|brightness|green|hue|red|saturation|commander|unit_destination|unit_location|unit_next_location|unit_objective_destination|unit_owner|culture_group|owning_unit|personal_loyalty|character|owner|family_country|head_of_family|culture|governor|governor_or_ruler|job|job_holder|attacker_warleader|defender_warleader|controller|dominant_province_culture|dominant_province_culture_group|dominant_province_religion|holding_owner|province_deity|state|area|array_define|c|char|compare_value|culture|culture_group|custom|define|deity|flag|global_var|local_var|named_script_value|p|prev|region|religion|treasure|value|var|siege|capital_scope|)\b
       scope: storage.type.scope
     # On Actions From Code
     - match: \b(yearly_country_pulse|yearly_culture_religion_switch_pulse|character_traits_pulse|on_command_gained|on_culture_reduced_right|on_office_lost|on_being_imprisoned|on_diplomatic_annex|on_military_annex|yearly_debt_pulse|on_move_country|on_reign_ending|on_culture_increased_right|yearly_province_pulse|on_battle_lost|on_deficit_pulse|on_state_secession|in_land_battle|on_great_work_destroyed|on_becoming_adult|on_province_colonized|on_change_pantheon|on_culture_integration_0|biyearly_country_pulse|on_policy_change|on_rebellion_in_country|on_ruler_change|on_disband_legion_unit|on_game_initialized|on_great_battle_won_country|on_command_lost|on_battle_won_country|on_gw_construction_job_completed|disease_possibilities|monthly_job_pulse|on_great_work_completed|on_reign_ending_successor|on_civil_war_annex|on_deified_ruler_death|on_office_gained|on_great_work_anniversary|on_siege_won|on_legion_raised|monthly_head_of_family_pulse|on_province_occupied|on_being_captured|on_culture_integration_25|on_being_born|on_great_battle_lost_country|on_character_death|on_holding_lost|monthly_ruler_pulse|yearly_character_murder_pulse|monthly_country_pulse|yearly_financial_support_pulse|on_invention|on_action_requiring_senate_approval|on_civil_war_lost|on_civil_war_won|on_being_released|yearly_medical_pulse|monthly_province_pulse|on_ownership_change|on_legion_dissolved|on_being_ransomed_back|treatment_pulse|on_battle_lost_country|on_subject_defect|on_character_created|on_culture_integration_75|on_battle_won|on_culture_integration_100|on_giving_birth|yearly_character_pulse|on_bastard_birth|in_naval_battle|on_tenth_birthday|yearly_disloyal_generals_delay_pulse|on_enacting_omen|on_ending_war|on_losing_war|decade_country_pulse|on_winning_war|on_zero_health|character_story_events|)\b
