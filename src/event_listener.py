@@ -47,6 +47,10 @@ class ImperatorEventListener(
             # Load cached objects
             self.game_objects = get_objects_from_cache()
 
+        # Uncomment this and use the output to balance the load between the threads in create_game_objects
+        # from .utils import print_load_balanced_game_object_creation
+        # print_load_balanced_game_object_creation(self.game_objects)
+
         handle_image_cache(self.settings)
         add_color_scheme_scopes()
 
@@ -55,38 +59,61 @@ class ImperatorEventListener(
         t0 = time.time()
 
         def load_first():
-            self.game_objects["ambition"] = ImperatorAmbition()
-            self.game_objects["building"] = ImperatorBuilding()
-            self.game_objects["culture"] = ImperatorCulture()
-            self.game_objects["culture_group"] = ImperatorCultureGroup()
-            self.game_objects["death_reason"] = ImperatorDeathReason()
-            self.game_objects["deity"] = ImperatorDeity()
-            self.game_objects["diplo_stance"] = ImperatorDiplomaticStance()
-            self.game_objects["econ_policy"] = ImperatorEconomicPolicy()
-            self.game_objects["event_pic"] = ImperatorEventPicture()
+            self.game_objects["modifier"] = ImperatorModifier()
 
         def load_second():
-            self.game_objects["event_theme"] = ImperatorEventTheme()
-            self.game_objects["government"] = ImperatorGovernment()
-            self.game_objects["governor_policy"] = ImperatorGovernorPolicy()
-            self.game_objects["heritage"] = ImperatorHeritage()
-            self.game_objects["idea"] = ImperatorIdea()
-            self.game_objects["invention"] = ImperatorInvention()
-            self.game_objects["law"] = ImperatorLaw()
-            self.game_objects["legion_distinction"] = ImperatorLegionDistinction()
-            self.game_objects["scripted_gui"] = ImperatorScriptedGui()
+            self.game_objects["mission_task"] = ImperatorMissionTask()
+            self.game_objects["subject_type"] = ImperatorSubjectType()
+            self.game_objects["diplo_stance"] = ImperatorDiplomaticStance()
+            self.game_objects["province_rank"] = ImperatorProvinceRank()
 
         def load_third():
-            self.game_objects["levy_template"] = ImperatorLevyTemplate()
-            self.game_objects["loyalty"] = ImperatorLoyalty()
+            self.game_objects["script_value"] = ImperatorScriptValue()
+            self.game_objects["heritage"] = ImperatorHeritage()
             self.game_objects["mil_tradition"] = ImperatorMilitaryTradition()
-            self.game_objects["modifier"] = ImperatorModifier()
-            self.game_objects["opinion"] = ImperatorOpinion()
+            self.game_objects["named_colors"] = ImperatorNamedColor()
+            self.game_objects["mission"] = ImperatorMission()
+            self.game_objects["price"] = ImperatorPrice()
+            self.game_objects["death_reason"] = ImperatorDeathReason()
+            self.game_objects["ambition"] = ImperatorAmbition()
+            self.game_objects["religion"] = ImperatorReligion()
             self.game_objects["office"] = ImperatorOffice()
+            self.game_objects["unit"] = ImperatorUnit()
             self.game_objects["party"] = ImperatorParty()
-            self.game_objects["pop"] = ImperatorPop()
-            self.game_objects["scripted_list_triggers"] = ImperatorScriptedList()
+
+        def load_fourth():
+            self.game_objects["deity"] = ImperatorDeity()
+            self.game_objects["custom_loc"] = ImperatorCustomLoc()
+            self.game_objects["opinion"] = ImperatorOpinion()
+            self.game_objects["culture"] = ImperatorCulture()
+            self.game_objects["event_pic"] = ImperatorEventPicture()
+            self.game_objects["trait"] = ImperatorTrait()
+            self.game_objects["law"] = ImperatorLaw()
+            self.game_objects["scripted_gui"] = ImperatorScriptedGui()
+            self.game_objects["culture_group"] = ImperatorCultureGroup()
+            self.game_objects["scripted_modifier"] = ImperatorScriptedModifier()
+            self.game_objects["building"] = ImperatorBuilding()
+            self.game_objects["terrain"] = ImperatorTerrain()
+            self.game_objects["econ_policy"] = ImperatorEconomicPolicy()
+            self.game_objects["tech_table"] = ImperatorTechTable()
+
+        def load_fifth():
+            self.game_objects["loyalty"] = ImperatorLoyalty()
+            self.game_objects["area"] = ImperatorArea()
+            self.game_objects["scripted_effect"] = ImperatorScriptedEffect()
+            self.game_objects["invention"] = ImperatorInvention()
+            self.game_objects["scripted_trigger"] = ImperatorScriptedTrigger()
+            self.game_objects["event_theme"] = ImperatorEventTheme()
+            self.game_objects["region"] = ImperatorRegion()
+            self.game_objects["levy_template"] = ImperatorLevyTemplate()
+            self.game_objects["trade_good"] = ImperatorTradeGood()
+            self.game_objects["idea"] = ImperatorIdea()
+            self.game_objects["legion_distinction"] = ImperatorLegionDistinction()
+            self.game_objects["government"] = ImperatorGovernment()
+            self.game_objects["governor_policy"] = ImperatorGovernorPolicy()
             self.game_objects["scripted_list_effects"] = ImperatorScriptedList()
+            self.game_objects["scripted_list_triggers"] = ImperatorScriptedList()
+            self.game_objects["pop"] = ImperatorPop()
 
             tri_list = []
             for obj in self.game_objects["scripted_list_triggers"]:
@@ -110,30 +137,6 @@ class ImperatorEventListener(
                 self.GameData.EffectsList[i] = "Scripted list effect"
             for i in self.game_objects["scripted_list_triggers"].keys():
                 self.GameData.TriggersList[i] = "Scripted list trigger"
-
-        def load_fourth():
-            self.game_objects["price"] = ImperatorPrice()
-            self.game_objects["province_rank"] = ImperatorProvinceRank()
-            self.game_objects["religion"] = ImperatorReligion()
-            self.game_objects["script_value"] = ImperatorScriptValue()
-            self.game_objects["scripted_effect"] = ImperatorScriptedEffect()
-            self.game_objects["scripted_modifier"] = ImperatorScriptedModifier()
-            self.game_objects["scripted_trigger"] = ImperatorScriptedTrigger()
-            self.game_objects["subject_type"] = ImperatorSubjectType()
-            self.game_objects["named_colors"] = ImperatorNamedColor()
-            self.game_objects["custom_loc"] = ImperatorCustomLoc()
-
-        def load_fifth():
-            self.game_objects["terrain"] = ImperatorTerrain()
-            self.game_objects["trade_good"] = ImperatorTradeGood()
-            self.game_objects["trait"] = ImperatorTrait()
-            self.game_objects["unit"] = ImperatorUnit()
-            self.game_objects["war_goal"] = ImperatorWargoal()
-            self.game_objects["tech_table"] = ImperatorTechTable()
-            self.game_objects["mission"] = ImperatorMission()
-            self.game_objects["mission_task"] = ImperatorMissionTask()
-            self.game_objects["area"] = ImperatorArea()
-            self.game_objects["region"] = ImperatorRegion()
 
         thread1 = threading.Thread(target=load_first)
         thread2 = threading.Thread(target=load_second)
