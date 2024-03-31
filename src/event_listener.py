@@ -11,19 +11,24 @@ import sublime, sublime_plugin
 from .jomini import PdxScriptObject
 from .imperator_objects import *
 from .game_objects import (
-    check_mod_for_changes,
     get_objects_from_cache,
     write_data_to_syntax,
     cache_all_objects,
     add_color_scheme_scopes,
     handle_image_cache,
+    check_mod_for_changes,
 )
 from .game_data import GameData
 from .scope_match import ScopeMatch
 from .autocomplete import AutoComplete
 from .hover import Hover
 from .encoding import encoding_check
-from .utils import get_default_game_objects, is_file_in_directory, get_syntax_name
+from .utils import (
+    get_default_game_objects,
+    is_file_in_directory,
+    get_syntax_name,
+    get_game_object_to_class_dict,
+)
 from ImperatorTools.object_cache import GameObjectCache
 
 
@@ -37,25 +42,52 @@ class ImperatorEventListener(
         self.imperator_files_path = self.settings.get("ImperatorFilesPath")
         self.imperator_mod_files = self.settings.get("PathsToModFiles")
 
-        if check_mod_for_changes(self.imperator_mod_files) or len(
-            self.game_objects
-        ) != len(GameObjectCache().__dict__):
-            # Create new objects
-            sublime.set_timeout_async(lambda: self.create_game_objects(), 0)
+        changed_objects_set = check_mod_for_changes(self.imperator_mod_files)
+        if len(GameObjectCache().__dict__) == 0:
+            # Create all objects for the first time
+            sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")
+        elif changed_objects_set:
+            # Load objects that have changed since they were last cached
+            self.game_objects = get_objects_from_cache()
+            t0 = time.time()
+
+            sublime.set_timeout_async(
+                lambda: self.create_game_objects(changed_objects_set), 0
+            )
+            sublime.set_timeout_async(
+                lambda: write_data_to_syntax(self.game_objects), 0
+            )
+
+            t1 = time.time()
+            print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
+
+            # Cache created objects
+            sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
         else:
             # Load cached objects
             self.game_objects = get_objects_from_cache()
 
-        # Uncomment this and use the output to balance the load between the threads in create_game_objects
+        # Uncomment this and use the output to balance the load between the threads in create_all_game_objects
         # from .utils import print_load_balanced_game_object_creation
-        # print_load_balanced_game_object_creation(self.game_objects)
+        # sublime.set_timeout_async(
+        #     lambda: print_load_balanced_game_object_creation(self.game_objects), 0
+        # )
 
         handle_image_cache(self.settings)
         add_color_scheme_scopes()
 
-    # Game object creation
-    def create_game_objects(self):
+    def create_game_objects(
+        self,
+        changed_objects_set,
+    ):
+        game_object_to_class_dict = get_game_object_to_class_dict()
+        for i in changed_objects_set:
+            # TODO - threading and load balancing here if the expected number of objects to be created is > 250
+            self.game_objects[i] = game_object_to_class_dict[i]()
+
+    # Game object creation, have to be very careful to balance the load between each function here.
+    def create_all_game_objects(self):
         t0 = time.time()
 
         def load_first():
@@ -96,6 +128,7 @@ class ImperatorEventListener(
             self.game_objects["terrain"] = ImperatorTerrain()
             self.game_objects["econ_policy"] = ImperatorEconomicPolicy()
             self.game_objects["tech_table"] = ImperatorTechTable()
+            self.game_objects["war_goal"] = ImperatorWargoal()
 
         def load_fifth():
             self.game_objects["loyalty"] = ImperatorLoyalty()
@@ -162,6 +195,9 @@ class ImperatorEventListener(
 
         # Cache created objects
         sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
+        sublime.set_timeout_async(
+            lambda: check_mod_for_changes(self.imperator_mod_files), 0
+        )  # Update hashes for each game object directory
 
     def on_deactivated_async(self, view):
         """
@@ -223,10 +259,7 @@ class ImperatorEventListener(
         ):
             return
 
-        if (
-            syntax_name == "Imperator Localization"
-            or syntax_name == "Jomini Gui"
-        ):
+        if syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui":
             for flag, completion in self.GameData.data_system_completion_flag_pairs:
                 completion_list = self.create_completion_list(flag, completion)
                 if completion_list is not None:
@@ -355,18 +388,14 @@ class ImperatorEventListener(
         ):
             return
 
-        if (
-            syntax_name != "Imperator Localization"
-            and syntax_name != "Jomini Gui"
-        ):
+        if syntax_name != "Imperator Localization" and syntax_name != "Jomini Gui":
             self.simple_scope_match(view)
 
         # Only do when there is 1 selections, doens't make sense with multiple selections
         if len(view.sel()) == 1:
             point = view.sel()[0].a
             if (
-                syntax_name == "Imperator Localization"
-                or syntax_name == "Jomini Gui"
+                syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui"
             ) and view.substr(point) == "'":
                 for i in self.GameData.data_system_completion_functions:
                     function_start = point - len(i[1] + "('")
@@ -418,9 +447,7 @@ class ImperatorEventListener(
         # Do everything that requires fetching GameObjects in non-blocking thread
         sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
 
-        if (
-            syntax_name != "Imperator Script"
-        ):
+        if syntax_name != "Imperator Script":
             # For yml only the saved scopes/variables/game objects get hover
             return
 
@@ -599,10 +626,7 @@ class ImperatorEventListener(
                 ("war_goal", "War Goal"),
             ]
 
-        if (
-            syntax_name == "Imperator Localization"
-            or syntax_name == "Jomini Gui"
-        ):
+        if syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui":
             hover_objects = [
                 ("building", "Building"),
                 ("culture", "Culture"),

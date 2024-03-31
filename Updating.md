@@ -4,7 +4,7 @@ How to add a new GameObject:
 
 2. Load the game object into the plugin by updating the create_game_objects function in event_listener.py
 
-3. Update the game_objects dict in utils.py, also update the object_names dict in the print_load_balanced_game_object_creation function
+3. In utils.py update the game_objects dict, update the object_names dict in the print_load_balanced_game_object_creation function, and update the get_game_object_dirs function.
 
 4. Update the write_data_to_syntax function in game_objects.py
 
@@ -28,7 +28,3 @@ Refactorings:
 3. Create a convenient API for getting the name of game objects ("custom_loc" for example), it is currently easy to make hard to debug errors by spelling one of these wrong. So having a common API to fetch the strings from would be more robust.
 
 4. The GameObjectCache is pretty fast as it is and doesn't seem to be causing problems but the API can be cumbersome to deal with at times. Maybe we could use an actual database for this? SQLite should be part of the sublime python environment so this may be a better approach. Would be a huge refactor though. A database may be overkill here though since relationships between objects really don't need to be represented at all, perhaps just using JSON would be best instead...
-
-Other Improvements:
-
-1. The mod_cache.txt should instead be a JSON file that stores a hash for each directory associated with a game object. This way we can check exactly what game objects were changed 

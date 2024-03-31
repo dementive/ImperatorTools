@@ -4,56 +4,80 @@ Code related to loading, saving, and caching imperator game objects
 import sublime
 import os
 import hashlib
+import json
 
 from ImperatorTools.object_cache import GameObjectCache
 from .jomini import dict_to_game_object as make_object
-from .utils import get_default_game_objects
+from .utils import (
+    get_default_game_objects,
+    get_game_object_dirs,
+    get_dir_to_game_object_dict,
+)
 
 
 def check_mod_for_changes(imperator_mod_files):
     """
     Check if any changes have been made to mod files
-    if changes have been made new game objects need to be generated and cached
+    if changes have been made this returns a set of game objects that need to be recreated and cached
     """
     object_cache_path = sublime.packages_path() + f"/ImperatorTools/object_cache.py"
     if os.stat(object_cache_path).st_size < 200:
-        # If there are no objects in the cache, they need to be created
-        return True
-    mod_cache_path = sublime.packages_path() + f"/ImperatorTools/mod_cache.txt"
-    with open(mod_cache_path, "r") as f:
-        # Save lines before writing
-        mod_cache = "".join(f.readlines())
-    with open(mod_cache_path, "w") as f:
-        # Clear
-        f.write("")
+        # If there are no objects in the cache, they all need to be created
+        return set(get_dir_to_game_object_dict().values())
+    mod_cache_path = sublime.packages_path() + f"/ImperatorTools/mod_cache.json"
+    with open(mod_cache_path, "r", encoding="utf-8") as file:
+        data = json.load(file)
 
-    # Add the names and output of os.stat.st_mtime together for all the files in your current mods into stats_string
+    game_object_dirs = get_game_object_dirs()
+    # Add the names and output of os.stat.st_mtime together for all the files in the current mods into stats_string
     for path in imperator_mod_files:
-        stats_dict = dict()
         mod_name = path.replace("\\", "/").rstrip("/").rpartition("/")[2]
         for dirpath, dirnames, filenames in os.walk(path):
+            relative_path = dirpath.replace(path, "")[1:]
+            if relative_path not in game_object_dirs:
+                continue
+
             mod_files = [
                 x for x in filenames if x.endswith(".txt") or x.endswith(".gui")
             ]
-            if mod_files:
-                for i, j in enumerate(mod_files):
-                    full_path = dirpath + "/" + mod_files[i]
-                    stats_dict[full_path] = os.stat(full_path).st_mtime
-        stats_string = str()
-        for i in stats_dict:
-            value = stats_dict[i]
-            stats_string += f"{mod_name}{value}"
 
-        # Encode stats_string and save it for later use
-        with open(mod_cache_path, "a") as f:
-            f.write(hashlib.sha256(stats_string.encode()).hexdigest())
-            f.write("\n")
+            if not mod_files:
+                continue
 
-    with open(mod_cache_path, "r") as f:
-        # Save written mod classes
-        new_mod_cache = "".join(f.readlines())
+            stats_string = str()
+            for i in mod_files:
+                full_path = dirpath + "/" + i
+                value = os.stat(full_path).st_mtime
+                stats_string += f"{mod_name}{value}"
 
-    return True if mod_cache != new_mod_cache else False
+            # Encode stats_string for each game object directory
+            game_object_dirs[relative_path] = hashlib.sha256(
+                stats_string.encode()
+            ).hexdigest()
+
+    with open(mod_cache_path, "w") as f:
+        f.write(json.dumps(game_object_dirs))
+
+    changed_objects = set()
+    dir_to_game_object_dict = get_dir_to_game_object_dict()
+
+    for i in compare_dicts(game_object_dirs, data):
+        if i in dir_to_game_object_dict:
+            changed_objects.add(dir_to_game_object_dict[i])
+
+    return changed_objects
+
+
+def compare_dicts(dict1, dict2):
+    # Compare two dictionaries and return a set of all the keys with values that are not the same in both
+    common_keys = set(dict1.keys()) & set(dict2.keys())
+    unequal_keys = set()
+
+    for key in common_keys:
+        if dict1[key] != dict2[key]:
+            unequal_keys.add(key)
+
+    return unequal_keys
 
 
 def get_objects_from_cache():
@@ -301,10 +325,14 @@ def write_data_to_syntax(game_objects):
         game_objects["region"].keys(), "Region", "entity.name.imperator.region"
     )
     lines += write_syntax(
-        game_objects["scripted_gui"].keys(), "Scripted Gui", "entity.name.imperator.scripted.gui"
+        game_objects["scripted_gui"].keys(),
+        "Scripted Gui",
+        "entity.name.imperator.scripted.gui",
     )
     lines += write_syntax(
-        game_objects["custom_loc"].keys(), "Custom Loc", "entity.name.imperator.custom.loc"
+        game_objects["custom_loc"].keys(),
+        "Custom Loc",
+        "entity.name.imperator.custom.loc",
     )
 
     with open(real_syntax_path, "r") as file:
