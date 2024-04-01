@@ -4,9 +4,10 @@ Shows documentation for effects/triggers/scopes from the game logs in pop ups.
 Also shows goto definition popups for all game objects as well as saved scopes and variables.
 """
 
-import os
 import re
-import sublime, sublime_plugin
+from typing import Dict, Any
+import sublime
+from .imperator_objects import PdxColorObject
 from .jomini import PdxScriptObject
 from .css import CSS
 from .utils import get_syntax_name
@@ -15,7 +16,7 @@ css_basic_style = CSS().default
 
 
 class Hover:
-    def show_hover_docs(self, view, point, scope, collection, settings):
+    def show_hover_docs(self, view: sublime.View, point: int, scope: str, collection: Dict[Any, Any], settings: sublime.Settings):
         style = settings.get("DocsPopupStyle")
         if style == "dark":
             style = """
@@ -109,7 +110,7 @@ class Hover:
             )
             return
 
-    def show_popup_default(self, view, point, word, PdxObject, header):
+    def show_popup_default(self, view: sublime.View, point: int, word: str, PdxObject: PdxScriptObject, header: str):
         if view.file_name() is None:
             return
 
@@ -140,7 +141,7 @@ class Hover:
                 max_width=1024,
             )
 
-    def get_definitions_for_popup(self, view, point, PdxObject, header, def_value=""):
+    def get_definitions_for_popup(self, view: sublime.View, point: int, PdxObject: PdxScriptObject, header: str, def_value=""):
         word_line_num = view.rowcol(point)[0] + 1
         definition = ""
         definitions = []
@@ -242,9 +243,12 @@ class Hover:
 
         return definition
 
-    def get_references_for_popup(self, view, point, PdxObject):
+    def get_references_for_popup(self, view: sublime.View, point: int, PdxObject: PdxScriptObject):
         word_line_num = view.rowcol(point)[0] + 1
-        word_file = view.file_name().replace("\\", "/").rstrip("/").rpartition("/")[2]
+        filename = view.file_name()
+        if filename is None:
+            return
+        word_file = filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
         references = []
         ref = ""
         for win in sublime.windows():
@@ -259,8 +263,11 @@ class Hover:
                 view_str = i.substr(view_region)
                 for j, line in enumerate(view_str.splitlines()):
                     if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
+                        filename = i.file_name()
+                        if filename is None:
+                            continue
                         filename = (
-                            i.file_name()
+                            filename
                             .replace("\\", "/")
                             .rstrip("/")
                             .rpartition("/")[2]
@@ -308,15 +315,15 @@ class Hover:
 
         return ref
 
-    def show_texture_hover_popup(self, view, point, texture_name, full_texture_path):
+    def show_texture_hover_popup(self, view: sublime.View, point: int, texture_name: str, full_texture_path: str):
         args = {"path": full_texture_path}
-        open_texture_url = sublime.command_url("open_imperator_texture ", args)
+        open_texture_url = sublime.command_url("open_imperator_texture ", args) # type: ignore
         folder_args = {"path": full_texture_path, "folder": True}
         open_folder_url = sublime.command_url("open_imperator_texture ", folder_args)
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         open_in_sublime_url = sublime.command_url(
-            "open_imperator_texture ", in_sublime_args
+            "open_imperator_texture ", in_sublime_args # type: ignore
         )
         open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
         hover_body = """
@@ -354,7 +361,7 @@ class Hover:
             max_width=802,
         )
 
-    def show_popup_named_color(self, view, point, word, PdxObject, header):
+    def show_popup_named_color(self, view: sublime.View, point: int, word: str, PdxObject: PdxColorObject, header: str):
         if view.file_name() is None:
             return
 

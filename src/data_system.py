@@ -3,11 +3,12 @@ Plugin features related to the game's data system functions.
 Data system features that are not coupled to game objects should go here.
 """
 
+from typing import List
 import sublime, sublime_plugin
 from .utils import get_syntax_name
 
 class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
-    def on_init(self, views):
+    def on_init(self, views: List[sublime.View]):
         self.settings = sublime.load_settings("Imperator Syntax.sublime-settings")
 
     def on_selection_modified_async(self, view):
@@ -34,7 +35,7 @@ class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
             ):
                 view.run_command("auto_complete")
 
-    def on_query_completions(self, view, prefix, locations):
+    def on_query_completions(self, view: sublime.View, prefix: str, locations: List[int]):
         if not view:
             return None
 
@@ -62,7 +63,7 @@ class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
                 )
 
 
-def get_prompt_completions(kind, selector):
+def get_prompt_completions(kind: str, selector: str):
     found_words = set()
 
     for win in sublime.windows():

@@ -5,10 +5,13 @@ import sublime, sublime_plugin
 import re
 
 
-def encoding_check(view):
+def encoding_check(view: sublime.View):
     # Check that the current filepath is in a folder that should use UTF-8 with BOM
     # If it should be UTF-8 with BOM and it is not create error panel
     path = view.file_name()
+    if path is None:
+        return
+
     utf8_paths = re.search(
         r"(common/coat_of_arms|map_data/regions|map_data/areas)", path
     )  # A few special files/folders don't need BOM

@@ -3,18 +3,19 @@ Checks the current position of the cursor and determine what kind of block we ar
 Set a status message in the status bar to let the user know what kind of block it is and also set a flag to let autocomplete know what type of completions to provide.
 """
 
+from typing import List
 import sublime
 from .utils import get_index
 
 
 class ScopeMatch:
-    def get_regions(self, view, selector, view_str):
+    def get_regions(self, view: sublime.View, selector: str, view_str: str):
         start_brackets = view.find_by_selector(selector)
         return [
             sublime.Region(br.a, get_index(view_str, br.a)) for br in start_brackets
         ]
 
-    def simple_scope_match(self, view):
+    def simple_scope_match(self, view: sublime.View):
         selection = view.sel()
         if not selection[0].empty():
             return
@@ -57,7 +58,7 @@ class ScopeMatch:
         if self.mtth_field and self.modifier_field:
             view.erase_status("modifier")
 
-    def show_status(self, selection, regions, status, view):
+    def show_status(self, selection: int, regions: List[sublime.Region], status: str, view: sublime.View):
         for block in regions:
             if block.a <= selection <= block.b:
                 view.set_status(status, status.title() + " Field")

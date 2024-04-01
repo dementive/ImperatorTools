@@ -22,5 +22,3 @@ Refactorings:
 
 
 1. Create Iterator classes to iterate over all views in a window and put it in utils. This is used in multiple places so would be nice to abstract. There may also be other common for loop operations that could use more convenient iterators.
-
-2. Create a convenient API for getting the name of game objects ("custom_loc" for example), it is currently easy to make hard to debug errors by spelling one of these wrong. So having a common API to fetch the strings from would be more robust.

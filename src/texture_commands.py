@@ -11,7 +11,7 @@ import sublime, sublime_plugin
 from .utils import get_syntax_name
 
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
-    def run(self, path, folder=False, mode="default_program"):
+    def run(self, path: str, folder=False, mode="default_program"): # type: ignore
         if folder:
             end = path.rfind("/")
             path = path[0:end:]
@@ -51,7 +51,7 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
                     sublime.active_window().open_file(output_file)
 
     @staticmethod
-    def open_path(path):
+    def open_path(path: str):
         system = sys.platform
         if system == "Darwin":  # macOS
             subprocess.Popen(("open", path))
@@ -62,14 +62,14 @@ class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
 
 
 class ImperatorTextureEventListener(sublime_plugin.EventListener):
-    def on_post_text_command(self, view, command_name, args):
+    def on_post_text_command(self, view: sublime.View, command_name: str, args):
         if command_name in ("left_delete", "insert"):
             if view.file_name() and get_syntax_name(view) == "Imperator Script":
                 x = [v for v in views_with_shown_textures if v.id() == view.id()]
                 if x:
                     x[0].update_line_count(view.rowcol(view.size())[0] + 1)
 
-    def on_load_async(self, view):
+    def on_load_async(self, view: sublime.View):
         if not view:
             return
 
@@ -86,7 +86,7 @@ views_with_shown_textures = set()
 
 
 class ImperatorViewTextures(sublime.View):
-    def __init__(self, id):
+    def __init__(self, id: int):
         super(ImperatorViewTextures, self).__init__(id)
         self.textures = []
         self.line_count = self.rowcol(self.size())[0] + 1
@@ -99,7 +99,7 @@ class ImperatorViewTextures(sublime.View):
             tex = tex.split("|")
             key = tex[0]
             line = int(tex[1])
-            point = self.view.text_point(line, 1)
+            point = self.text_point(line, 1)
             if self.find(key, point):
                 # Texture is still on the same line, dont need to update
                 return
@@ -121,7 +121,7 @@ class ImperatorShowTextureBase:
     conversion_iterations = 0
     total_conversion_attempts = 2 if sublime.platform() == "linux" else 6
 
-    def show_texture(self, path, point):
+    def show_texture(self, path: str, point: int):
         window = sublime.active_window()
         simple_path = (
             path.replace("\\", "/")
@@ -154,7 +154,7 @@ class ImperatorShowTextureBase:
         else:
             self.toggle_async(output_file, simple_path, point, window, path)
 
-    def toggle_async(self, output_file, simple_path, point, window, original_path):
+    def toggle_async(self, output_file: str, simple_path: str, point: int, window: sublime.Window, original_path: str):
         # Try to convert for 500ms
 
         if (
@@ -171,10 +171,13 @@ class ImperatorShowTextureBase:
             height = dimensions[1]
             html = f'<img src="{image}" width="{width}" height="{height}">'
             view = window.active_view()
+            if view is None:
+                return
+
             if os.path.exists(output_file):
                 self.toggle(simple_path, view, html, point)
 
-    def toggle(self, key, view, html, point):
+    def toggle(self, key: str, view: sublime.View, html: str, point: int):
         pid = key + "|" + str(view.rowcol(point)[0] + 1)
         x = ImperatorViewTextures(view.id())
         views_with_shown_textures.add(x)
@@ -200,7 +203,7 @@ class ImperatorShowTextureBase:
             phantom_region = sublime.Region(start, end)
             view.add_phantom(key, phantom_region, html, sublime.LAYOUT_BELOW)
 
-    def get_png_dimensions(self, path):
+    def get_png_dimensions(self, path: str):
         height = 150
         width = 150
         file = open(path, "rb")
@@ -234,7 +237,7 @@ class ImperatorShowTextureBase:
 class ImperatorShowTextureCommand(
     sublime_plugin.ApplicationCommand, ImperatorShowTextureBase
 ):
-    def run(self, path, point):
+    def run(self, path: str, point: int): # type: ignore
         self.show_texture(path, point)
 
 
@@ -278,6 +281,9 @@ class ImperatorShowAllTexturesCommand(
 ):
     def run(self):
         view = self.window.active_view()
+        if view is None:
+            return
+
         texture_list = [
             x
             for x in view.lines(sublime.Region(0, view.size()))
@@ -286,11 +292,11 @@ class ImperatorShowAllTexturesCommand(
         settings = sublime.load_settings("Imperator Syntax.sublime-settings")
         imperator_files_path = settings.get("ImperatorFilesPath")
 
-        for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):
+        for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))): # type: ignore
             texture_raw_start = view.find("gfx", line.a)
             texture_raw_end = view.find(".dds", line.a)
             texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
             texture_raw_path = view.substr(texture_raw_region)
-            full_texture_path = imperator_files_path + "/" + texture_raw_path
+            full_texture_path = imperator_files_path + "/" + texture_raw_path # type: ignore
             full_texture_path = full_texture_path.replace("\\", "/")
             self.show_texture(full_texture_path, texture_raw_start.a)

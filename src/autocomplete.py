@@ -3,7 +3,9 @@ Code for the autocomplete features of the plugin
 """
 
 import re
-import sublime, sublime_plugin
+import sublime
+from typing import List
+from .game_object_manager import GameObjectManager
 from .utils import get_index
 
 
@@ -13,50 +15,51 @@ class AutoComplete:
         self.effect_field = False
         self.modifier_field = False
         self.mtth_field = False
+        manager = GameObjectManager()
         self.auto_complete_fields = {
-            "ambition": [],
-            "area": [],
-            "building": [],
-            "culture": [],
-            "culture_group": [],
-            "custom_loc": [],
-            "death_reason": [],
-            "deity": [],
-            "diplo_stance": [],
-            "econ_policy": [],
-            "event_pic": [],
-            "event_theme": [],
-            "government": [],
-            "governor_policy": [],
-            "heritage": [],
-            "idea": [],
-            "invention": [],
-            "law": [],
-            "legion_distinction": [],
-            "levy_template": [],
-            "loyalty": [],
-            "mil_tradition": [],
-            "mission": [],
-            "mission_task": [],
-            "modifier": [],
-            "named_colors": [],
-            "office": [],
-            "opinion": [],
-            "party": [],
-            "pop": [],
-            "price": [],
-            "province_rank": [],
-            "region": [],
-            "religion": [],
-            "script_value": [],
-            "scripted_gui": [],
-            "subject_type": [],
-            "tech_table": [],
-            "terrain": [],
-            "trade_good": [],
-            "trait": [],
-            "unit": [],
-            "war_goal": [],
+            manager.ambition.name: [],
+            manager.area.name: [],
+            manager.building.name: [],
+            manager.culture.name: [],
+            manager.culture_group.name: [],
+            manager.custom_loc.name: [],
+            manager.death_reason.name: [],
+            manager.deity.name: [],
+            manager.diplo_stance.name: [],
+            manager.econ_policy.name: [],
+            manager.event_pic.name: [],
+            manager.event_theme.name: [],
+            manager.government.name: [],
+            manager.governor_policy.name: [],
+            manager.heritage.name: [],
+            manager.idea.name: [],
+            manager.invention.name: [],
+            manager.law.name: [],
+            manager.legion_distinction.name: [],
+            manager.levy_template.name: [],
+            manager.loyalty.name: [],
+            manager.mil_tradition.name: [],
+            manager.mission.name: [],
+            manager.mission_task.name: [],
+            manager.modifier.name: [],
+            manager.named_colors.name: [],
+            manager.office.name: [],
+            manager.opinion.name: [],
+            manager.party.name: [],
+            manager.pop.name: [],
+            manager.price.name: [],
+            manager.province_rank.name: [],
+            manager.region.name: [],
+            manager.religion.name: [],
+            manager.script_value.name: [],
+            manager.scripted_gui.name: [],
+            manager.subject_type.name: [],
+            manager.tech_table.name: [],
+            manager.terrain.name: [],
+            manager.trade_good.name: [],
+            manager.trait.name: [],
+            manager.unit.name: [],
+            manager.war_goal.name: [],
         }
         for field in self.auto_complete_fields.keys():
             setattr(self, field, False)
@@ -66,7 +69,7 @@ class AutoComplete:
             setattr(self, i, False)
 
     def check_for_patterns_and_set_flag(
-        self, patterns_list, flag_name, view, line, point
+        self, patterns_list: List[str], flag_name: str, view: sublime.View, line: str, point: int
     ):
         for pattern in patterns_list:
             r = re.search(fr'{pattern}\s?=\s?(")?', line)
@@ -81,7 +84,7 @@ class AutoComplete:
                     return True
         return False
 
-    def check_pattern_and_set_flag(self, pattern, flag_name, view, line, point):
+    def check_pattern_and_set_flag(self, pattern: str, flag_name: str, view: sublime.View, line: str, point: int):
         if pattern in line:
             idx = line.index(pattern) + view.line(point).a + len(pattern)
             if idx == point:
@@ -89,7 +92,7 @@ class AutoComplete:
                 view.run_command("auto_complete")
 
     def check_region_and_set_flag(
-        self, selector, flag_name, view, view_str, point, string_check_and_move=None
+        self, selector: str, flag_name: str, view: sublime.View, view_str: str, point: int, string_check_and_move=None
     ):
         for br in view.find_by_selector(selector):
             i = sublime.Region(br.a, get_index(view_str, br.a))
@@ -105,10 +108,11 @@ class AutoComplete:
                 setattr(self, flag_name, True)
                 view.run_command("auto_complete")
 
-    def check_for_complex_completions(self, view, point):
+    def check_for_complex_completions(self, view: sublime.View, point: int):
         view_str = view.substr(sublime.Region(0, view.size()))
+        filename = view.file_name()
 
-        if "inventions" in view.file_name():
+        if filename and "inventions" in filename:
             for br in view.find_by_selector("meta.invention.bracket"):
                 i = sublime.Region(br.a, get_index(view_str, br.a))
                 if i.contains(point):

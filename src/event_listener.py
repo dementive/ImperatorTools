@@ -6,10 +6,12 @@ The init function of the event listener is treated as the main entry point for t
 import os
 import time
 import threading
+from typing import List, Set, Tuple, Union
 
 import sublime, sublime_plugin
 from .jomini import PdxScriptObject, GameObjectBase
 from .imperator_objects import *
+from .game_object_manager import GameObjectManager
 from .game_objects import (
     get_objects_from_cache,
     write_data_to_syntax,
@@ -37,7 +39,7 @@ from .utils import (
 class ImperatorEventListener(
     Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
 ):
-    def on_init(self, views):
+    def on_init(self, views: List[sublime.View]):
         self.game_objects = get_default_game_objects()
         self.GameData = GameData()
         self.settings = sublime.load_settings("Imperator Syntax.sublime-settings")
@@ -69,7 +71,7 @@ class ImperatorEventListener(
         handle_image_cache(self.settings)
         add_color_scheme_scopes()
 
-    def load_changed_objects(self, changed_objects_set, write_syntax=True):
+    def load_changed_objects(self, changed_objects_set: Set[str], write_syntax=True):
         # Load objects that have changed since they were last cached
         self.game_objects = get_objects_from_cache()
 
@@ -86,7 +88,7 @@ class ImperatorEventListener(
 
     def create_game_objects(
         self,
-        changed_objects_set,
+        changed_objects_set: Set[str],
     ):
         game_object_to_class_dict = get_game_object_to_class_dict()
         for i in changed_objects_set:
@@ -96,64 +98,66 @@ class ImperatorEventListener(
     # Game object creation, have to be very careful to balance the load between each function here.
     def create_all_game_objects(self):
         t0 = time.time()
+        manager = GameObjectManager()
+
 
         def load_first():
-            self.game_objects["modifier"] = ImperatorModifier()
+            self.game_objects[manager.modifier.name] = Modifier()
 
         def load_second():
-            self.game_objects["mission_task"] = ImperatorMissionTask()
-            self.game_objects["subject_type"] = ImperatorSubjectType()
-            self.game_objects["diplo_stance"] = ImperatorDiplomaticStance()
-            self.game_objects["province_rank"] = ImperatorProvinceRank()
+            self.game_objects[manager.mission_task.name] = MissionTask()
+            self.game_objects[manager.subject_type.name] = SubjectType()
+            self.game_objects[manager.diplo_stance.name] = DiplomaticStance()
+            self.game_objects[manager.province_rank.name] = ProvinceRank()
 
         def load_third():
-            self.game_objects["script_value"] = ImperatorScriptValue()
-            self.game_objects["heritage"] = ImperatorHeritage()
-            self.game_objects["mil_tradition"] = ImperatorMilitaryTradition()
-            self.game_objects["named_colors"] = ImperatorNamedColor()
-            self.game_objects["mission"] = ImperatorMission()
-            self.game_objects["price"] = ImperatorPrice()
-            self.game_objects["death_reason"] = ImperatorDeathReason()
-            self.game_objects["ambition"] = ImperatorAmbition()
-            self.game_objects["religion"] = ImperatorReligion()
-            self.game_objects["office"] = ImperatorOffice()
-            self.game_objects["unit"] = ImperatorUnit()
-            self.game_objects["party"] = ImperatorParty()
+            self.game_objects[manager.script_value.name] = ScriptValue()
+            self.game_objects[manager.heritage.name] = Heritage()
+            self.game_objects[manager.mil_tradition.name] = MilitaryTradition()
+            self.game_objects[manager.named_colors.name] = NamedColor()
+            self.game_objects[manager.mission.name] = Mission()
+            self.game_objects[manager.price.name] = Price()
+            self.game_objects[manager.death_reason.name] = DeathReason()
+            self.game_objects[manager.ambition.name] = Ambition()
+            self.game_objects[manager.religion.name] = Religion()
+            self.game_objects[manager.office.name] = Office()
+            self.game_objects[manager.unit.name] = Unit()
+            self.game_objects[manager.party.name] = Party()
 
         def load_fourth():
-            self.game_objects["deity"] = ImperatorDeity()
-            self.game_objects["custom_loc"] = ImperatorCustomLoc()
-            self.game_objects["opinion"] = ImperatorOpinion()
-            self.game_objects["culture"] = ImperatorCulture()
-            self.game_objects["event_pic"] = ImperatorEventPicture()
-            self.game_objects["trait"] = ImperatorTrait()
-            self.game_objects["law"] = ImperatorLaw()
-            self.game_objects["scripted_gui"] = ImperatorScriptedGui()
-            self.game_objects["culture_group"] = ImperatorCultureGroup()
-            self.game_objects["scripted_modifier"] = ImperatorScriptedModifier()
-            self.game_objects["building"] = ImperatorBuilding()
-            self.game_objects["terrain"] = ImperatorTerrain()
-            self.game_objects["econ_policy"] = ImperatorEconomicPolicy()
-            self.game_objects["tech_table"] = ImperatorTechTable()
-            self.game_objects["war_goal"] = ImperatorWargoal()
+            self.game_objects[manager.deity.name] = Deity()
+            self.game_objects[manager.custom_loc.name] = CustomLoc()
+            self.game_objects[manager.opinion.name] = Opinion()
+            self.game_objects[manager.culture.name] = Culture()
+            self.game_objects[manager.event_pic.name] = EventPicture()
+            self.game_objects[manager.trait.name] = Trait()
+            self.game_objects[manager.law.name] = Law()
+            self.game_objects[manager.scripted_gui.name] = ScriptedGui()
+            self.game_objects[manager.culture_group.name] = CultureGroup()
+            self.game_objects[manager.scripted_modifier.name] = ScriptedModifier()
+            self.game_objects[manager.building.name] = Building()
+            self.game_objects[manager.terrain.name] = Terrain()
+            self.game_objects[manager.econ_policy.name] = EconomicPolicy()
+            self.game_objects[manager.tech_table.name] = TechTable()
+            self.game_objects[manager.war_goal.name] = Wargoal()
 
         def load_fifth():
-            self.game_objects["loyalty"] = ImperatorLoyalty()
-            self.game_objects["area"] = ImperatorArea()
-            self.game_objects["scripted_effect"] = ImperatorScriptedEffect()
-            self.game_objects["invention"] = ImperatorInvention()
-            self.game_objects["scripted_trigger"] = ImperatorScriptedTrigger()
-            self.game_objects["event_theme"] = ImperatorEventTheme()
-            self.game_objects["region"] = ImperatorRegion()
-            self.game_objects["levy_template"] = ImperatorLevyTemplate()
-            self.game_objects["trade_good"] = ImperatorTradeGood()
-            self.game_objects["idea"] = ImperatorIdea()
-            self.game_objects["legion_distinction"] = ImperatorLegionDistinction()
-            self.game_objects["government"] = ImperatorGovernment()
-            self.game_objects["governor_policy"] = ImperatorGovernorPolicy()
-            self.game_objects["scripted_list_effects"] = ImperatorScriptedList()
-            self.game_objects["scripted_list_triggers"] = ImperatorScriptedList()
-            self.game_objects["pop"] = ImperatorPop()
+            self.game_objects[manager.loyalty.name] = Loyalty()
+            self.game_objects[manager.area.name] = Area()
+            self.game_objects[manager.scripted_effect.name] = ScriptedEffect()
+            self.game_objects[manager.invention.name] = Invention()
+            self.game_objects[manager.scripted_trigger.name] = ScriptedTrigger()
+            self.game_objects[manager.event_theme.name] = EventTheme()
+            self.game_objects[manager.region.name] = Region()
+            self.game_objects[manager.levy_template.name] = LevyTemplate()
+            self.game_objects[manager.trade_good.name] = TradeGood()
+            self.game_objects[manager.idea.name] = Idea()
+            self.game_objects[manager.legion_distinction.name] = LegionDistinction()
+            self.game_objects[manager.government.name] = Government()
+            self.game_objects[manager.governor_policy.name] = GovernorPolicy()
+            self.game_objects[manager.scripted_list_effects.name] = ScriptedList()
+            self.game_objects[manager.scripted_list_triggers.name] = ScriptedList()
+            self.game_objects[manager.pop.name] = Pop()
 
             tri_list = []
             for obj in self.game_objects["scripted_list_triggers"]:
@@ -206,7 +210,7 @@ class ImperatorEventListener(
             lambda: check_mod_for_changes(self.imperator_mod_files), 0
         )  # Update hashes for each game object directory
 
-    def on_deactivated_async(self, view):
+    def on_deactivated_async(self, view: sublime.View):
         """
         Remove field states when view loses focus
         if cursor was in a field in the old view but not the new view the completions will still be accurate
@@ -218,14 +222,14 @@ class ImperatorEventListener(
                 setattr(self, field, False)
                 views.append(vid)
 
-    def on_activated_async(self, view):
+    def on_activated_async(self, view: sublime.View):
         vid = view.id()
         for field, views in self.auto_complete_fields.items():
             if vid in views:
                 setattr(self, field, True)
                 views.remove(vid)
 
-    def create_completion_list(self, flag_name, completion_kind):
+    def create_completion_list(self, flag_name: str, completion_kind: str):
         if not getattr(self, flag_name, False):
             return None
 
@@ -248,7 +252,17 @@ class ImperatorEventListener(
             | sublime.INHIBIT_WORD_COMPLETIONS,
         )
 
-    def on_query_completions(self, view, prefix, locations):
+    def on_query_completions(
+        self, view: sublime.View, prefix: str, locations: List[int]
+    ) -> Union[
+        None,
+        List[Union[str, Tuple[str, str], sublime.CompletionItem]],
+        Tuple[
+            List[Union[str, Tuple[str, str], sublime.CompletionItem]],
+            sublime.AutoCompleteFlags,
+        ],
+        sublime.CompletionList,
+    ]:
         if not view:
             return None
 
@@ -371,12 +385,22 @@ class ImperatorEventListener(
             )
         if "/events/" in fname:
             return sublime.CompletionList(
-                self.GameData.EventsList,
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS | sublime.INHIBIT_REORDER,
+                [
+                    sublime.CompletionItem(
+                        trigger=self.GameData.EventsList[key]["trigger"],
+                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                        kind=self.GameData.EventsList[key]["kind"],
+                        details=self.GameData.EventsList[key]["details"],
+                        annotation=self.GameData.EventsList[key]["annotation"],
+                    )
+                    for key in sorted(self.GameData.EventsList)
+                ],
+                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
+                | sublime.INHIBIT_WORD_COMPLETIONS,
             )
         return None
 
-    def on_selection_modified_async(self, view):
+    def on_selection_modified_async(self, view: sublime.View):
         if not view:
             return
 
@@ -413,7 +437,7 @@ class ImperatorEventListener(
             self.check_for_simple_completions(view, point)
             self.check_for_complex_completions(view, point)
 
-    def check_for_simple_completions(self, view, point):
+    def check_for_simple_completions(self, view: sublime.View, point: int):
         """
         Check if the current cursor position should trigger a autocompletion item
         this is for simple declarations like: remove_building = CursorHere
@@ -432,7 +456,7 @@ class ImperatorEventListener(
         for pattern, flag in self.GameData.simple_completion_scope_pattern_flag_pairs:
             self.check_pattern_and_set_flag(pattern, flag, view, line, point)
 
-    def on_hover(self, view, point, hover_zone):
+    def on_hover(self, view: sublime.View, point: int, hover_zone: sublime.HoverZone):
         if not view:
             return
 
@@ -503,7 +527,7 @@ class ImperatorEventListener(
         texture_raw_end = view.find(".dds", posLine.a)
         texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
         texture_raw_path = view.substr(texture_raw_region)
-        full_texture_path = os.path.join(self.imperator_files_path, texture_raw_path)
+        full_texture_path = os.path.join(self.imperator_files_path, texture_raw_path) # type: ignore
 
         if os.path.exists(full_texture_path):
             texture_name = view.substr(view.word(texture_raw_end.a - 1))
@@ -511,7 +535,7 @@ class ImperatorEventListener(
             return
 
         # Check mod paths if it's not vanilla
-        for mod in imperator_mod_files:
+        for mod in self.imperator_mod_files: # type: ignore
             if os.path.exists(mod) and mod.endswith("mod"):
                 # if it is the path to the mod directory, get all directories in it
                 for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
@@ -528,7 +552,7 @@ class ImperatorEventListener(
             texture_name = view.substr(view.word(texture_raw_end.a - 1))
             self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
 
-    def do_hover_async(self, view, point):
+    def do_hover_async(self, view: sublime.View, point: int):
         word_region = view.word(point)
         word = view.substr(word_region)
         fname = view.file_name()
@@ -582,80 +606,81 @@ class ImperatorEventListener(
 
         hover_objects = list()
         syntax_name = get_syntax_name(view)
+        manager = GameObjectManager()
         if syntax_name == "Imperator Script":
             hover_objects = [
-                ("ambition", "Ambition"),
-                ("area", "Area"),
-                ("building", "Building"),
-                ("culture", "Culture"),
-                ("culture_group", "Culture Group"),
-                ("death_reason", "Death Reason"),
-                ("deity", "Deity"),
-                ("diplo_stance", "Diplomatic Stance"),
-                ("econ_policy", "Economic Policy"),
-                ("event_pic", "Event Picture"),
-                ("event_theme", "Event Theme"),
-                ("government", "Government"),
-                ("governor_policy", "Governor Policy"),
-                ("heritage", "Heritage"),
-                ("idea", "Idea"),
-                ("invention", "Invention"),
-                ("law", "law"),
-                ("legion_distinction", "Legion Distinction"),
-                ("levy_template", "Levy Template"),
-                ("loyalty", "Loyalty"),
-                ("mil_tradition", "Military Tradition"),
-                ("mission", "Mission"),
-                ("mission_task", "Mission Task"),
-                ("modifier", "Modifier"),
-                ("named_colors", "Named Color"),
-                ("office", "Office"),
-                ("opinion", "Opinion"),
-                ("party", "Party"),
-                ("pop", "Pop Type"),
-                ("price", "Price"),
-                ("province_rank", "Province Rank"),
-                ("region", "Region"),
-                ("religion", "Religion"),
-                ("scripted_gui", "Scripted Gui"),
-                ("script_value", "Script Value"),
-                ("scripted_effect", "Scripted Effect"),
-                ("scripted_list_effects", "Scripted List"),
-                ("scripted_list_triggers", "Scripted List"),
-                ("scripted_modifier", "Scripted Modifier"),
-                ("scripted_trigger", "Scripted Trigger"),
-                ("subject_type", "Subject Type"),
-                ("tech_table", "Technology Table"),
-                ("terrain", "Terrain"),
-                ("trade_good", "Trade Good"),
-                ("trait", "Trait"),
-                ("unit", "Unit"),
-                ("war_goal", "War Goal"),
+                (manager.ambition.name, "Ambition"),
+                (manager.area.name, "Area"),
+                (manager.building.name, "Building"),
+                (manager.culture.name, "Culture"),
+                (manager.culture_group.name, "Culture Group"),
+                (manager.death_reason.name, "Death Reason"),
+                (manager.deity.name, "Deity"),
+                (manager.diplo_stance.name, "Diplomatic Stance"),
+                (manager.econ_policy.name, "Economic Policy"),
+                (manager.event_pic.name, "Event Picture"),
+                (manager.event_theme.name, "Event Theme"),
+                (manager.government.name, "Government"),
+                (manager.governor_policy.name, "Governor Policy"),
+                (manager.heritage.name, "Heritage"),
+                (manager.idea.name, "Idea"),
+                (manager.invention.name, "Invention"),
+                (manager.law.name, "law"),
+                (manager.legion_distinction.name, "Legion Distinction"),
+                (manager.levy_template.name, "Levy Template"),
+                (manager.loyalty.name, "Loyalty"),
+                (manager.mil_tradition.name, "Military Tradition"),
+                (manager.mission.name, "Mission"),
+                (manager.mission_task.name, "Mission Task"),
+                (manager.modifier.name, "Modifier"),
+                (manager.named_colors.name, "Named Color"),
+                (manager.office.name, "Office"),
+                (manager.opinion.name, "Opinion"),
+                (manager.party.name, "Party"),
+                (manager.pop.name, "Pop Type"),
+                (manager.price.name, "Price"),
+                (manager.province_rank.name, "Province Rank"),
+                (manager.region.name, "Region"),
+                (manager.religion.name, "Religion"),
+                (manager.scripted_gui.name, "Scripted Gui"),
+                (manager.script_value.name, "Script Value"),
+                (manager.scripted_effect.name, "Scripted Effect"),
+                (manager.scripted_list_effects.name, "Scripted List"),
+                (manager.scripted_list_triggers.name, "Scripted List"),
+                (manager.scripted_modifier.name, "Scripted Modifier"),
+                (manager.scripted_trigger.name, "Scripted Trigger"),
+                (manager.subject_type.name, "Subject Type"),
+                (manager.tech_table.name, "Technology Table"),
+                (manager.terrain.name, "Terrain"),
+                (manager.trade_good.name, "Trade Good"),
+                (manager.trait.name, "Trait"),
+                (manager.unit.name, "Unit"),
+                (manager.war_goal.name, "War Goal"),
             ]
 
         if syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui":
             hover_objects = [
-                ("building", "Building"),
-                ("culture", "Culture"),
-                ("culture_group", "Culture Group"),
-                ("custom_loc", "Culture"),
-                ("deity", "Deity"),
-                ("diplo_stance", "Diplomatic Stance"),
-                ("heritage", "Heritage"),
-                ("invention", "Invention"),
-                ("legion_distinction", "Legion Distinction"),
-                ("loyalty", "Loyalty"),
-                ("mil_tradition", "Military Tradition"),
-                ("modifier", "Modifier"),
-                ("office", "Office"),
-                ("price", "Price"),
-                ("province_rank", "Province Rank"),
-                ("religion", "Religion"),
-                ("script_value", "Script Value"),
-                ("scripted_gui", "Scripted Gui"),
-                ("terrain", "Terrain"),
-                ("trade_good", "Trade Good"),
-                ("trait", "Trait"),
+                (manager.building.name, "Building"),
+                (manager.culture.name, "Culture"),
+                (manager.culture_group.name, "Culture Group"),
+                (manager.custom_loc.name, "Culture"),
+                (manager.deity.name, "Deity"),
+                (manager.diplo_stance.name, "Diplomatic Stance"),
+                (manager.heritage.name, "Heritage"),
+                (manager.invention.name, "Invention"),
+                (manager.legion_distinction.name, "Legion Distinction"),
+                (manager.loyalty.name, "Loyalty"),
+                (manager.mil_tradition.name, "Military Tradition"),
+                (manager.modifier.name, "Modifier"),
+                (manager.office.name, "Office"),
+                (manager.price.name, "Price"),
+                (manager.province_rank.name, "Province Rank"),
+                (manager.religion.name, "Religion"),
+                (manager.script_value.name, "Script Value"),
+                (manager.scripted_gui.name, "Scripted Gui"),
+                (manager.terrain.name, "Terrain"),
+                (manager.trade_good.name, "Trade Good"),
+                (manager.trait.name, "Trait"),
             ]
 
         # Iterate over the list and call show_popup_default for each game object
@@ -670,7 +695,7 @@ class ImperatorEventListener(
                 )
                 break
 
-    def on_post_save_async(self, view):
+    def on_post_save_async(self, view: sublime.View):
         if view is None:
             return
         if get_syntax_name(view) != "Imperator Script":
@@ -680,7 +705,7 @@ class ImperatorEventListener(
 
         mod_dir = [
             x
-            for x in self.imperator_mod_files
+            for x in self.imperator_mod_files # type: ignore
             if is_file_in_directory(view.file_name(), x)
         ]
         in_mod_dir = any(mod_dir)
@@ -692,9 +717,12 @@ class ImperatorEventListener(
         if self.settings.get("UpdateObjectsOnSave"):
             self.update_saved_game_objects(view, mod_dir)
 
-    def update_saved_game_objects(self, view, mod_dir):
+    def update_saved_game_objects(self, view: sublime.View, mod_dir: List[str]):
         dir_to_game_object_dict = get_dir_to_game_object_dict()
-        relative_path = view.file_name().replace(mod_dir[-1], "")[1:]
+        filename = view.file_name()
+        if filename is None:
+            return
+        relative_path = filename.replace(mod_dir[-1], "")[1:]
         directory_path = os.path.dirname(relative_path)
         if directory_path not in dir_to_game_object_dict:
             return
@@ -743,5 +771,5 @@ class ImperatorEventListener(
             if not all(common_objects):
                 self.load_changed_objects(
                     changed_objects_set,
-                    write_syntax,
+                    write_syntax, # type: ignore
                 )

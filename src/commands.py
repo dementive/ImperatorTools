@@ -4,13 +4,13 @@ Miscellaneous imperator tools commands
 
 import os
 import webbrowser
-
+from typing import List, Any, Dict
 import sublime, sublime_plugin
 import Default.exec
 
 
 class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
-    def run(self, path, line):
+    def run(self, path: str, line: str): # type: ignore
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, line, 0)
             self.open_location(self.window, file_path)
@@ -21,7 +21,7 @@ class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
 
 
 class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
-    def run(self, path, line):
+    def run(self, path: str, line: str): # type: ignore
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, line, 0)
             self.open_location(
@@ -47,7 +47,7 @@ class ImpMissionNameInputHandler(sublime_plugin.TextInputHandler):
     def name(self):
         return "name"
 
-    def next_input(self, args):
+    def next_input(self, args: List[Any]):
         if "event_name" not in args:
             return ImpEventNameInputHandler()
 
@@ -70,9 +70,9 @@ class ImpMissionCountInputHandler(sublime_plugin.TextInputHandler):
     def placeholder(self):
         return "Number of Missions"
 
-    def validate(self, arg):
+    def validate(self, text: str):
         try:
-            arg = int(arg)
+            text = int(text) # type: ignore
             return True
         except ValueError:
             sublime.set_timeout(
@@ -81,19 +81,22 @@ class ImpMissionCountInputHandler(sublime_plugin.TextInputHandler):
                 ),
                 0,
             )
-            return False
+        return False
 
 
 class InsertTextCommand(sublime_plugin.TextCommand):
-    def run(self, edit, text):
+    def run(self, edit: sublime.Edit, text: str): # type: ignore
         self.view.insert(edit, len(self.view), text)
 
 
 class ImpMissionMakerCommand(sublime_plugin.TextCommand):
-    def run(self, edit, name, event_name, mission_count):
+    def run(self, edit: sublime.Edit, name: str, event_name: str, mission_count: str): # type: ignore
         sublime.run_command("new_file")
         window = sublime.active_window()
         event_view = window.active_view()
+        if event_view is None:
+            return
+
         event_view.set_name("Events")
         text = "namespace = {}\n\n".format(event_name)
         event_view.run_command("insert_text", {"text": text})
@@ -107,6 +110,9 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
 
         window.run_command("new_file")
         loc_view = window.active_view()
+        if loc_view is None:
+            return
+
         loc_view.set_encoding("UTF-8 with BOM")
         loc_view.set_name("Localization")
         capital_input = name.replace("_", " ").title()
@@ -133,6 +139,9 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
 
         window.run_command("new_file")
         mission_view = window.active_view()
+        if mission_view is None:
+            return
+
         mission_view.set_name("Mission Tree")
         text = '{name} = {{\n    header = "mission_image_general"\n    icon = "general_1"\n\n    repeatable = no\n    chance = 1000\n\n    potential = {{\n        NOT = {{ has_variable = mission_cooldown_var }}\n    }}\n\n    abort = {{}}\n    on_start = {{\n        start_mission_ai_effect = yes\n    }}\n    on_abort = {{\n        custom_tooltip = general_mission_cooldown_tt\n        set_variable = {{\n            name = mission_cooldown_var\n            days = 7300\n        }}\n    }}\n    on_completion = {{}}'.format(
             name=name
@@ -146,7 +155,7 @@ class ImpMissionMakerCommand(sublime_plugin.TextCommand):
             mission_view.run_command("insert_text", {"text": text})
         mission_view.run_command("insert_text", {"text": "\n}"})
 
-    def input(self, args):
+    def input(self, args: Dict[Any, Any]):
         if "name" not in args:
             return ImpMissionNameInputHandler()
         elif "event_name" not in args:

@@ -6,7 +6,10 @@ import os
 import hashlib
 import json
 import ast
+from typing import Dict, List
 
+from .game_object_manager import GameObjectManager
+from .imperator_objects import ImperatorObject
 from .jomini import dict_to_game_object as make_object
 from .utils import (
     get_default_game_objects,
@@ -15,7 +18,7 @@ from .utils import (
 )
 
 
-def check_mod_for_changes(imperator_mod_files, write_syntax=False):
+def check_mod_for_changes(imperator_mod_files: List[str], write_syntax=False):
     """
     Check if any changes have been made to mod files
     if changes have been made this returns a set of game objects that need to be recreated and cached
@@ -73,7 +76,7 @@ def check_mod_for_changes(imperator_mod_files, write_syntax=False):
     return changed_objects
 
 
-def compare_dicts(dict1, dict2):
+def compare_dicts(dict1: Dict, dict2: Dict):
     # Compare two dictionaries and return a set of all the keys with values that are not the same in both
     common_keys = set(dict1.keys()) & set(dict2.keys())
     unequal_keys = set()
@@ -113,20 +116,21 @@ def get_objects_from_cache():
     return game_objects
 
 
-def cache_all_objects(game_objects):
+def cache_all_objects(game_objects: Dict[str, ImperatorObject]):
     # Write all generated objects to cache
     path = sublime.packages_path() + f"/ImperatorTools/object_cache.json"
+    objects = dict()
     for i in game_objects:
-        game_objects[i] = game_objects[i].to_json()
+        objects[i] = game_objects[i].to_json()
     with open(path, "w") as f:
-        f.write(json.dumps(game_objects))
+        f.write(json.dumps(objects))
 
 
-def handle_image_cache(settings):
+def handle_image_cache(settings: sublime.Settings):
     cache_size_limit = settings.get("MaxImageCacheSize")
     cache = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/"
     cache_files = [x for x in os.listdir(cache) if x.endswith(".png")]
-    if len(cache_files) > cache_size_limit:
+    if len(cache_files) > cache_size_limit: # type: ignore
         for i in cache_files:
             os.remove(os.path.join(cache, i))
         sublime.status_message("Cleared Image Cache")
@@ -138,7 +142,7 @@ def add_color_scheme_scopes():
     prefs = sublime.load_settings("Preferences.sublime-settings")
     cs = prefs.get("color_scheme", DEFAULT_CS)
     scheme_cache_path = os.path.join(
-        sublime.packages_path(), "User", "PdxTools", cs
+        sublime.packages_path(), "User", "PdxTools", cs  # type: ignore
     ).replace("tmTheme", "sublime-color-scheme")
     if not os.path.exists(scheme_cache_path):
         os.makedirs(os.path.dirname(scheme_cache_path), exist_ok=True)
@@ -147,7 +151,7 @@ def add_color_scheme_scopes():
             f.write(rules)
 
 
-def write_data_to_syntax(game_objects):
+def write_data_to_syntax(game_objects: Dict[str, ImperatorObject]):
     fake_syntax_path = (
         sublime.packages_path()
         + "/ImperatorTools/Imperator Script/ImperatorSyntax.fake-sublime-syntax"
@@ -159,201 +163,235 @@ def write_data_to_syntax(game_objects):
     with open(fake_syntax_path, "r") as file:
         lines = file.read()
 
+    manager = GameObjectManager()
+
     # Append all game objects to auto-generated-content section
     lines += write_syntax(
-        game_objects["scripted_trigger"].keys(),
+        game_objects[manager.scripted_trigger.name].keys(),
         "Scripted Triggers",
         "string.scripted.trigger",
     )
     lines += write_syntax(
-        game_objects["scripted_modifier"].keys(),
+        game_objects[manager.scripted_modifier.name].keys(),
         "Scripted Triggers",
         "string.scripted.modifier",
     )
     lines += write_syntax(
-        game_objects["scripted_list_triggers"].keys(),
+        game_objects[manager.scripted_list_triggers.name].keys(),
         "Scripted List",
         "string.scripted.list",
     )
     lines += write_syntax(
-        game_objects["scripted_effect"].keys(),
+        game_objects[manager.scripted_effect.name].keys(),
         "Scripted Effects",
         "keyword.scripted.effect",
     )
     lines += write_syntax(
-        game_objects["scripted_list_effects"].keys(),
+        game_objects[manager.scripted_list_effects.name].keys(),
         "Scripted Effects",
         "keyword.scripted.list",
     )
     lines += write_syntax(
-        game_objects["script_value"].keys(),
+        game_objects[manager.script_value.name].keys(),
         "Scripted Values",
         "storage.type.script.value",
     )
 
     # All GameObjects get entity.name scope
     lines += write_syntax(
-        game_objects["ambition"].keys(), "Ambition", "entity.name.imperator.ambition"
+        game_objects[manager.ambition.name].keys(),
+        "Ambition",
+        "entity.name.imperator.ambition",
     )
     lines += write_syntax(
-        game_objects["building"].keys(), "Building", "entity.name.imperator.building"
+        game_objects[manager.building.name].keys(),
+        "Building",
+        "entity.name.imperator.building",
     )
     lines += write_syntax(
-        game_objects["culture"].keys(), "Culture", "entity.name.imperator.culture"
+        game_objects[manager.culture.name].keys(),
+        "Culture",
+        "entity.name.imperator.culture",
     )
     lines += write_syntax(
-        game_objects["culture_group"].keys(),
+        game_objects[manager.culture_group.name].keys(),
         "Culture Group",
         "entity.name.imperator.culture.group",
     )
     lines += write_syntax(
-        game_objects["death_reason"].keys(),
+        game_objects[manager.death_reason.name].keys(),
         "Death Reason",
         "entity.name.imperator.death.reason",
     )
     lines += write_syntax(
-        game_objects["deity"].keys(), "Deity", "entity.name.imperator.deity"
+        game_objects[manager.deity.name].keys(), "Deity", "entity.name.imperator.deity"
     )
     lines += write_syntax(
-        game_objects["diplo_stance"].keys(),
+        game_objects[manager.diplo_stance.name].keys(),
         "Diplomatic Stance",
         "entity.name.imperator.diplo.stance",
     )
     lines += write_syntax(
-        game_objects["econ_policy"].keys(),
+        game_objects[manager.econ_policy.name].keys(),
         "Economic Policy",
         "entity.name.imperator.econ.policy",
     )
     lines += write_syntax(
-        game_objects["event_pic"].keys(),
+        game_objects[manager.event_pic.name].keys(),
         "Event Picture",
         "entity.name.imperator.event.pic",
     )
     lines += write_syntax(
-        game_objects["event_theme"].keys(),
+        game_objects[manager.event_theme.name].keys(),
         "Event Theme",
         "entity.name.imperator.event.theme",
     )
     lines += write_syntax(
-        game_objects["named_colors"].keys(), "Named Colors", "entity.name.named.colors"
+        game_objects[manager.named_colors.name].keys(),
+        "Named Colors",
+        "entity.name.named.colors",
     )
     lines += write_syntax(
-        game_objects["government"].keys(),
+        game_objects[manager.government.name].keys(),
         "Government",
         "entity.name.imperator.government",
     )
     lines += write_syntax(
-        game_objects["governor_policy"].keys(),
+        game_objects[manager.governor_policy.name].keys(),
         "Governor Policy",
         "entity.name.imperator.governor.policy",
     )
     lines += write_syntax(
-        game_objects["heritage"].keys(), "Heritage", "entity.name.imperator.heritage"
+        game_objects[manager.heritage.name].keys(),
+        "Heritage",
+        "entity.name.imperator.heritage",
     )
     lines += write_syntax(
-        game_objects["idea"].keys(), "Idea", "entity.name.imperator.idea"
+        game_objects[manager.idea.name].keys(), "Idea", "entity.name.imperator.idea"
     )
     lines += write_syntax(
-        game_objects["invention"].keys(), "Invention", "entity.name.imperator.invention"
+        game_objects[manager.invention.name].keys(),
+        "Invention",
+        "entity.name.imperator.invention",
     )
     lines += write_syntax(
-        game_objects["law"].keys(), "Law", "entity.name.imperator.law"
+        game_objects[manager.law.name].keys(), "Law", "entity.name.imperator.law"
     )
     lines += write_syntax(
-        game_objects["legion_distinction"].keys(),
+        game_objects[manager.legion_distinction.name].keys(),
         "Legion Distinction",
         "entity.name.imperator.legion.distinction",
     )
     lines += write_syntax(
-        game_objects["levy_template"].keys(),
+        game_objects[manager.levy_template.name].keys(),
         "Levy Template",
         "entity.name.imperator.levy.template",
     )
     lines += write_syntax(
-        game_objects["loyalty"].keys(), "Loyalty", "entity.name.imperator.loyalty"
+        game_objects[manager.loyalty.name].keys(),
+        "Loyalty",
+        "entity.name.imperator.loyalty",
     )
     lines += write_syntax(
-        game_objects["mil_tradition"].keys(),
+        game_objects[manager.mil_tradition.name].keys(),
         "Military Tradition",
         "entity.name.imperator.mil.tradition",
     )
     lines += write_syntax(
-        game_objects["modifier"].keys(), "Modifier", "entity.name.imperator.modifier"
+        game_objects[manager.modifier.name].keys(),
+        "Modifier",
+        "entity.name.imperator.modifier",
     )
     lines += write_syntax(
-        game_objects["opinion"].keys(), "Opinion", "entity.name.imperator.opinion"
+        game_objects[manager.opinion.name].keys(),
+        "Opinion",
+        "entity.name.imperator.opinion",
     )
     lines += write_syntax(
-        game_objects["office"].keys(), "Office", "entity.name.imperator.office"
+        game_objects[manager.office.name].keys(),
+        "Office",
+        "entity.name.imperator.office",
     )
     lines += write_syntax(
-        game_objects["party"].keys(), "Party", "entity.name.imperator.party"
+        game_objects[manager.party.name].keys(), "Party", "entity.name.imperator.party"
     )
     lines += write_syntax(
-        game_objects["pop"].keys(), "Pop Type", "entity.name.imperator.pop"
+        game_objects[manager.pop.name].keys(), "Pop Type", "entity.name.imperator.pop"
     )
     lines += write_syntax(
-        game_objects["price"].keys(), "Price", "entity.name.imperator.price"
+        game_objects[manager.price.name].keys(), "Price", "entity.name.imperator.price"
     )
     lines += write_syntax(
-        game_objects["province_rank"].keys(),
+        game_objects[manager.province_rank.name].keys(),
         "Province Rank",
         "entity.name.imperator.province.rank",
     )
     lines += write_syntax(
-        game_objects["religion"].keys(), "Religion", "entity.name.imperator.religion"
+        game_objects[manager.religion.name].keys(),
+        "Religion",
+        "entity.name.imperator.religion",
     )
     lines += write_syntax(
-        game_objects["subject_type"].keys(),
+        game_objects[manager.subject_type.name].keys(),
         "Subject Type",
         "entity.name.imperator.subject.type",
     )
     lines += write_syntax(
-        game_objects["tech_table"].keys(),
+        game_objects[manager.tech_table.name].keys(),
         "Technology Table",
         "entity.name.imperator.tech.table",
     )
     lines += write_syntax(
-        game_objects["terrain"].keys(), "Terrain", "entity.name.imperator.terrain"
+        game_objects[manager.terrain.name].keys(),
+        "Terrain",
+        "entity.name.imperator.terrain",
     )
     lines += write_syntax(
-        game_objects["trade_good"].keys(),
+        game_objects[manager.trade_good.name].keys(),
         "Trade Good",
         "entity.name.imperator.trade.good",
     )
     lines += write_syntax(
-        game_objects["trait"].keys(), "Trait", "entity.name.imperator.trait"
+        game_objects[manager.trait.name].keys(), "Trait", "entity.name.imperator.trait"
     )
     lines += write_syntax(
-        game_objects["unit"].keys(), "Unit", "entity.name.imperator.unit"
+        game_objects[manager.unit.name].keys(), "Unit", "entity.name.imperator.unit"
     )
     lines += write_syntax(
-        game_objects["war_goal"].keys(), "War Goal", "entity.name.imperator.war.goal"
+        game_objects[manager.war_goal.name].keys(),
+        "War Goal",
+        "entity.name.imperator.war.goal",
     )
     lines += write_syntax(
-        game_objects["mission"].keys(), "Mission", "entity.name.imperator.mission"
+        game_objects[manager.mission.name].keys(),
+        "Mission",
+        "entity.name.imperator.mission",
     )
     lines += write_syntax(
-        game_objects["mission_task"].keys(),
+        game_objects[manager.mission_task.name].keys(),
         "Mission Task",
         "entity.name.imperator.mission.task",
     )
     lines += write_syntax(
-        game_objects["mission"].keys(), "Mission", "entity.name.imperator.mission"
+        game_objects[manager.mission.name].keys(),
+        "Mission",
+        "entity.name.imperator.mission",
     )
     lines += write_syntax(
-        game_objects["area"].keys(), "Area", "entity.name.imperator.area"
+        game_objects[manager.area.name].keys(), "Area", "entity.name.imperator.area"
     )
     lines += write_syntax(
-        game_objects["region"].keys(), "Region", "entity.name.imperator.region"
+        game_objects[manager.region.name].keys(),
+        "Region",
+        "entity.name.imperator.region",
     )
     lines += write_syntax(
-        game_objects["scripted_gui"].keys(),
+        game_objects[manager.scripted_gui.name].keys(),
         "Scripted Gui",
         "entity.name.imperator.scripted.gui",
     )
     lines += write_syntax(
-        game_objects["custom_loc"].keys(),
+        game_objects[manager.custom_loc.name].keys(),
         "Custom Loc",
         "entity.name.imperator.custom.loc",
     )
@@ -366,7 +404,7 @@ def write_data_to_syntax(game_objects):
             file.write(lines)
 
 
-def write_syntax(li, header, scope):
+def write_syntax(li: List[str], header: str, scope: str):
     string = ""
     count = 0
     string += f"\n    # Generated {header}\n    - match: \\b("
