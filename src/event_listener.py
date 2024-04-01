@@ -18,6 +18,7 @@ from .game_objects import (
     handle_image_cache,
     check_mod_for_changes,
     check_for_syntax_changes,
+    load_game_objects_json,
 )
 from .game_data import GameData
 from .scope_match import ScopeMatch
@@ -31,7 +32,6 @@ from .utils import (
     get_game_object_to_class_dict,
     get_dir_to_game_object_dict,
 )
-from ImperatorTools.object_cache import GameObjectCache
 
 
 class ImperatorEventListener(
@@ -43,11 +43,10 @@ class ImperatorEventListener(
         self.settings = sublime.load_settings("Imperator Syntax.sublime-settings")
         self.imperator_files_path = self.settings.get("ImperatorFilesPath")
         self.imperator_mod_files = self.settings.get("PathsToModFiles")
-        self.game_object_cache = GameObjectCache()
 
         syntax_changes = check_for_syntax_changes()
         changed_objects_set = check_mod_for_changes(self.imperator_mod_files)
-        if len(self.game_object_cache.__dict__) == 0:
+        if len(load_game_objects_json()) == 0:
             # Create all objects for the first time
             sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")

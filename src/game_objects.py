@@ -5,8 +5,8 @@ import sublime
 import os
 import hashlib
 import json
+import ast
 
-from ImperatorTools.object_cache import GameObjectCache
 from .jomini import dict_to_game_object as make_object
 from .utils import (
     get_default_game_objects,
@@ -20,7 +20,7 @@ def check_mod_for_changes(imperator_mod_files, write_syntax=False):
     Check if any changes have been made to mod files
     if changes have been made this returns a set of game objects that need to be recreated and cached
     """
-    object_cache_path = sublime.packages_path() + f"/ImperatorTools/object_cache.py"
+    object_cache_path = sublime.packages_path() + f"/ImperatorTools/object_cache.json"
     if os.stat(object_cache_path).st_size < 200:
         # If there are no objects in the cache, they all need to be created
         return set(get_dir_to_game_object_dict().values())
@@ -94,23 +94,32 @@ def check_for_syntax_changes():
     return False
 
 
-def get_objects_from_cache():
-    object_cache = GameObjectCache()
-    game_objects = get_default_game_objects()
+def load_game_objects_json():
+    path = sublime.packages_path() + f"/ImperatorTools/object_cache.json"
+    with open(path, "r") as f:
+        data = json.load(f)
+    return data
 
+
+def get_objects_from_cache():
+    path = sublime.packages_path() + f"/ImperatorTools/object_cache.json"
+    game_objects = get_default_game_objects()
+    with open(path, "r") as f:
+        data = json.load(f)
     for i in game_objects:
-        game_objects[i] = make_object(getattr(object_cache, i))
+        if i in data:
+            game_objects[i] = make_object(ast.literal_eval(data[i]))
 
     return game_objects
 
 
 def cache_all_objects(game_objects):
     # Write all generated objects to cache
-    path = sublime.packages_path() + f"/ImperatorTools/object_cache.py"
+    path = sublime.packages_path() + f"/ImperatorTools/object_cache.json"
+    for i in game_objects:
+        game_objects[i] = game_objects[i].to_json()
     with open(path, "w") as f:
-        f.write("class GameObjectCache:\n\tdef __init__(self):")
-        for i in game_objects:
-            f.write(f"\n\t\tself.{i} = {game_objects[i].to_json()}")
+        f.write(json.dumps(game_objects))
 
 
 def handle_image_cache(settings):
