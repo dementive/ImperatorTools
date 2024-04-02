@@ -1,0 +1,63 @@
+@my_value = 999
+@my_value_2 = [@my_value + 15]
+
+effect = {
+	add_treasury = 999
+}
+
+trigger = {
+	always = yes
+}
+
+state_modifier = {
+	build_time = 0.01
+}
+
+ai_chance = {
+	factor = 1
+	modifier = {
+		factor = 0
+		is_tribal = yes
+	}
+	modifier = {
+		current_ruler = char:70
+		factor = 2
+	}
+}
+custom_scripted_effect = {
+	if = {
+		limit = {
+			has_variable = test_$name$_test  # _
+			has_variable = $name$_test  # _
+		}
+		set_variable = {
+			name = test_$name$_test # _
+			value = 999
+		}
+		set_variable = {
+			name = $name$_test # _
+			value = 999
+		}
+		set_variable = $name$_test
+		set_variable = test_$name$_test  # _
+		set_variable = $name$_test$name2$_test # _
+		remove_variable = $name$_test
+		remove_variable = test_$name$_test  # _
+		remove_variable = $name$_test$name2$_test # _
+		var:test_$name$_test  # _
+
+
+
+		scope:my_scope  # _
+		scope:my_$name$_scope # _
+		scope:my_$name$_scope_$name2$_scope # _
+		scope:$name$_scope # _
+
+		save_scope_as = my_scope
+		save_scope_as = my_$name$_scope
+		save_scope_as = my_$name$_scope_$name2$_scope # _
+
+		add_treasury = 999
+		add_treasury = $amount$ # _
+	}
+}

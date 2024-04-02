@@ -16,7 +16,14 @@ css_basic_style = CSS().default
 
 
 class Hover:
-    def show_hover_docs(self, view: sublime.View, point: int, scope: str, collection: Dict[Any, Any], settings: sublime.Settings):
+    def show_hover_docs(
+        self,
+        view: sublime.View,
+        point: int,
+        scope: str,
+        collection: Dict[Any, Any],
+        settings: sublime.Settings,
+    ):
         style = settings.get("DocsPopupStyle")
         if style == "dark":
             style = """
@@ -110,7 +117,14 @@ class Hover:
             )
             return
 
-    def show_popup_default(self, view: sublime.View, point: int, word: str, PdxObject: PdxScriptObject, header: str):
+    def show_popup_default(
+        self,
+        view: sublime.View,
+        point: int,
+        word: str,
+        PdxObject: PdxScriptObject,
+        header: str,
+    ):
         if view.file_name() is None:
             return
 
@@ -141,7 +155,35 @@ class Hover:
                 max_width=1024,
             )
 
-    def get_definitions_for_popup(self, view: sublime.View, point: int, PdxObject: PdxScriptObject, header: str, def_value=""):
+    def handle_scripted_args(self, view: sublime.View, point: int, region=False):
+        argument_found = True
+        word = view.word(point)
+        while argument_found is True:
+            one_ahead = word.b
+            one_behind = word.a - 1
+            one_ahead_word = view.substr(one_ahead)
+            one_behind_word = view.substr(one_behind)
+            if one_ahead_word == "$":
+                new_word = view.word(one_ahead+1)
+                word = sublime.Region(word.a, new_word.b)
+            if one_behind_word == "$":
+                new_word = view.word(one_behind)
+                word = sublime.Region(new_word.a, word.b)
+            if one_behind_word != "$" and one_ahead_word != "$":
+                argument_found = False 
+        if region:
+            return word
+
+        return view.substr(word).strip()
+
+    def get_definitions_for_popup(
+        self,
+        view: sublime.View,
+        point: int,
+        PdxObject: PdxScriptObject,
+        header: str,
+        def_value="",
+    ):
         word_line_num = view.rowcol(point)[0] + 1
         definition = ""
         definitions = []
@@ -152,19 +194,19 @@ class Hover:
                         continue
 
                     variables = [
-                        x
+                        self.handle_scripted_args(i, x.a, True)
                         for x in i.find_by_selector(
                             "entity.name.function.var.declaration"
                         )
-                        if i.substr(x) == PdxObject.key
+                        if self.handle_scripted_args(i, x.a)  == PdxObject.key
                     ]
                     variables.extend(
                         [
-                            x
+                            self.handle_scripted_args(i, x.a, True)
                             for x in i.find_by_selector(
                                 "entity.name.function.scope.declaration"
                             )
-                            if i.substr(x) == PdxObject.key
+                            if self.handle_scripted_args(i, x.a) == PdxObject.key
                         ]
                     )
                     for r in variables:
@@ -243,11 +285,13 @@ class Hover:
 
         return definition
 
-    def get_references_for_popup(self, view: sublime.View, point: int, PdxObject: PdxScriptObject):
+    def get_references_for_popup(
+        self, view: sublime.View, point: int, PdxObject: PdxScriptObject
+    ):
         word_line_num = view.rowcol(point)[0] + 1
         filename = view.file_name()
         if filename is None:
-            return
+            return ""
         word_file = filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
         references = []
         ref = ""
@@ -267,10 +311,7 @@ class Hover:
                         if filename is None:
                             continue
                         filename = (
-                            filename
-                            .replace("\\", "/")
-                            .rstrip("/")
-                            .rpartition("/")[2]
+                            filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
                         )
                         line_num = j + 1
                         if word_line_num == line_num and word_file == filename:
@@ -315,15 +356,17 @@ class Hover:
 
         return ref
 
-    def show_texture_hover_popup(self, view: sublime.View, point: int, texture_name: str, full_texture_path: str):
+    def show_texture_hover_popup(
+        self, view: sublime.View, point: int, texture_name: str, full_texture_path: str
+    ):
         args = {"path": full_texture_path}
-        open_texture_url = sublime.command_url("open_imperator_texture ", args) # type: ignore
+        open_texture_url = sublime.command_url("open_imperator_texture ", args)  # type: ignore
         folder_args = {"path": full_texture_path, "folder": True}
         open_folder_url = sublime.command_url("open_imperator_texture ", folder_args)
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         open_in_sublime_url = sublime.command_url(
-            "open_imperator_texture ", in_sublime_args # type: ignore
+            "open_imperator_texture ", in_sublime_args  # type: ignore
         )
         open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
         hover_body = """
@@ -361,7 +404,14 @@ class Hover:
             max_width=802,
         )
 
-    def show_popup_named_color(self, view: sublime.View, point: int, word: str, PdxObject: PdxColorObject, header: str):
+    def show_popup_named_color(
+        self,
+        view: sublime.View,
+        point: int,
+        word: str,
+        PdxObject: PdxColorObject,
+        header: str,
+    ):
         if view.file_name() is None:
             return
 

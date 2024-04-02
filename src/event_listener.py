@@ -567,6 +567,9 @@ class ImperatorEventListener(
             or view.match_selector(point, "variable.parameter.trigger.usage")
             or view.match_selector(point, "variable.parameter.var.usage")
         ):
+            if fname and ("scripted_triggers" in fname or "scripted_effects" in fname or "scripted_modifiers" in fname):
+                word = self.handle_scripted_args(view, point)
+
             if view.match_selector(point, "variable.parameter.scope.usage"):
                 self.show_popup_default(
                     view,
@@ -586,6 +589,8 @@ class ImperatorEventListener(
             return
 
         if view.match_selector(point, "entity.name.function.var.declaration"):
+            if fname and ("scripted_triggers" in fname or "scripted_effects" in fname or "scripted_modifiers" in fname):
+                word = self.handle_scripted_args(view, point)
             self.show_popup_default(
                 view,
                 point,
@@ -595,6 +600,8 @@ class ImperatorEventListener(
             )
             return
         if view.match_selector(point, "entity.name.function.scope.declaration"):
+            if fname and ("scripted_triggers" in fname or "scripted_effects" in fname or "scripted_modifiers" in fname):
+                word = self.handle_scripted_args(view, point)
             self.show_popup_default(
                 view,
                 point,

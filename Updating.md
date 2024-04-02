@@ -22,3 +22,8 @@ Refactorings:
 
 
 1. Create Iterator classes to iterate over all views in a window and put it in utils. This is used in multiple places so would be nice to abstract. There may also be other common for loop operations that could use more convenient iterators.
+
+
+Features:
+
+1. Add scope checks for ai-block-start like it works in vic3. In vic3 this is basically a "value" block, it is slightly different in imperator and should have autocomplete to show that.

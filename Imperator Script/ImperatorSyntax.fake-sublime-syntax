@@ -45,16 +45,26 @@ contexts:
     - include: manually-entered-content
 
   comments:
-    - match: (#).*$\n?
+    - match: \#.*$\n?
       scope: comment.line
       pop: true
+
+  comment-line:
+    - match: \#.*$\n?
+      scope: comment.line
+      pop: 2
+
+  comment-line-4:
+    - match: \#.*$\n?
+      scope: comment.line
+      pop: 4
 
   scripted-effect-arg:
     - match: \$
       scope: keyword.arg.start
       push:
         - match: ({{valid_variable}})
-          scope: variable.language.arg
+          scope: variable.language.scripted.arg
         - match: \$
           scope: keyword.arg.start
           pop: true
@@ -66,11 +76,32 @@ contexts:
       push:
         - include: line_ending
         - match: ({{valid_variable}})
-          scope: variable.language.at.parameter
+          scope: variable.language.scripted.arg
         - match: \$
           scope: keyword.dolla
           pop: 3
 
+  string-sub-start:
+    - match: \$
+      scope: keyword.dolla
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: variable.language.scripted.arg
+        - match: \$
+          scope: keyword.dolla
+          pop: 1
+
+  string-sub-end:
+    - match: \$
+      scope: keyword.dolla
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: variable.language.scripted.arg
+        - match: \$
+          scope: keyword.dolla
+          pop: 2
 
   scope-usage:
     - match: \bscope\b|\bvar\b|\blocal_var\b|\bglobal_var\b
@@ -82,33 +113,13 @@ contexts:
           push:
             - match: \n|\s
               pop: 2
-            - match: (#).*$\n?
-              scope: comment.line
-              pop: 2
-            - match: \$
-              scope: keyword.dolla
-              push:
-                - include: line_ending
-                - match: ({{valid_variable}})
-                  scope: variable.language.at.parameter
-                - match: \$
-                  scope: keyword.dolla
-                  pop: 1
+            - include: comment-line
+            - include: string-sub-start
             - match: ({{valid_variable}})
               scope: variable.parameter.scope.usage
               push:
-                - match: (#).*$\n?
-                  scope: comment.line
-                  pop: 4
-                - match: \$
-                  scope: keyword.dolla
-                  push:
-                    - include: line_ending
-                    - match: ({{valid_variable}})
-                      scope: variable.language.at.parameter
-                    - match: \$
-                      scope: keyword.dolla
-                      pop: 4
+                - include: comment-line-4
+                - include: string-sub-end
                 - match: \n|\s|\.
                   pop: 3
 
@@ -121,34 +132,13 @@ contexts:
           push:
             - match: \n
               pop: 2
-            - match: (#).*$\n?
-              scope: comment.line
-              pop: 2
-            - match: \$
-              scope: keyword.dolla
-              push:
-                - include: line_ending
-                - match: ({{valid_variable}})
-                  scope: variable.language.at.parameter
-                - match: \$
-                  scope: keyword.dolla
-                  pop: 1
+            - include: comment-line
+            - include: string-sub-start
             - match: ({{valid_variable}})
               scope: variable.parameter.remove.var
               push:
-                - include: auto-generated-content
-                - match: (#).*$\n?
-                  scope: comment.line
-                  pop: 4
-                - match: \$
-                  scope: keyword.dolla
-                  push:
-                    - include: line_ending
-                    - match: ({{valid_variable}})
-                      scope: variable.language.at.parameter
-                    - match: \$
-                      scope: keyword.dolla
-                      pop: 4
+                - include: comment-line-4
+                - include: string-sub-end
                 - match: \n
                   pop: 3
 
@@ -161,34 +151,13 @@ contexts:
           push:
             - match: \n
               pop: 2
-            - match: (#).*$\n?
-              scope: comment.line
-              pop: 2
-            - match: \$
-              scope: keyword.dolla
-              push:
-                - include: line_ending
-                - match: ({{valid_variable}})
-                  scope: variable.language.at.parameter
-                - match: \$
-                  scope: keyword.dolla
-                  pop: 1
+            - include: comment-line
+            - include: string-sub-start
             - match: ({{valid_variable}})
               scope: entity.name.function.scope.declaration
               push:
-                - include: auto-generated-content
-                - match: (#).*$\n?
-                  scope: comment.line
-                  pop: 4
-                - match: \$
-                  scope: keyword.dolla
-                  push:
-                    - include: line_ending
-                    - match: ({{valid_variable}})
-                      scope: variable.language.at.parameter
-                    - match: \$
-                      scope: keyword.dolla
-                      pop: 4
+                - include: comment-line-4
+                - include: string-sub-end
                 - match: \n
                   pop: 3
 
@@ -201,34 +170,13 @@ contexts:
           push:
             - match: \n
               pop: 2
-            - match: (#).*$\n?
-              scope: comment.line
-              pop: 2
-            - match: \$
-              scope: keyword.dolla
-              push:
-                - include: line_ending
-                - match: ({{valid_variable}})
-                  scope: variable.language.at.parameter
-                - match: \$
-                  scope: keyword.dolla
-                  pop: 1
+            - include: comment-line
+            - include: string-sub-start
             - match: ({{valid_variable}})
               scope: variable.parameter.trigger.usage
               push:
-                - include: auto-generated-content
-                - match: (#).*$\n?
-                  scope: comment.line
-                  pop: 4
-                - match: \$
-                  scope: keyword.dolla
-                  push:
-                    - include: line_ending
-                    - match: ({{valid_variable}})
-                      scope: variable.language.at.parameter
-                    - match: \$
-                      scope: keyword.dolla
-                      pop: 4
+                - include: comment-line-4
+                - include: string-sub-end
                 - match: \n
                   pop: 3
 
@@ -239,12 +187,17 @@ contexts:
         - match: =
           scope: keyword.operator.comparison.imperator
           push:
+            - include: string-sub-start
             - match: ({{valid_variable}})
               scope: entity.name.function.var.declaration
-              pop: 3
+              push:
+                - include: comment-line-4
+                - include: string-sub-end
+                - match: \n
+                  pop: 3
             - match: \{\n?+
               push:
-                - match: (#).*$\n?
+                - match: \#.*$\n?
                   scope: comment.line
                 - match: \}
                   pop: 4
@@ -255,39 +208,17 @@ contexts:
                       scope: keyword.operator.comparison.imperator
                     - match: \n
                       pop: 4
-                    - match: (#).*$\n?
-                      scope: comment.line
-                      pop: 4
-                    - match: \$
-                      scope: keyword.dolla
-                      push:
-                        - include: line_ending
-                        - match: ({{valid_variable}})
-                          scope: variable.language.at.parameter
-                        - match: \$
-                          scope: keyword.dolla
-                          pop: 1
+                    - include: comment-line-4
+                    - include: string-sub-start
                     - match: ({{valid_variable}})
                       scope: entity.name.function.var.declaration
                       push:
-                        - include: auto-generated-content
-                        - include: manually-entered-content
                         - match: (#).*$\n?
                           scope: comment.line
                           pop: 5
-                        - match: \$
-                          scope: keyword.dolla
-                          push:
-                            - include: line_ending
-                            - match: ({{valid_variable}})
-                              scope: variable.language.at.parameter
-                            - match: \$
-                              scope: keyword.dolla
-                              pop: 6
+                        - include: string-sub-end
                         - match: \n
                           pop: 5
-        - match: \n
-          pop: 2
 
   variable-usage-complex:
     - match: (change|round|clamp)_(local_|global_)?variable
@@ -312,38 +243,17 @@ contexts:
                 - match: (#).*$\n?
                   scope: comment.line
                   pop: 3
-                - match: \$
-                  scope: keyword.dolla
-                  push:
-                    - include: line_ending
-                    - match: ({{valid_variable}})
-                      scope: variable.language.at.parameter
-                    - match: \$
-                      scope: keyword.dolla
-                      pop: 1
+                - include: string-sub-start
                 - match: ({{valid_variable}})
                   scope: variable.parameter.trigger.usage
                   push:
-                    - include: auto-generated-content
-                    - match: (#).*$\n?
-                      scope: comment.line
-                      pop: 4
-                    - match: \$
-                      scope: keyword.dolla
-                      push:
-                        - include: line_ending
-                        - match: ({{valid_variable}})
-                          scope: variable.language.at.parameter
-                        - match: \$
-                          scope: keyword.dolla
-                          pop: 5
+                    - include: comment-line-4
+                    - include: string-sub-end
                     - match: \n
                       pop: 4
-        - match: \n
-          pop: 2
 
   at-symbol:
-    - match: (@)({{valid_variable}})
+    - match: \@({{valid_variable}})
       scope: keyword.numeric.at.symbol
       push:
         - match: (\[|\]|=|\s)
@@ -351,7 +261,7 @@ contexts:
           pop: true
 
   at-symbol-expanded:
-    - match: (@)\[
+    - match: \@\[
       scope: keyword.numeric.at.symbol
       push:
         - meta_content_scope: variable.language
