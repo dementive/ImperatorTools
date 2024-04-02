@@ -121,7 +121,6 @@ class Hover:
         self,
         view: sublime.View,
         point: int,
-        word: str,
         PdxObject: PdxScriptObject,
         header: str,
     ):

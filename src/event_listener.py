@@ -100,7 +100,6 @@ class ImperatorEventListener(
         t0 = time.time()
         manager = GameObjectManager()
 
-
         def load_first():
             self.game_objects[manager.modifier.name] = Modifier()
 
@@ -527,7 +526,7 @@ class ImperatorEventListener(
         texture_raw_end = view.find(".dds", posLine.a)
         texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
         texture_raw_path = view.substr(texture_raw_region)
-        full_texture_path = os.path.join(self.imperator_files_path, texture_raw_path) # type: ignore
+        full_texture_path = os.path.join(self.imperator_files_path, texture_raw_path)  # type: ignore
 
         if os.path.exists(full_texture_path):
             texture_name = view.substr(view.word(texture_raw_end.a - 1))
@@ -535,7 +534,7 @@ class ImperatorEventListener(
             return
 
         # Check mod paths if it's not vanilla
-        for mod in self.imperator_mod_files: # type: ignore
+        for mod in self.imperator_mod_files:  # type: ignore
             if os.path.exists(mod) and mod.endswith("mod"):
                 # if it is the path to the mod directory, get all directories in it
                 for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
@@ -567,14 +566,17 @@ class ImperatorEventListener(
             or view.match_selector(point, "variable.parameter.trigger.usage")
             or view.match_selector(point, "variable.parameter.var.usage")
         ):
-            if fname and ("scripted_triggers" in fname or "scripted_effects" in fname or "scripted_modifiers" in fname):
+            if fname and (
+                "scripted_triggers" in fname
+                or "scripted_effects" in fname
+                or "scripted_modifiers" in fname
+            ):
                 word = self.handle_scripted_args(view, point)
 
             if view.match_selector(point, "variable.parameter.scope.usage"):
                 self.show_popup_default(
                     view,
                     point,
-                    word,
                     PdxScriptObject(word, fname, current_line_num),
                     "Saved Scope",
                 )
@@ -582,32 +584,48 @@ class ImperatorEventListener(
                 self.show_popup_default(
                     view,
                     point,
-                    word,
                     PdxScriptObject(word, fname, current_line_num),
                     "Saved Variable",
                 )
             return
 
         if view.match_selector(point, "entity.name.function.var.declaration"):
-            if fname and ("scripted_triggers" in fname or "scripted_effects" in fname or "scripted_modifiers" in fname):
+            if fname and (
+                "scripted_triggers" in fname
+                or "scripted_effects" in fname
+                or "scripted_modifiers" in fname
+            ):
                 word = self.handle_scripted_args(view, point)
             self.show_popup_default(
                 view,
                 point,
-                word,
                 PdxScriptObject(word, fname, current_line_num),
                 "Saved Variable",
             )
             return
         if view.match_selector(point, "entity.name.function.scope.declaration"):
-            if fname and ("scripted_triggers" in fname or "scripted_effects" in fname or "scripted_modifiers" in fname):
+            if fname and (
+                "scripted_triggers" in fname
+                or "scripted_effects" in fname
+                or "scripted_modifiers" in fname
+            ):
                 word = self.handle_scripted_args(view, point)
             self.show_popup_default(
                 view,
                 point,
-                word,
                 PdxScriptObject(word, fname, current_line_num),
                 "Saved Scope",
+            )
+            return
+
+        if view.match_selector(
+            point, "entity.name.scripted.arg"
+        ) or view.match_selector(point, "variable.language.scripted.arg"):
+            self.show_popup_default(
+                view,
+                point,
+                PdxScriptObject(word, fname, current_line_num),
+                "Scripted Argument",
             )
             return
 
@@ -696,7 +714,6 @@ class ImperatorEventListener(
                 self.show_popup_default(
                     view,
                     point,
-                    word,
                     self.game_objects[hover_object].access(word),
                     name,
                 )
@@ -712,7 +729,7 @@ class ImperatorEventListener(
 
         mod_dir = [
             x
-            for x in self.imperator_mod_files # type: ignore
+            for x in self.imperator_mod_files  # type: ignore
             if is_file_in_directory(view.file_name(), x)
         ]
         in_mod_dir = any(mod_dir)
@@ -778,5 +795,5 @@ class ImperatorEventListener(
             if not all(common_objects):
                 self.load_changed_objects(
                     changed_objects_set,
-                    write_syntax, # type: ignore
+                    write_syntax,  # type: ignore
                 )

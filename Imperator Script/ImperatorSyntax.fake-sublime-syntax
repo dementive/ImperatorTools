@@ -103,6 +103,28 @@ contexts:
           scope: keyword.dolla
           pop: 2
 
+  string-sub-start-def:
+    - match: \$
+      scope: keyword.dolla
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: entity.name.scripted.arg
+        - match: \$
+          scope: keyword.dolla
+          pop: 1
+
+  string-sub-end-def:
+    - match: \$
+      scope: keyword.dolla
+      push:
+        - include: line_ending
+        - match: ({{valid_variable}})
+          scope: entity.name.scripted.arg
+        - match: \$
+          scope: keyword.dolla
+          pop: 2
+
   scope-usage:
     - match: \bscope\b|\bvar\b|\blocal_var\b|\bglobal_var\b
       scope: storage.type.scope
@@ -152,12 +174,12 @@ contexts:
             - match: \n
               pop: 2
             - include: comment-line
-            - include: string-sub-start
+            - include: string-sub-start-def
             - match: ({{valid_variable}})
               scope: entity.name.function.scope.declaration
               push:
                 - include: comment-line-4
-                - include: string-sub-end
+                - include: string-sub-end-def
                 - match: \n
                   pop: 3
 
@@ -187,12 +209,12 @@ contexts:
         - match: =
           scope: keyword.operator.comparison.imperator
           push:
-            - include: string-sub-start
+            - include: string-sub-start-def
             - match: ({{valid_variable}})
               scope: entity.name.function.var.declaration
               push:
                 - include: comment-line-4
-                - include: string-sub-end
+                - include: string-sub-end-def
                 - match: \n
                   pop: 3
             - match: \{\n?+
@@ -209,14 +231,14 @@ contexts:
                     - match: \n
                       pop: 4
                     - include: comment-line-4
-                    - include: string-sub-start
+                    - include: string-sub-start-def
                     - match: ({{valid_variable}})
                       scope: entity.name.function.var.declaration
                       push:
                         - match: (#).*$\n?
                           scope: comment.line
                           pop: 5
-                        - include: string-sub-end
+                        - include: string-sub-end-def
                         - match: \n
                           pop: 5
 
@@ -247,6 +269,7 @@ contexts:
                 - match: ({{valid_variable}})
                   scope: variable.parameter.trigger.usage
                   push:
+                    - include: auto-generated-content
                     - include: comment-line-4
                     - include: string-sub-end
                     - match: \n
