@@ -1,4 +1,5 @@
-from typing import Set, Tuple, Any
+from typing import Any, Set, Tuple
+
 from .imperator_objects import *
 
 
@@ -11,13 +12,9 @@ class GameObjectData:
 
 class GameObjectManager:
     def __init__(self):
-        self.ambition = GameObjectData(
-            "ambition", Ambition, "common\\ambitions"
-        )
+        self.ambition = GameObjectData("ambition", Ambition, "common\\ambitions")
         self.area = GameObjectData("area", Area, "map_data")
-        self.building = GameObjectData(
-            "building", Building, "common\\buildings"
-        )
+        self.building = GameObjectData("building", Building, "common\\buildings")
         self.culture = GameObjectData("culture", Culture, "common\\cultures")
         self.culture_group = GameObjectData(
             "culture_group", CultureGroup, "common\\cultures"
@@ -47,13 +44,9 @@ class GameObjectManager:
         self.governor_policy = GameObjectData(
             "governor_policy", GovernorPolicy, "common\\governor_policies"
         )
-        self.heritage = GameObjectData(
-            "heritage", Heritage, "common\\heritage"
-        )
+        self.heritage = GameObjectData("heritage", Heritage, "common\\heritage")
         self.idea = GameObjectData("idea", Idea, "common\\ideas")
-        self.invention = GameObjectData(
-            "invention", Invention, "common\\inventions"
-        )
+        self.invention = GameObjectData("invention", Invention, "common\\inventions")
         self.law = GameObjectData("law", Law, "common\\laws")
         self.legion_distinction = GameObjectData(
             "legion_distinction",
@@ -71,9 +64,7 @@ class GameObjectManager:
         self.mission_task = GameObjectData(
             "mission_task", MissionTask, "common\\missions"
         )
-        self.modifier = GameObjectData(
-            "modifier", Modifier, "common\\modifiers"
-        )
+        self.modifier = GameObjectData("modifier", Modifier, "common\\modifiers")
         self.named_colors = GameObjectData(
             "named_colors", NamedColor, "common\\named_colors"
         )
@@ -86,9 +77,7 @@ class GameObjectManager:
             "province_rank", ProvinceRank, "common\\province_ranks"
         )
         self.region = GameObjectData("region", Region, "map_data")
-        self.religion = GameObjectData(
-            "religion", Religion, "common\\religions"
-        )
+        self.religion = GameObjectData("religion", Religion, "common\\religions")
         self.script_value = GameObjectData(
             "script_value", ScriptValue, "common\\script_values"
         )
@@ -116,12 +105,8 @@ class GameObjectManager:
         self.tech_table = GameObjectData(
             "tech_table", TechTable, "common\\technology_tables"
         )
-        self.terrain = GameObjectData(
-            "terrain", Terrain, "common\\terrain_types"
-        )
-        self.trade_good = GameObjectData(
-            "trade_good", TradeGood, "common\\trade_goods"
-        )
+        self.terrain = GameObjectData("terrain", Terrain, "common\\terrain_types")
+        self.trade_good = GameObjectData("trade_good", TradeGood, "common\\trade_goods")
         self.trait = GameObjectData("trait", Trait, "common\\traits")
         self.unit = GameObjectData("unit", Unit, "common\\units")
         self.war_goal = GameObjectData("war_goal", Wargoal, "common\\wargoals")

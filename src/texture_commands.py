@@ -3,15 +3,18 @@ Commands for opening and viewing textures in sublime or another program
 """
 
 import os
-import sys
-import subprocess
 import struct
+import subprocess
+import sys
 
-import sublime, sublime_plugin
+import sublime
+import sublime_plugin
+
 from .utils import get_syntax_name
 
+
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):
-    def run(self, path: str, folder=False, mode="default_program"): # type: ignore
+    def run(self, path: str, folder=False, mode="default_program"):  # type: ignore
         if folder:
             end = path.rfind("/")
             path = path[0:end:]
@@ -154,7 +157,14 @@ class ImperatorShowTextureBase:
         else:
             self.toggle_async(output_file, simple_path, point, window, path)
 
-    def toggle_async(self, output_file: str, simple_path: str, point: int, window: sublime.Window, original_path: str):
+    def toggle_async(
+        self,
+        output_file: str,
+        simple_path: str,
+        point: int,
+        window: sublime.Window,
+        original_path: str,
+    ):
         # Try to convert for 500ms
 
         if (
@@ -237,7 +247,7 @@ class ImperatorShowTextureBase:
 class ImperatorShowTextureCommand(
     sublime_plugin.ApplicationCommand, ImperatorShowTextureBase
 ):
-    def run(self, path: str, point: int): # type: ignore
+    def run(self, path: str, point: int):  # type: ignore
         self.show_texture(path, point)
 
 
@@ -292,11 +302,11 @@ class ImperatorShowAllTexturesCommand(
         settings = sublime.load_settings("Imperator Syntax.sublime-settings")
         imperator_files_path = settings.get("ImperatorFilesPath")
 
-        for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))): # type: ignore
+        for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):  # type: ignore
             texture_raw_start = view.find("gfx", line.a)
             texture_raw_end = view.find(".dds", line.a)
             texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
             texture_raw_path = view.substr(texture_raw_region)
-            full_texture_path = imperator_files_path + "/" + texture_raw_path # type: ignore
+            full_texture_path = imperator_files_path + "/" + texture_raw_path  # type: ignore
             full_texture_path = full_texture_path.replace("\\", "/")
             self.show_texture(full_texture_path, texture_raw_start.a)

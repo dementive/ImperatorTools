@@ -1,6 +1,7 @@
 # Static Imperator Rome game data used in for autocomplete, documentation on hover, and more
 
 import sublime
+
 from .game_object_manager import GameObjectManager
 
 country_event = """
@@ -28,6 +29,7 @@ ${1:NAMESPACE}.${2:NUM} = {
     }
 }
 """
+
 
 class GameData:
     """Class to hold all data generated from the base game logs"""
@@ -67,28 +69,28 @@ class GameData:
                 "trigger": "country_event",
                 "completion": country_event,
                 "kind": (sublime.KIND_ID_SNIPPET, "S", "Country Event"),
-                "annotation":"Event Template",
+                "annotation": "Event Template",
                 "details": "Create a basic country event",
             },
             2: {
                 "trigger": "type",
                 "completion": "type" + " = ${1:country_event}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Event Type",
+                "annotation": "Event Type",
                 "details": "Defines the root scope the event fires in",
             },
             3: {
                 "trigger": "title",
                 "completion": "title" + " = ${1:event_title}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Title",
+                "annotation": "Title",
                 "details": "The title to show in the event window",
             },
             4: {
                 "trigger": "desc",
                 "completion": "desc" + " = ${1:event_desc}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Description",
+                "annotation": "Description",
                 "details": "The description to show in the event window",
             },
             5: {
@@ -97,49 +99,49 @@ class GameData:
                 + "first_valid = {\n\t\t"
                 + 'triggered_desc = {\n\t\t\ttrigger = { always = yes }\n\t\t\tdesc = "desc_1"\n\t\t}\n\t\ttriggered_desc = {\n\t\t\ttrigger = { treasury > 50 }\n\t\t\tdesc = "desc_2"\n\t\t}\n\t}\n}',
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Multiple Descriptions",
+                "annotation": "Multiple Descriptions",
                 "details": "Show 1 description from many descriptions based on a trigger",
             },
             6: {
                 "trigger": "picture",
                 "completion": "picture" + " = ${1:aqueducts}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Picture",
+                "annotation": "Picture",
                 "details": "Picture to show in the event window, keys from event_pictures",
             },
             7: {
                 "trigger": "hidden",
                 "completion": "hidden" + " = ${1:yes}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Hidden",
+                "annotation": "Hidden",
                 "details": "Hides an event from the player",
             },
             8: {
                 "trigger": "goto_location",
                 "completion": "goto_location" + " = ${1:capital_scope}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Goto Location",
+                "annotation": "Goto Location",
                 "details": "Adds a button that pans to a location to an event",
             },
             9: {
                 "trigger": "left_portrait",
                 "completion": "left_portrait" + " = ${1:current_ruler}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Left Portrait",
+                "annotation": "Left Portrait",
                 "details": "Shows a character in an event on the left",
             },
             10: {
                 "trigger": "right_portrait",
                 "completion": "right_portrait" + " = ${1:current_ruler}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Right Portrait",
+                "annotation": "Right Portrait",
                 "details": "Shows a character in an event on the right",
             },
             11: {
                 "trigger": "fire_only_once",
                 "completion": "fire_only_once" + " = ${1:yes}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Fire Only Once",
+                "annotation": "Fire Only Once",
                 "details": "Makes it so an event can only fire one time",
             },
             12: {
@@ -147,37 +149,37 @@ class GameData:
                 "completion": "weight_multiplier"
                 + " = {\n\tmodifier = {\n\t\tfactor = 2\n\t\tnum_of_cities &ge; 20\n\t}\n\tmodifier = {\n\t\tfactor = 2\n\t\tnum_of_cities &ge; 30\n\t}\n}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Weight",
+                "annotation": "Weight",
                 "details": "Weight for a event to fire, uses MTTH syntax",
             },
             13: {
                 "trigger": "trigger",
                 "completion": "trigger" + " = {\n\t${1:}\n}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Trigger",
+                "annotation": "Trigger",
                 "details": "Trigger that is checked to see if event should be fired",
             },
             14: {
                 "trigger": "immediate",
                 "completion": "immediate" + " = {\n\t${1:}\n}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Immediate",
+                "annotation": "Immediate",
                 "details": "Effects to run as soon as the event fires, save scopes and set variables here.",
             },
             15: {
                 "trigger": "option",
                 "completion": "option" + " = {\n\tname = ${1:option_name.a}\n}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"Option",
+                "annotation": "Option",
                 "details": "Option that the player can pick to resolve an event",
             },
             16: {
                 "trigger": "after",
                 "completion": "after" + " = {\n\t${1:}\n}",
                 "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation":"After",
+                "annotation": "After",
                 "details": "Effects to run after an option has been picked",
-           },
+            },
         }
         # Everything below this is generated, don't change without scripts
         self.EffectsList = {
@@ -2158,44 +2160,185 @@ class GameData:
         }
 
         self.simple_completion_pattern_flag_pairs = [
-            (["color", "color1", "color2", "color3", "color4", "color5"], manager.named_colors.name),
+            (
+                ["color", "color1", "color2", "color3", "color4", "color5"],
+                manager.named_colors.name,
+            ),
             (["set_ambition", "has_ambition"], manager.ambition.name),
-            (["can_build_building", "has_building", "add_building_level", "remove_building_level"], manager.building.name),
-            (["set_culture", "set_pop_culture", "set_primary_culture", "primary_culture", "dominant_province_culture"], manager.culture.name),
-            (["has_culture_group", "country_culture_group"], manager.culture_group.name),
+            (
+                [
+                    "can_build_building",
+                    "has_building",
+                    "add_building_level",
+                    "remove_building_level",
+                ],
+                manager.building.name,
+            ),
+            (
+                [
+                    "set_culture",
+                    "set_pop_culture",
+                    "set_primary_culture",
+                    "primary_culture",
+                    "dominant_province_culture",
+                ],
+                manager.culture.name,
+            ),
+            (
+                ["has_culture_group", "country_culture_group"],
+                manager.culture_group.name,
+            ),
             (["death_reason"], manager.death_reason.name),
             (["diplomatic_stance"], manager.diplo_stance.name),
-            (["has_low_economic_policy", "has_mid_economic_policy", "has_high_economic_policy"], manager.econ_policy.name),
+            (
+                [
+                    "has_low_economic_policy",
+                    "has_mid_economic_policy",
+                    "has_high_economic_policy",
+                ],
+                manager.econ_policy.name,
+            ),
             (["picture"], manager.event_pic.name),
             (["theme"], manager.event_theme.name),
-            (["set_trade_goods", "can_import_trade_good", "trade_goods", "is_importing_trade_good"], manager.trade_good.name),
+            (
+                [
+                    "set_trade_goods",
+                    "can_import_trade_good",
+                    "trade_goods",
+                    "is_importing_trade_good",
+                ],
+                manager.trade_good.name,
+            ),
             (["government", "change_government"], manager.government.name),
-            (["governor_policy", "can_change_governor_policy"], manager.governor_policy.name),
+            (
+                ["governor_policy", "can_change_governor_policy"],
+                manager.governor_policy.name,
+            ),
             (["heritage", "set_country_heritage"], manager.heritage.name),
             (["can_change_idea", "idea"], manager.idea.name),
             (["invention"], manager.invention.name),
             (["has_law", "change_law"], manager.law.name),
             (["levy_template"], manager.levy_template.name),
-            (["can_add_entire_loyalty_bonus", "has_loyalty", "remove_loyalty", "add_loyalty"], manager.loyalty.name),
+            (
+                [
+                    "can_add_entire_loyalty_bonus",
+                    "has_loyalty",
+                    "remove_loyalty",
+                    "add_loyalty",
+                ],
+                manager.loyalty.name,
+            ),
             (["has_military_bonus"], manager.mil_tradition.name),
             (["has_completed_mission"], manager.mission.name),
             (["has_completed_mission_task"], manager.mission_task.name),
-            (["has_unit_modifier", "has_country_modifier", "has_province_modifier", "has_character_modifier", "has_triggered_character_modifier", "has_state_modifier", "has_country_culture_modifier", "remove_triggered_character_modifier", "remove_country_modifier", "remove_province_modifier", "add_country_modifier", "remove_unit_modifier", "remove_character_modifier", "add_unit_modifier", "add_permanent_province_modifier", "add_province_modifier", "remove_state_modifier", "add_character_modifier", "add_state_modifier", "add_triggered_character_modifier"], manager.modifier.name),
+            (
+                [
+                    "has_unit_modifier",
+                    "has_country_modifier",
+                    "has_province_modifier",
+                    "has_character_modifier",
+                    "has_triggered_character_modifier",
+                    "has_state_modifier",
+                    "has_country_culture_modifier",
+                    "remove_triggered_character_modifier",
+                    "remove_country_modifier",
+                    "remove_province_modifier",
+                    "add_country_modifier",
+                    "remove_unit_modifier",
+                    "remove_character_modifier",
+                    "add_unit_modifier",
+                    "add_permanent_province_modifier",
+                    "add_province_modifier",
+                    "remove_state_modifier",
+                    "add_character_modifier",
+                    "add_state_modifier",
+                    "add_triggered_character_modifier",
+                ],
+                manager.modifier.name,
+            ),
             (["has_opinion"], manager.opinion.name),
-            (["give_office", "remove_office", "can_hold_office", "office_is_empty", "has_office"], manager.office.name),
-            (["remove_party_leadership", "party", "is_leader_of_party", "is_leader_of_party_type", "party_type", "has_party_type", "is_party_type"], manager.party.name),
-            (["create_pop", "set_pop_type", "create_state_pop", "pop_type", "has_pop_type_right", "is_pop_type_right"], manager.pop.name),
-            (["subject_pays", "pay_price", "refund_price", "can_pay_price"], manager.price.name),
+            (
+                [
+                    "give_office",
+                    "remove_office",
+                    "can_hold_office",
+                    "office_is_empty",
+                    "has_office",
+                ],
+                manager.office.name,
+            ),
+            (
+                [
+                    "remove_party_leadership",
+                    "party",
+                    "is_leader_of_party",
+                    "is_leader_of_party_type",
+                    "party_type",
+                    "has_party_type",
+                    "is_party_type",
+                ],
+                manager.party.name,
+            ),
+            (
+                [
+                    "create_pop",
+                    "set_pop_type",
+                    "create_state_pop",
+                    "pop_type",
+                    "has_pop_type_right",
+                    "is_pop_type_right",
+                ],
+                manager.pop.name,
+            ),
+            (
+                ["subject_pays", "pay_price", "refund_price", "can_pay_price"],
+                manager.price.name,
+            ),
             (["set_city_status", "has_province_rank"], manager.province_rank.name),
-            (["set_character_religion", "set_pop_religion", "set_country_religion", "has_religion", "pop_religion", "religion", "dominant_province_religion", "deity_religion", "religion"], manager.religion.name),
+            (
+                [
+                    "set_character_religion",
+                    "set_pop_religion",
+                    "set_country_religion",
+                    "has_religion",
+                    "pop_religion",
+                    "religion",
+                    "dominant_province_religion",
+                    "deity_religion",
+                    "religion",
+                ],
+                manager.religion.name,
+            ),
             (["is_subject_type"], manager.subject_type.name),
             (["has_tech_office_of"], manager.tech_table.name),
             (["terrain"], manager.terrain.name),
-            (["force_add_trait", "add_trait", "remove_trait", "has_trait"], manager.trait.name),
-            (["add_loyal_subunit", "add_subunit", "is_dominant_unit", "sub_unit_type"], manager.unit.name),
+            (
+                ["force_add_trait", "add_trait", "remove_trait", "has_trait"],
+                manager.trait.name,
+            ),
+            (
+                [
+                    "add_loyal_subunit",
+                    "add_subunit",
+                    "is_dominant_unit",
+                    "sub_unit_type",
+                ],
+                manager.unit.name,
+            ),
             (["war_goal"], manager.war_goal.name),
-            (["area", "is_in_area", "owns_or_subject_owns_area", "owns_area"], manager.area.name),
-            (["region", "owns_or_subject_owns_region", "owns_region", "is_in_region"], manager.region.name),
+            (
+                ["area", "is_in_area", "owns_or_subject_owns_area", "owns_area"],
+                manager.area.name,
+            ),
+            (
+                [
+                    "region",
+                    "owns_or_subject_owns_region",
+                    "owns_region",
+                    "is_in_region",
+                ],
+                manager.region.name,
+            ),
         ]
 
         self.simple_completion_scope_pattern_flag_pairs = [
@@ -2209,27 +2352,45 @@ class GameData:
         ]
 
         self.data_system_completion_flag_pairs = [
-            (manager.mil_tradition.name, (sublime.KIND_ID_VARIABLE, "L", "Military Traditions")),
+            (
+                manager.mil_tradition.name,
+                (sublime.KIND_ID_VARIABLE, "L", "Military Traditions"),
+            ),
             (manager.scripted_gui.name, (sublime.KIND_ID_SNIPPET, "S", "Scripted Gui")),
             (manager.building.name, (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
             (manager.culture.name, (sublime.KIND_ID_TYPE, "C", "Culture Groups")),
             (manager.culture_group.name, (sublime.KIND_ID_VARIABLE, "C", "Cultures")),
-            (manager.custom_loc.name, (sublime.KIND_ID_VARIABLE, "C", "Custom Localization")),
+            (
+                manager.custom_loc.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Custom Localization"),
+            ),
             (manager.deity.name, (sublime.KIND_ID_TYPE, "D", "Deities")),
-            (manager.diplo_stance.name, (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances")),
+            (
+                manager.diplo_stance.name,
+                (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances"),
+            ),
             (manager.heritage.name, (sublime.KIND_ID_VARIABLE, "G", "Heritages")),
             (manager.invention.name, (sublime.KIND_ID_MARKUP, "H", "Inventions")),
-            (manager.legion_distinction.name, (sublime.KIND_ID_TYPE, "I", "Legion Distinction")),
+            (
+                manager.legion_distinction.name,
+                (sublime.KIND_ID_TYPE, "I", "Legion Distinction"),
+            ),
             (manager.loyalty.name, (sublime.KIND_ID_VARIABLE, "L", "Loyalties")),
             (manager.modifier.name, (sublime.KIND_ID_MARKUP, "M", "Modifiers")),
             (manager.office.name, (sublime.KIND_ID_NAMESPACE, "O", "Offices")),
             (manager.price.name, (sublime.KIND_ID_NAVIGATION, "P", "Prices")),
-            (manager.province_rank.name, (sublime.KIND_ID_VARIABLE, "P", "Province Ranks")),
+            (
+                manager.province_rank.name,
+                (sublime.KIND_ID_VARIABLE, "P", "Province Ranks"),
+            ),
             (manager.religion.name, (sublime.KIND_ID_VARIABLE, "R", "Religions")),
             (manager.terrain.name, (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
             (manager.trade_good.name, (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),
             (manager.trait.name, (sublime.KIND_ID_VARIABLE, "T", "Traits")),
-            (manager.script_value.name, (sublime.KIND_ID_NAMESPACE, "S", "Script Value")),
+            (
+                manager.script_value.name,
+                (sublime.KIND_ID_NAMESPACE, "S", "Script Value"),
+            ),
         ]
 
         self.data_system_completion_functions = [
@@ -2262,36 +2423,72 @@ class GameData:
             (manager.building.name, (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
             (manager.culture.name, (sublime.KIND_ID_TYPE, "C", "Culture Groups")),
             (manager.culture_group.name, (sublime.KIND_ID_VARIABLE, "C", "Cultures")),
-            (manager.custom_loc.name, (sublime.KIND_ID_VARIABLE, "C", "Custom Localization")),
-            (manager.death_reason.name, (sublime.KIND_ID_KEYWORD, "D", "Death Reasons")),
+            (
+                manager.custom_loc.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Custom Localization"),
+            ),
+            (
+                manager.death_reason.name,
+                (sublime.KIND_ID_KEYWORD, "D", "Death Reasons"),
+            ),
             (manager.deity.name, (sublime.KIND_ID_TYPE, "D", "Deities")),
-            (manager.diplo_stance.name, (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances")),
-            (manager.econ_policy.name, (sublime.KIND_ID_KEYWORD, "E", "Economic Policies")),
+            (
+                manager.diplo_stance.name,
+                (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances"),
+            ),
+            (
+                manager.econ_policy.name,
+                (sublime.KIND_ID_KEYWORD, "E", "Economic Policies"),
+            ),
             (manager.event_pic.name, (sublime.KIND_ID_MARKUP, "E", "Event Picture")),
             (manager.event_theme.name, (sublime.KIND_ID_TYPE, "E", "Event Themes")),
             (manager.government.name, (sublime.KIND_ID_VARIABLE, "E", "Governements")),
-            (manager.governor_policy.name, (sublime.KIND_ID_TYPE, "G", "Governor Policies")),
+            (
+                manager.governor_policy.name,
+                (sublime.KIND_ID_TYPE, "G", "Governor Policies"),
+            ),
             (manager.heritage.name, (sublime.KIND_ID_VARIABLE, "G", "Heritages")),
             (manager.idea.name, (sublime.KIND_ID_SNIPPET, "G", "Ideas")),
             (manager.invention.name, (sublime.KIND_ID_MARKUP, "H", "Inventions")),
             (manager.law.name, (sublime.KIND_ID_VARIABLE, "I", "Laws")),
-            (manager.legion_distinction.name, (sublime.KIND_ID_TYPE, "I", "Legion Distinction")),
-            (manager.levy_template.name, (sublime.KIND_ID_SNIPPET, "L", "Levy Templates")),
+            (
+                manager.legion_distinction.name,
+                (sublime.KIND_ID_TYPE, "I", "Legion Distinction"),
+            ),
+            (
+                manager.levy_template.name,
+                (sublime.KIND_ID_SNIPPET, "L", "Levy Templates"),
+            ),
             (manager.loyalty.name, (sublime.KIND_ID_VARIABLE, "L", "Loyalties")),
-            (manager.mil_tradition.name, (sublime.KIND_ID_VARIABLE, "L", "Military Traditions")),
+            (
+                manager.mil_tradition.name,
+                (sublime.KIND_ID_VARIABLE, "L", "Military Traditions"),
+            ),
             (manager.mission.name, (sublime.KIND_ID_SNIPPET, "M", "Missions")),
-            (manager.mission_task.name, (sublime.KIND_ID_SNIPPET, "M", "Mission Tasks")),
+            (
+                manager.mission_task.name,
+                (sublime.KIND_ID_SNIPPET, "M", "Mission Tasks"),
+            ),
             (manager.modifier.name, (sublime.KIND_ID_MARKUP, "M", "Modifiers")),
-            (manager.named_colors.name, (sublime.KIND_ID_VARIABLE, "N", "Named Colors")),
+            (
+                manager.named_colors.name,
+                (sublime.KIND_ID_VARIABLE, "N", "Named Colors"),
+            ),
             (manager.office.name, (sublime.KIND_ID_NAMESPACE, "O", "Offices")),
             (manager.opinion.name, (sublime.KIND_ID_VARIABLE, "O", "Opinions")),
             (manager.party.name, (sublime.KIND_ID_TYPE, "P", "Parties")),
             (manager.pop.name, (sublime.KIND_ID_VARIABLE, "P", "Pops")),
             (manager.price.name, (sublime.KIND_ID_NAVIGATION, "P", "Prices")),
-            (manager.province_rank.name, (sublime.KIND_ID_VARIABLE, "P", "Province Ranks")),
+            (
+                manager.province_rank.name,
+                (sublime.KIND_ID_VARIABLE, "P", "Province Ranks"),
+            ),
             (manager.region.name, (sublime.KIND_ID_SNIPPET, "R", "Regions")),
             (manager.religion.name, (sublime.KIND_ID_VARIABLE, "R", "Religions")),
-            (manager.subject_type.name, (sublime.KIND_ID_SNIPPET, "S", "Subject Types")),
+            (
+                manager.subject_type.name,
+                (sublime.KIND_ID_SNIPPET, "S", "Subject Types"),
+            ),
             (manager.tech_table.name, (sublime.KIND_ID_VARIABLE, "T", "Tech Tables")),
             (manager.terrain.name, (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
             (manager.trade_good.name, (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),

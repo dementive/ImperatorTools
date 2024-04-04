@@ -7,8 +7,9 @@ from collections import deque
 from typing import Dict
 
 import sublime
-from .imperator_objects import ImperatorObject
+
 from .game_object_manager import GameObjectManager
+from .imperator_objects import ImperatorObject
 from .jomini import GameObjectBase
 
 

@@ -1,24 +1,28 @@
 """
 Code related to loading, saving, and caching imperator game objects
 """
-import sublime
-import os
+
+import ast
 import hashlib
 import json
-import ast
-from typing import Dict, List, Set, Any
+import os
+from typing import Any, Dict, List, Set
+
+import sublime
 
 from .game_object_manager import GameObjectManager
 from .imperator_objects import ImperatorObject
 from .jomini import dict_to_game_object as make_object
 from .utils import (
     get_default_game_objects,
-    get_game_object_dirs,
     get_dir_to_game_object_dict,
+    get_game_object_dirs,
 )
 
 
-def check_mod_for_changes(imperator_mod_files: List[Any], write_syntax=False) -> Set[str]:
+def check_mod_for_changes(
+    imperator_mod_files: List[Any], write_syntax=False
+) -> Set[str]:
     """
     Check if any changes have been made to mod files
     if changes have been made this returns a set of game objects that need to be recreated and cached
@@ -130,7 +134,7 @@ def handle_image_cache(settings: sublime.Settings):
     cache_size_limit = settings.get("MaxImageCacheSize")
     cache = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/"
     cache_files = [x for x in os.listdir(cache) if x.endswith(".png")]
-    if len(cache_files) > cache_size_limit: # type: ignore
+    if len(cache_files) > cache_size_limit:  # type: ignore
         for i in cache_files:
             os.remove(os.path.join(cache, i))
         sublime.status_message("Cleared Image Cache")

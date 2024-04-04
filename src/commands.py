@@ -4,13 +4,15 @@ Miscellaneous imperator tools commands
 
 import os
 import webbrowser
-from typing import List, Any, Dict
-import sublime, sublime_plugin
+from typing import Any, Dict, List
+
 import Default.exec
+import sublime
+import sublime_plugin
 
 
 class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
-    def run(self, path: str, line: str): # type: ignore
+    def run(self, path: str, line: str):  # type: ignore
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, line, 0)
             self.open_location(self.window, file_path)
@@ -21,7 +23,7 @@ class GotoScriptObjectDefinitionCommand(sublime_plugin.WindowCommand):
 
 
 class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
-    def run(self, path: str, line: str): # type: ignore
+    def run(self, path: str, line: str):  # type: ignore
         if os.path.exists(path):
             file_path = "{}:{}:{}".format(path, line, 0)
             self.open_location(
@@ -42,6 +44,7 @@ class GotoScriptObjectDefinitionRightCommand(sublime_plugin.WindowCommand):
             flags |= sublime.REPLACE_MRU | sublime.SEMI_TRANSIENT
 
         window.open_file(location, flags)
+
 
 class ImpMissionNameInputHandler(sublime_plugin.TextInputHandler):
     def name(self):
@@ -72,7 +75,7 @@ class ImpMissionCountInputHandler(sublime_plugin.TextInputHandler):
 
     def validate(self, text: str):
         try:
-            text = int(text) # type: ignore
+            text = int(text)  # type: ignore
             return True
         except ValueError:
             sublime.set_timeout(
@@ -85,12 +88,12 @@ class ImpMissionCountInputHandler(sublime_plugin.TextInputHandler):
 
 
 class InsertTextCommand(sublime_plugin.TextCommand):
-    def run(self, edit: sublime.Edit, text: str): # type: ignore
+    def run(self, edit: sublime.Edit, text: str):  # type: ignore
         self.view.insert(edit, len(self.view), text)
 
 
 class ImpMissionMakerCommand(sublime_plugin.TextCommand):
-    def run(self, edit: sublime.Edit, name: str, event_name: str, mission_count: str): # type: ignore
+    def run(self, edit: sublime.Edit, name: str, event_name: str, mission_count: str):  # type: ignore
         sublime.run_command("new_file")
         window = sublime.active_window()
         event_view = window.active_view()

@@ -4,8 +4,10 @@ import os
 import re
 from colorsys import hsv_to_rgb
 from typing import Union
+
 import sublime
-from .jomini import GameObjectBase, PdxScriptObjectType, PdxScriptObject
+
+from .jomini import GameObjectBase, PdxScriptObject, PdxScriptObjectType
 
 imperator_files_path = ""
 imperator_mod_files = []
@@ -43,9 +45,14 @@ class Culture(GameObjectBase):
         super().__init__(imperator_mod_files, imperator_files_path, level=2)
         self.get_data("common\\cultures")
 
+
 class CustomLoc(GameObjectBase):
     def __init__(self):
-        super().__init__(imperator_mod_files, imperator_files_path, ignored_files=["de_custom_loc.txt", "00_FR_custom_loc.txt"],)
+        super().__init__(
+            imperator_mod_files,
+            imperator_files_path,
+            ignored_files=["de_custom_loc.txt", "00_FR_custom_loc.txt"],
+        )
         self.get_data("common\\customizable_localization")
 
 
@@ -452,6 +459,7 @@ class NamedColor(GameObjectBase):
         if re.search(r"([A-Za-z_][A-Za-z_0-9]*)\s*=", x):
             return True
         return False
+
 
 ImperatorObject = Union[
     GameObjectBase,

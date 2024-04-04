@@ -125,7 +125,14 @@ class GameObjectBase:
     vanilla_path is the path to the vanilla game folder.
     """
 
-    def __init__(self, paths=[], vanilla_path: Any="", level=0, ignored_files=[], included_files=[]):
+    def __init__(
+        self,
+        paths=[],
+        vanilla_path: Any = "",
+        level=0,
+        ignored_files=[],
+        included_files=[],
+    ):
         self.paths = paths
         self.vanilla_path = vanilla_path
         self.main = PdxScriptObjectType([PdxScriptObject(" ", "", 0)])
@@ -311,7 +318,10 @@ class GameObjectBase:
             to_remove = [
                 x
                 for x in self.main.objects
-                if (self.vanilla_path in x.path and x.path.rpartition("\\")[2] in conflicting_files)
+                if (
+                    self.vanilla_path in x.path
+                    and x.path.rpartition("\\")[2] in conflicting_files
+                )
             ]
             for i in to_remove:
                 self.main.objects.remove(i)
@@ -336,9 +346,16 @@ class GameObjectBase:
                 with open(file_path, "r", encoding="utf-8-sig") as file:
                     for i, line in enumerate(file):
                         if self.should_read(line):
-                            found_item = line.split("=").pop(0).replace(" ", "").replace("\t", "")
+                            found_item = (
+                                line.split("=")
+                                .pop(0)
+                                .replace(" ", "")
+                                .replace("\t", "")
+                            )
                             if found_item:
-                                obj_list.append(PdxScriptObject(found_item, file_path, i + 1))
+                                obj_list.append(
+                                    PdxScriptObject(found_item, file_path, i + 1)
+                                )
         return PdxScriptObjectType(obj_list)
 
     def should_read(self, x: str) -> bool:

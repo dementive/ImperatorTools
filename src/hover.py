@@ -5,12 +5,14 @@ Also shows goto definition popups for all game objects as well as saved scopes a
 """
 
 import re
-from typing import Dict, Any
+from typing import Any, Dict
+
 import sublime
+
+from .css import CSS
 from .imperator_objects import PdxColorObject
 from .jomini import PdxScriptObject
-from .css import CSS
-from .utils import get_syntax_name, get_file_name
+from .utils import get_file_name, get_syntax_name
 
 css_basic_style = CSS().default
 
@@ -163,13 +165,13 @@ class Hover:
             one_ahead_word = view.substr(one_ahead)
             one_behind_word = view.substr(one_behind)
             if one_ahead_word == "$":
-                new_word = view.word(one_ahead+1)
+                new_word = view.word(one_ahead + 1)
                 word = sublime.Region(word.a, new_word.b)
             if one_behind_word == "$":
                 new_word = view.word(one_behind)
                 word = sublime.Region(new_word.a, word.b)
             if one_behind_word != "$" and one_ahead_word != "$":
-                argument_found = False 
+                argument_found = False
         if region:
             return word
 
@@ -197,7 +199,7 @@ class Hover:
                         for x in i.find_by_selector(
                             "entity.name.function.var.declaration"
                         )
-                        if self.handle_scripted_args(i, x.a)  == PdxObject.key
+                        if self.handle_scripted_args(i, x.a) == PdxObject.key
                     ]
                     variables.extend(
                         [
@@ -209,7 +211,7 @@ class Hover:
                         ]
                     )
                     for r in variables:
-                        line = i.rowcol(r.a)[0] + 1 #type: ignore
+                        line = i.rowcol(r.a)[0] + 1  # type: ignore
                         path = get_file_name(i)
                         if line == word_line_num and path == PdxObject.path:
                             continue

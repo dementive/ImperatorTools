@@ -4,7 +4,9 @@ Set a status message in the status bar to let the user know what kind of block i
 """
 
 from typing import List
+
 import sublime
+
 from .utils import get_index
 
 
@@ -58,7 +60,13 @@ class ScopeMatch:
         if self.mtth_field and self.modifier_field:
             view.erase_status("modifier")
 
-    def show_status(self, selection: int, regions: List[sublime.Region], status: str, view: sublime.View):
+    def show_status(
+        self,
+        selection: int,
+        regions: List[sublime.Region],
+        status: str,
+        view: sublime.View,
+    ):
         for block in regions:
             if block.a <= selection <= block.b:
                 view.set_status(status, status.title() + " Field")

@@ -3,8 +3,10 @@ Code for the autocomplete features of the plugin
 """
 
 import re
-import sublime
 from typing import List
+
+import sublime
+
 from .game_object_manager import GameObjectManager
 from .utils import get_index
 
@@ -69,10 +71,15 @@ class AutoComplete:
             setattr(self, i, False)
 
     def check_for_patterns_and_set_flag(
-        self, patterns_list: List[str], flag_name: str, view: sublime.View, line: str, point: int
+        self,
+        patterns_list: List[str],
+        flag_name: str,
+        view: sublime.View,
+        line: str,
+        point: int,
     ):
         for pattern in patterns_list:
-            r = re.search(fr'{pattern}\s?=\s?(")?', line)
+            r = re.search(rf'{pattern}\s?=\s?(")?', line)
             if r:
                 y = 0
                 idx = line.index(pattern) + view.line(point).a + len(pattern) + 2
@@ -84,7 +91,9 @@ class AutoComplete:
                     return True
         return False
 
-    def check_pattern_and_set_flag(self, pattern: str, flag_name: str, view: sublime.View, line: str, point: int):
+    def check_pattern_and_set_flag(
+        self, pattern: str, flag_name: str, view: sublime.View, line: str, point: int
+    ):
         if pattern in line:
             idx = line.index(pattern) + view.line(point).a + len(pattern)
             if idx == point:
@@ -92,7 +101,13 @@ class AutoComplete:
                 view.run_command("auto_complete")
 
     def check_region_and_set_flag(
-        self, selector: str, flag_name: str, view: sublime.View, view_str: str, point: int, string_check_and_move=None
+        self,
+        selector: str,
+        flag_name: str,
+        view: sublime.View,
+        view_str: str,
+        point: int,
+        string_check_and_move=None,
     ):
         for br in view.find_by_selector(selector):
             i = sublime.Region(br.a, get_index(view_str, br.a))

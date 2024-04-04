@@ -4,36 +4,38 @@ The init function of the event listener is treated as the main entry point for t
 """
 
 import os
-import time
 import threading
+import time
 from typing import List, Set, Tuple, Union
 
-import sublime, sublime_plugin
-from .jomini import PdxScriptObject, GameObjectBase
-from .imperator_objects import *
+import sublime
+import sublime_plugin
+
+from .autocomplete import AutoComplete
+from .encoding import encoding_check
+from .game_data import GameData
 from .game_object_manager import GameObjectManager
 from .game_objects import (
-    get_objects_from_cache,
-    write_data_to_syntax,
-    cache_all_objects,
     add_color_scheme_scopes,
-    handle_image_cache,
-    check_mod_for_changes,
+    cache_all_objects,
     check_for_syntax_changes,
+    check_mod_for_changes,
+    get_objects_from_cache,
+    handle_image_cache,
     load_game_objects_json,
+    write_data_to_syntax,
 )
-from .game_data import GameData
-from .scope_match import ScopeMatch
-from .autocomplete import AutoComplete
 from .hover import Hover
-from .encoding import encoding_check
+from .imperator_objects import *
+from .jomini import GameObjectBase, PdxScriptObject
+from .scope_match import ScopeMatch
 from .utils import (
     get_default_game_objects,
-    is_file_in_directory,
-    get_syntax_name,
-    get_game_object_to_class_dict,
     get_dir_to_game_object_dict,
-    get_file_name
+    get_file_name,
+    get_game_object_to_class_dict,
+    get_syntax_name,
+    is_file_in_directory,
 )
 
 
@@ -578,14 +580,14 @@ class ImperatorEventListener(
                 self.show_popup_default(
                     view,
                     point,
-                    PdxScriptObject(word, fname, current_line_num), #type: ignore
+                    PdxScriptObject(word, fname, current_line_num),  # type: ignore
                     "Saved Scope",
                 )
             else:
                 self.show_popup_default(
                     view,
                     point,
-                    PdxScriptObject(word, fname, current_line_num), #type: ignore
+                    PdxScriptObject(word, fname, current_line_num),  # type: ignore
                     "Saved Variable",
                 )
             return
@@ -600,7 +602,7 @@ class ImperatorEventListener(
             self.show_popup_default(
                 view,
                 point,
-                PdxScriptObject(word, fname, current_line_num), #type: ignore
+                PdxScriptObject(word, fname, current_line_num),  # type: ignore
                 "Saved Variable",
             )
             return
@@ -614,7 +616,7 @@ class ImperatorEventListener(
             self.show_popup_default(
                 view,
                 point,
-                PdxScriptObject(word, fname, current_line_num), #type: ignore
+                PdxScriptObject(word, fname, current_line_num),  # type: ignore
                 "Saved Scope",
             )
             return
