@@ -33,6 +33,7 @@ from .utils import (
     get_syntax_name,
     get_game_object_to_class_dict,
     get_dir_to_game_object_dict,
+    get_file_name
 )
 
 
@@ -291,7 +292,7 @@ class ImperatorEventListener(
             if completion_list is not None:
                 return completion_list
 
-        fname = view.file_name()
+        fname = get_file_name(view)
         if not fname:
             return
 
@@ -554,7 +555,7 @@ class ImperatorEventListener(
     def do_hover_async(self, view: sublime.View, point: int):
         word_region = view.word(point)
         word = view.substr(word_region)
-        fname = view.file_name()
+        fname = get_file_name(view)
         current_line_num = view.rowcol(point)[0] + 1
 
         if view.match_selector(point, "comment.line"):
@@ -577,14 +578,14 @@ class ImperatorEventListener(
                 self.show_popup_default(
                     view,
                     point,
-                    PdxScriptObject(word, fname, current_line_num),
+                    PdxScriptObject(word, fname, current_line_num), #type: ignore
                     "Saved Scope",
                 )
             else:
                 self.show_popup_default(
                     view,
                     point,
-                    PdxScriptObject(word, fname, current_line_num),
+                    PdxScriptObject(word, fname, current_line_num), #type: ignore
                     "Saved Variable",
                 )
             return
@@ -599,7 +600,7 @@ class ImperatorEventListener(
             self.show_popup_default(
                 view,
                 point,
-                PdxScriptObject(word, fname, current_line_num),
+                PdxScriptObject(word, fname, current_line_num), #type: ignore
                 "Saved Variable",
             )
             return
@@ -613,7 +614,7 @@ class ImperatorEventListener(
             self.show_popup_default(
                 view,
                 point,
-                PdxScriptObject(word, fname, current_line_num),
+                PdxScriptObject(word, fname, current_line_num), #type: ignore
                 "Saved Scope",
             )
             return
@@ -710,11 +711,12 @@ class ImperatorEventListener(
 
         # Iterate over the list and call show_popup_default for each game object
         for hover_object, name in hover_objects:
-            if self.game_objects[hover_object].contains(word):
+            game_object = self.game_objects[hover_object].access(word)
+            if game_object:
                 self.show_popup_default(
                     view,
                     point,
-                    self.game_objects[hover_object].access(word),
+                    game_object,
                     name,
                 )
                 break
@@ -730,7 +732,7 @@ class ImperatorEventListener(
         mod_dir = [
             x
             for x in self.imperator_mod_files  # type: ignore
-            if is_file_in_directory(view.file_name(), x)
+            if is_file_in_directory(get_file_name(view), x)
         ]
         in_mod_dir = any(mod_dir)
         if not in_mod_dir:
@@ -743,8 +745,8 @@ class ImperatorEventListener(
 
     def update_saved_game_objects(self, view: sublime.View, mod_dir: List[str]):
         dir_to_game_object_dict = get_dir_to_game_object_dict()
-        filename = view.file_name()
-        if filename is None:
+        filename = get_file_name(view)
+        if not filename:
             return
         relative_path = filename.replace(mod_dir[-1], "")[1:]
         directory_path = os.path.dirname(relative_path)

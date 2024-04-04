@@ -12,7 +12,7 @@ from .game_object_manager import GameObjectManager
 from .jomini import GameObjectBase
 
 
-def get_default_game_objects():
+def get_default_game_objects() -> Dict[str, ImperatorObject]:
     base_object = GameObjectBase()
     manager = GameObjectManager()
     objects = manager.get_objects()
@@ -23,7 +23,7 @@ def get_default_game_objects():
     return game_objects
 
 
-def get_game_object_dirs():
+def get_game_object_dirs() -> Dict[str, str]:
     manager = GameObjectManager()
     objects = manager.get_objects()
     game_objects = dict()
@@ -31,10 +31,10 @@ def get_game_object_dirs():
         if i.path not in game_objects:
             game_objects[i.path] = ""
 
-
     return game_objects
 
-def get_dir_to_game_object_dict():
+
+def get_dir_to_game_object_dict() -> Dict[str, str]:
     manager = GameObjectManager()
     objects = manager.get_objects()
     game_objects = dict()
@@ -43,7 +43,8 @@ def get_dir_to_game_object_dict():
 
     return game_objects
 
-def get_game_object_to_class_dict():
+
+def get_game_object_to_class_dict() -> Dict[str, type]:
     manager = GameObjectManager()
     objects = manager.get_objects()
     game_objects = dict()
@@ -52,7 +53,8 @@ def get_game_object_to_class_dict():
 
     return game_objects
 
-def is_file_in_directory(file_path: str, directory_path: str):
+
+def is_file_in_directory(file_path: str, directory_path: str) -> bool:
     if not os.path.exists(file_path):
         return False
 
@@ -67,13 +69,21 @@ def is_file_in_directory(file_path: str, directory_path: str):
     return common_path == absolute_directory_path
 
 
-def get_syntax_name(view: sublime.View):
+def get_syntax_name(view: sublime.View) -> str:
     syntax = view.syntax()
     if syntax is None:
         return ""
 
-    name = view.syntax().name # type: ignore
+    name = view.syntax().name  # type: ignore
     return name
+
+
+def get_file_name(view: sublime.View) -> str:
+    filename = view.file_name()
+    if filename is None:
+        return ""
+
+    return filename
 
 
 # Get the index of a closing bracket in a string given the starting brackets index

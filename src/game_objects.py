@@ -6,7 +6,7 @@ import os
 import hashlib
 import json
 import ast
-from typing import Dict, List
+from typing import Dict, List, Set, Any
 
 from .game_object_manager import GameObjectManager
 from .imperator_objects import ImperatorObject
@@ -18,7 +18,7 @@ from .utils import (
 )
 
 
-def check_mod_for_changes(imperator_mod_files: List[str], write_syntax=False):
+def check_mod_for_changes(imperator_mod_files: List[Any], write_syntax=False) -> Set[str]:
     """
     Check if any changes have been made to mod files
     if changes have been made this returns a set of game objects that need to be recreated and cached
@@ -88,7 +88,7 @@ def compare_dicts(dict1: Dict, dict2: Dict):
     return unequal_keys
 
 
-def check_for_syntax_changes():
+def check_for_syntax_changes() -> bool:
     mod_cache_path = sublime.packages_path() + f"/ImperatorTools/mod_cache.json"
     with open(mod_cache_path, "r", encoding="utf-8") as file:
         data = json.load(file)
@@ -104,7 +104,7 @@ def load_game_objects_json():
     return data
 
 
-def get_objects_from_cache():
+def get_objects_from_cache() -> Dict[str, ImperatorObject]:
     path = sublime.packages_path() + f"/ImperatorTools/object_cache.json"
     game_objects = get_default_game_objects()
     with open(path, "r") as f:

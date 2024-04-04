@@ -62,7 +62,7 @@ class PdxScriptObject:
     3. The line number the key is found at
     """
 
-    def __init__(self, key, path, line):
+    def __init__(self, key: str, path: str, line: int):
         self.key = key
         self.path = path
         self.line = line

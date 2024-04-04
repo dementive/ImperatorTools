@@ -454,6 +454,7 @@ class NamedColor(GameObjectBase):
         return False
 
 ImperatorObject = Union[
+    GameObjectBase,
     Ambition,
     Building,
     CultureGroup,

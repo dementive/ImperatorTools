@@ -3,7 +3,7 @@ from .imperator_objects import *
 
 
 class GameObjectData:
-    def __init__(self, name: str, obj: Any, path: str):
+    def __init__(self, name: str, obj: type, path: str):
         self.name = name
         self.obj = obj
         self.path = path

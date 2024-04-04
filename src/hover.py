@@ -10,7 +10,7 @@ import sublime
 from .imperator_objects import PdxColorObject
 from .jomini import PdxScriptObject
 from .css import CSS
-from .utils import get_syntax_name
+from .utils import get_syntax_name, get_file_name
 
 css_basic_style = CSS().default
 
@@ -209,8 +209,8 @@ class Hover:
                         ]
                     )
                     for r in variables:
-                        line = i.rowcol(r.a)[0] + 1
-                        path = i.file_name()
+                        line = i.rowcol(r.a)[0] + 1 #type: ignore
+                        path = get_file_name(i)
                         if line == word_line_num and path == PdxObject.path:
                             continue
                         else:
