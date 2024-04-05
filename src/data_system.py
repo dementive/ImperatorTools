@@ -8,7 +8,7 @@ from typing import List
 import sublime
 import sublime_plugin
 
-from .utils import get_syntax_name
+from .utils import IterViews, get_syntax_name
 
 
 class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
@@ -66,14 +66,13 @@ class ImperatorDataSystemEventListener(sublime_plugin.EventListener):
 def get_prompt_completions(kind: str, selector: str):
     found_words = set()
 
-    for win in sublime.windows():
-        for view in win.views():
-            if get_syntax_name(view) != "Imperator Script":
-                continue
+    for view in IterViews(sublime.windows()):
+        if get_syntax_name(view) != "Imperator Script":
+            continue
 
-            scope_regions = view.find_by_selector(selector)
-            for region in scope_regions:
-                found_words.add(view.substr(region))
+        scope_regions = view.find_by_selector(selector)
+        for region in scope_regions:
+            found_words.add(view.substr(region))
 
     if not found_words:
         return None

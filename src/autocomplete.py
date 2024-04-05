@@ -80,15 +80,16 @@ class AutoComplete:
     ):
         for pattern in patterns_list:
             r = re.search(rf'{pattern}\s?=\s?(")?', line)
-            if r:
-                y = 0
-                idx = line.index(pattern) + view.line(point).a + len(pattern) + 2
-                if r.groups()[0] == '"':
-                    y = 2
-                if idx == point or idx + y == point or idx + 1 == point:
-                    setattr(self, flag_name, True)
-                    view.run_command("auto_complete")
-                    return True
+            if not r:
+                continue
+            y = 0
+            idx = line.index(pattern) + view.line(point).a + len(pattern) + 2
+            if r.groups()[0] == '"':
+                y = 2
+            if idx == point or idx + y == point or idx + 1 == point:
+                setattr(self, flag_name, True)
+                view.run_command("auto_complete")
+                return True
         return False
 
     def check_pattern_and_set_flag(

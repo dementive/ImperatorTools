@@ -4,7 +4,7 @@ Utility functions used in various places
 
 import os
 from collections import deque
-from typing import Dict
+from typing import Dict, List
 
 import sublime
 
@@ -68,6 +68,16 @@ def is_file_in_directory(file_path: str, directory_path: str) -> bool:
     common_path = os.path.commonpath([absolute_file_path, absolute_directory_path])
 
     return common_path == absolute_directory_path
+
+
+class IterViews:
+    def __init__(self, windows: List[sublime.Window]):
+        self.windows = windows
+
+    def __iter__(self):
+        for win in self.windows:
+            for view in win.views():
+                yield view
 
 
 def get_syntax_name(view: sublime.View) -> str:

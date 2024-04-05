@@ -18,11 +18,6 @@ How to add a new GameObject:
 
 8. Uncomment the print_load_balanced_game_object_creation function in event_listener.py and copy the output into the create_game_objects function. This automatically balances the load when loading all the game objects so the threading is as efficient as possible.
 
-Refactorings:
-
-
-1. Create Iterator classes to iterate over all views in a window and put it in utils. This is used in multiple places so would be nice to abstract. There may also be other common for loop operations that could use more convenient iterators.
-
 
 Features:
 

@@ -12,7 +12,7 @@ import sublime
 from .css import CSS
 from .imperator_objects import PdxColorObject
 from .jomini import PdxScriptObject
-from .utils import get_file_name, get_syntax_name
+from .utils import IterViews, get_file_name, get_syntax_name
 
 css_basic_style = CSS().default
 
@@ -189,36 +189,31 @@ class Hover:
         definition = ""
         definitions = []
         if header == "Saved Scope" or header == "Saved Variable":
-            for win in sublime.windows():
-                for i in win.views():
-                    if get_syntax_name(i) != "Imperator Script":
-                        continue
+            for i in IterViews(sublime.windows()):
+                if get_syntax_name(i) != "Imperator Script":
+                    continue
 
-                    variables = [
+                variables = [
+                    self.handle_scripted_args(i, x.a, True)
+                    for x in i.find_by_selector("entity.name.function.var.declaration")
+                    if self.handle_scripted_args(i, x.a) == PdxObject.key
+                ]
+                variables.extend(
+                    [
                         self.handle_scripted_args(i, x.a, True)
                         for x in i.find_by_selector(
-                            "entity.name.function.var.declaration"
+                            "entity.name.function.scope.declaration"
                         )
                         if self.handle_scripted_args(i, x.a) == PdxObject.key
                     ]
-                    variables.extend(
-                        [
-                            self.handle_scripted_args(i, x.a, True)
-                            for x in i.find_by_selector(
-                                "entity.name.function.scope.declaration"
-                            )
-                            if self.handle_scripted_args(i, x.a) == PdxObject.key
-                        ]
-                    )
-                    for r in variables:
-                        line = i.rowcol(r.a)[0] + 1  # type: ignore
-                        path = get_file_name(i)
-                        if line == word_line_num and path == PdxObject.path:
-                            continue
-                        else:
-                            definitions.append(
-                                PdxScriptObject(PdxObject.key, path, line)
-                            )
+                )
+                for r in variables:
+                    line = i.rowcol(r.a)[0] + 1  # type: ignore
+                    path = get_file_name(i)
+                    if line == word_line_num and path == PdxObject.path:
+                        continue
+                    else:
+                        definitions.append(PdxScriptObject(PdxObject.key, path, line))
 
             if len(definitions) == 1:
                 if def_value:
@@ -296,36 +291,32 @@ class Hover:
         word_file = filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
         references = []
         ref = ""
-        for win in sublime.windows():
-            for i in win.views():
-                syntax_name = get_syntax_name(i)
-                if (
-                    syntax_name != "Imperator Script"
-                    and syntax_name != "Imperator Localization"
-                ):
-                    continue
-                view_region = sublime.Region(0, i.size())
-                view_str = i.substr(view_region)
-                for j, line in enumerate(view_str.splitlines()):
-                    if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
-                        filename = i.file_name()
-                        if filename is None:
-                            continue
-                        filename = (
-                            filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
-                        )
-                        line_num = j + 1
-                        if word_line_num == line_num and word_file == filename:
-                            # Don't do current word
-                            continue
-                        elif (
-                            line_num == PdxObject.line
-                            and i.file_name() == PdxObject.path
-                        ):
-                            # Don't do definition
-                            continue
-                        else:
-                            references.append(f"{i.file_name()}|{line_num}")
+        for i in IterViews(sublime.windows()):
+            syntax_name = get_syntax_name(i)
+            if (
+                syntax_name != "Imperator Script"
+                and syntax_name != "Imperator Localization"
+            ):
+                continue
+            view_region = sublime.Region(0, i.size())
+            view_str = i.substr(view_region)
+            for j, line in enumerate(view_str.splitlines()):
+                if re.search(r"\b" + re.escape(PdxObject.key) + r"\b", line):
+                    filename = i.file_name()
+                    if filename is None:
+                        continue
+                    filename = (
+                        filename.replace("\\", "/").rstrip("/").rpartition("/")[2]
+                    )
+                    line_num = j + 1
+                    if word_line_num == line_num and word_file == filename:
+                        # Don't do current word
+                        continue
+                    elif line_num == PdxObject.line and i.file_name() == PdxObject.path:
+                        # Don't do definition
+                        continue
+                    else:
+                        references.append(f"{i.file_name()}|{line_num}")
         if references:
             ref = f'<p><b>References to&nbsp;&nbsp;</b><tt class="variable">{PdxObject.key}</tt></p>'
             for i in references:
