@@ -4,7 +4,7 @@ How to add a new GameObject:
 
 2. Load the game object into the plugin by updating the create_game_objects function in event_listener.py
 
-3. In utils.py update the game_objects dict, update the object_names dict in the print_load_balanced_game_object_creation function, and update the get_game_object_dirs function.
+3. In game_object_manager.py create a new attribute in the GameObjectManager
 
 4. Update the write_data_to_syntax function in game_objects.py
 

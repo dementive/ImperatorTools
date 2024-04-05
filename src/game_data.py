@@ -2361,8 +2361,11 @@ class GameData:
             ),
             (manager.scripted_gui.name, (sublime.KIND_ID_SNIPPET, "S", "Scripted Gui")),
             (manager.building.name, (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
-            (manager.culture.name, (sublime.KIND_ID_TYPE, "C", "Culture Groups")),
-            (manager.culture_group.name, (sublime.KIND_ID_VARIABLE, "C", "Cultures")),
+            (manager.culture.name, (sublime.KIND_ID_TYPE, "C", "Cultures")),
+            (
+                manager.culture_group.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Culture Groups"),
+            ),
             (
                 manager.custom_loc.name,
                 (sublime.KIND_ID_VARIABLE, "C", "Custom Localization"),

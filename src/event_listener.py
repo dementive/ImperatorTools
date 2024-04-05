@@ -51,7 +51,7 @@ class ImperatorEventListener(
 
         syntax_changes = check_for_syntax_changes()
         changed_objects_set = check_mod_for_changes(self.imperator_mod_files)
-        if len(load_game_objects_json()) == 0:
+        if len(load_game_objects_json()) != len(self.game_objects):
             # Create all objects for the first time
             sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")
