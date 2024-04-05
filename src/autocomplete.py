@@ -135,15 +135,16 @@ class AutoComplete:
                     self.inventions = True
                     view.run_command("auto_complete")
 
+        manager = GameObjectManager()
         selector_flag_pairs = [
-            ("meta.op.mod.bracket", "opinion", "modifier = "),
-            ("meta.party.bracket", "party", "party = "),
-            ("meta.pop.type.bracket", "pop", "type = "),
-            ("meta.subject.type.bracket", "subject_type", "type = "),
-            ("meta.tech.table.bracket", "tech_table", "technology = "),
-            ("meta.trade.good.bracket", "trade_good", "target = "),
-            ("meta.trait.bracket", "trait"),
-            ("meta.unit.bracket", "unit", "type = "),
+            ("meta.op.mod.bracket", manager.opinion.name, "modifier = "),
+            ("meta.party.bracket", manager.party.name, "party = "),
+            ("meta.pop.type.bracket", manager.pop.name, "type = "),
+            ("meta.subject.type.bracket", manager.subject_type.name, "type = "),
+            ("meta.tech.table.bracket", manager.tech_table.name, "technology = "),
+            ("meta.trade.good.bracket", manager.trade_good.name, "target = "),
+            ("meta.trait.bracket", manager.trait.name),
+            ("meta.unit.bracket", manager.unit.name, "type = "),
         ]
 
         for pair in selector_flag_pairs:

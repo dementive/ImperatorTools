@@ -19,7 +19,6 @@ def plugin_loaded():
     imperator_files_path = settings.get("ImperatorFilesPath")
     imperator_mod_files = settings.get("PathsToModFiles")
     imperator_files_path = str(imperator_files_path)
-    imperator_mod_files = str(imperator_mod_files)
 
 
 class Ambition(GameObjectBase):
