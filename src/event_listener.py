@@ -339,7 +339,6 @@ class ImperatorEventListener(
             )
         if (
             self.trigger_field
-            or self.mtth_field
             or "scripted_triggers" in fname
             or "scripted_modifiers" in fname
         ):
@@ -352,6 +351,18 @@ class ImperatorEventListener(
                         details=self.GameData.TriggersList[key].split("<br>")[0],
                     )
                     for key in sorted(self.GameData.TriggersList)
+                ]
+            )
+        if self.mtth_field:
+            return sublime.CompletionList(
+                [
+                    sublime.CompletionItem(
+                        trigger=key,
+                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
+                        kind=(sublime.KIND_ID_NAVIGATION, "T", "Trigger"),
+                        details=self.GameData.MtthList[key].split("<br>")[0],
+                    )
+                    for key in sorted(self.GameData.MtthList)
                 ]
             )
         if self.effect_field or "scripted_effects" in fname:

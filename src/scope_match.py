@@ -27,7 +27,7 @@ class ScopeMatch:
         # Get the starting bracket index from the syntax scopes
         trigger_regions = self.get_regions(view, "meta.trigger.bracket", view_str)
         effect_regions = self.get_regions(view, "meta.effect.bracket", view_str)
-        value_regions = self.get_regions(view, "meta.value.bracket", view_str)
+        value_regions = self.get_regions(view, "meta.ai.bracket", view_str)
         modifier_regions = self.get_regions(view, "meta.modifier.bracket", view_str)
 
         self.show_status(selection[0].a, trigger_regions, "trigger", view)

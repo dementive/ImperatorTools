@@ -1208,6 +1208,9 @@ class GameData:
             "is_color": "Check if the scoped color is the same as another color. The right hand side can be either a hex, rgb, or hsv color,  or a named color, or another color scope.<br>Supported Scopes: color",
             "is_pop_type_right": "Does this country culture have this poptype right<br>Traits: class CPopTypeDataBase key<br>Supported Scopes: poptype",
         }
+        self.MtthList = self.TriggersList
+        self.MtthList["factor"] = "Mean time to happen factor"
+        self.MtthList["base"] = "Base mean time to happen factor"
         self.ScopesList = {
             "character_party": "Scope to a characters party<br>Input Scopes: character<br>Output Scopes: party",
             "employer": "Scope to a character's employing country<br>Input Scopes: character<br>Output Scopes: country",

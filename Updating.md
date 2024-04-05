@@ -17,8 +17,3 @@ How to add a new GameObject:
 7. If the game object is a scope update the simple_completion_scope_pattern_flag_pairs list in game_data.py
 
 8. Uncomment the print_load_balanced_game_object_creation function in event_listener.py and copy the output into the create_game_objects function. This automatically balances the load when loading all the game objects so the threading is as efficient as possible.
-
-
-Features:
-
-1. Add scope checks for ai-block-start like it works in vic3. In vic3 this is basically a "value" block, it is slightly different in imperator and should have autocomplete to show that.
