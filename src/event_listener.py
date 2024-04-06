@@ -57,6 +57,7 @@ class ImperatorEventListener(
             sublime.active_window().run_command("run_tiger")
         elif changed_objects_set:
             self.load_changed_objects(changed_objects_set)
+            sublime.active_window().run_command("run_tiger")
         else:
             # Load cached objects
             self.game_objects = get_objects_from_cache()
