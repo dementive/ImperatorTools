@@ -183,6 +183,15 @@ class GameData:
         }
         # Everything below this is generated, don't change without scripts
         self.EffectsList = {
+            "add_trade_route": '"adds an import trade route. For example:<br>add_trade_route = {<br>   target = state # The exporting state<br>    goods = grain # The goods to trade<br>}"<br>Supported Scopes: state',
+            "remove_trade_route": '"removes a trade route. For example:<br>remove_trade_route = {<br>  target = state # The exporting state<br>    goods = grain # The goods of the trade route<br>}"<br>Supported Scopes: state',
+            "set_automated_trading": "enables/disables state automated trading<br>Supported Scopes: state",
+            "set_governor_policy": "Set the governor policy on a state. example: scope:state set_governor_policy = cultural_assimilation<br>Supported Scopes: state",
+            "add_deity_to_pantheon": "adds a deity to the pantheon of a country, replacing the current one in the same category. Example: add_deity_to_pantheon = {deity = deity:omen_alilat}<br>Supported Scopes: country",
+            "play_sound_effect": "Plays the specified sound effect.<br>Supported Scopes: country",
+            "set_antagonist": "country in scope sets antagonist to on/off<br>Supported Scopes: country",
+            "set_player_country": "The scope country's player will now play as the target country. Scope must be player-controlled. Target cannot be player-controlled. Example:set_player_country = c:EGY<br>Supported Scopes: country<br>Supported Targets: country",
+            "unlock_invention": '"unlocks an invention.<br>Note that it ignores all preconditions. Use can_unlock_invention to see what can be unlocked. Example usage:<br>unlock_invention = global_start_experience_inv_1"<br>Supported Scopes: country',
             "enable_ability": "Enable a unit ability for a country.<br>Note: A trigger also has to be added to the ability for it to work.<br><code>enable_ability = military_colonies</code>",
             "add_state_food": "adds food to a State<br><code>add_state_food = 250</code><br>Supported Scopes: state",
             "add_state_modifier": "adds a modifier from a State<br>Supported Scopes: state",
@@ -658,6 +667,12 @@ class GameData:
             "while": "Repeats enclosed effects while limit criteria are met or until set iteration count is reached<br>while = { limit = { [triggers] } [effects] }<br> while = { count = 3 [effects] }<br>Default max of 1000.<br>Supported Scopes: none",
         }
         self.TriggersList = {
+            "can_create_trade_route": '"can create an import trade route. For example<br>can_create_trade_route = {<br>    target = p:1.state<br>  goods = grain<br>}<br>"<br>Supported Scopes: state',
+            "has_capital_bonus_for_trade_good": "Checks if a state's capital has a bonus for the specific trade good. Example has_capital_bonus_for_trade_good = grain<br>Supported Scopes: state",
+            "has_capital_surplus": "Does the state's capital have a trade surplus?<br>Traits: yes/no <br>Supported Scopes: state",
+            "is_automated_trading": "is the state set to automate trade?<br>Traits: yes/no <br>Supported Scopes: state",
+            "can_unlock_invention": '"check if a country can unlock an invention<br>For example:<br>can_unlock_invention = {<br>   invention = "invention_name"<br>  free = yes # Defaults to no<br> ignore_dependencies = yes # Defaults to no<br>  ignore_potential = yes # Defaults to no<br>}"<br>Supported Scopes: country',
+            "distance_from": "distance from a province<br>Supported Scopes: province",
             "debug_log=yes": "Outputs to the game log when this trigger is hit<br>debug_log_details = yes - Outputs full trigger content when this trigger is hit",
             "any_area_including_unownable_province": "Iterate through all provinces in an area<br>any_area_including_unownable_province = { count=num/all / percent=fixed_point [triggers] }<br>Supported Scopes: area<br>Supported Targets: province",
             "any_area_province": "Iterate through all ownable provinces in an area<br>any_area_province = { count=num/all / percent=fixed_point [triggers] }<br>Supported Scopes: area<br>Supported Targets: province",
@@ -2160,6 +2175,9 @@ class GameData:
             "basic_settlement_infratructure_building_cost": "Category: country",
             "hill_fort_cost": "Category: country",
             "local_forum_building_cost": "Category: country",
+            "happiness_for_wrong_religion_modifier": "Categories: province",
+            "local_happiness_for_wrong_religion_modifier": "Categories: province",
+            "cultural_assimilation_speed_modifier": "Categories: country",
         }
 
         self.simple_completion_pattern_flag_pairs = [
@@ -2209,12 +2227,17 @@ class GameData:
                     "can_import_trade_good",
                     "trade_goods",
                     "is_importing_trade_good",
+                    "has_capital_bonus_for_trade_good",
                 ],
                 manager.trade_good.name,
             ),
             (["government", "change_government"], manager.government.name),
             (
-                ["governor_policy", "can_change_governor_policy"],
+                [
+                    "governor_policy",
+                    "can_change_governor_policy",
+                    "set_governor_policy",
+                ],
                 manager.governor_policy.name,
             ),
             (["heritage", "set_country_heritage"], manager.heritage.name),

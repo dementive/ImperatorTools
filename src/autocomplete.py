@@ -126,14 +126,6 @@ class AutoComplete:
 
     def check_for_complex_completions(self, view: sublime.View, point: int):
         view_str = view.substr(sublime.Region(0, view.size()))
-        filename = view.file_name()
-
-        if filename and "inventions" in filename:
-            for br in view.find_by_selector("meta.invention.bracket"):
-                i = sublime.Region(br.a, get_index(view_str, br.a))
-                if i.contains(point):
-                    self.inventions = True
-                    view.run_command("auto_complete")
 
         manager = GameObjectManager()
         selector_flag_pairs = [
@@ -142,8 +134,10 @@ class AutoComplete:
             ("meta.pop.type.bracket", manager.pop.name, "type = "),
             ("meta.subject.type.bracket", manager.subject_type.name, "type = "),
             ("meta.tech.table.bracket", manager.tech_table.name, "technology = "),
-            ("meta.trade.good.bracket", manager.trade_good.name, "target = "),
+            ("meta.trade.good.target.bracket", manager.trade_good.name, "target = "),
+            ("meta.trade.good.bracket", manager.trade_good.name, "goods = "),
             ("meta.trait.bracket", manager.trait.name),
+            ("meta.invention.bracket", manager.invention.name),
             ("meta.unit.bracket", manager.unit.name, "type = "),
         ]
 

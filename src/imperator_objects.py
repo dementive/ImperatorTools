@@ -376,7 +376,7 @@ class PdxColorObject(PdxScriptObject):
         return (r, g, b)
 
     def __eq__(self, other):
-        if isinstance(other, ImperatorNamedColor):
+        if isinstance(other, NamedColor):
             return self.key == other.key
         elif isinstance(other, str):
             return self.key == other
@@ -384,7 +384,7 @@ class PdxColorObject(PdxScriptObject):
             return False
 
     def __lt__(self, other):
-        if isinstance(other, ImperatorNamedColor):
+        if isinstance(other, NamedColor):
             return self.key < other.key
         elif isinstance(other, str):
             return self.key < other
@@ -392,7 +392,7 @@ class PdxColorObject(PdxScriptObject):
             return False
 
     def __gt__(self, other):
-        if isinstance(other, ImperatorNamedColor):
+        if isinstance(other, NamedColor):
             return self.key > other.key
         elif isinstance(other, str):
             return self.key > other
