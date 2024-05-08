@@ -379,7 +379,7 @@ class ImperatorEventListener(
                 ]
             )
         if self.modifier_field or re.search(
-            r"modifiers|traits|buildings|governor_policies|trade_goods", fname
+            r"common\\(modifiers|traits|buildings|governor_policies|trade_goods)", fname
         ):
             return sublime.CompletionList(
                 [
