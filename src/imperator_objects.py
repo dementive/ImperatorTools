@@ -24,25 +24,25 @@ def plugin_loaded():
 class Ambition(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\ambitions")
+        self.get_data(f"common{os.sep}ambitions")
 
 
 class Building(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\buildings")
+        self.get_data(f"common{os.sep}buildings")
 
 
 class CultureGroup(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\cultures")
+        self.get_data(f"common{os.sep}cultures")
 
 
 class Culture(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path, level=2)
-        self.get_data("common\\cultures")
+        self.get_data(f"common{os.sep}cultures")
 
 
 class CustomLoc(GameObjectBase):
@@ -52,115 +52,115 @@ class CustomLoc(GameObjectBase):
             imperator_files_path,
             ignored_files=["de_custom_loc.txt", "00_FR_custom_loc.txt"],
         )
-        self.get_data("common\\customizable_localization")
+        self.get_data(f"common{os.sep}customizable_localization")
 
 
 class DeathReason(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\deathreasons")
+        self.get_data(f"common{os.sep}deathreasons")
 
 
 class Deity(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\deities")
+        self.get_data(f"common{os.sep}deities")
 
 
 class DiplomaticStance(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\diplomatic_stances")
+        self.get_data(f"common{os.sep}diplomatic_stances")
 
 
 class EconomicPolicy(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\economic_policies")
+        self.get_data(f"common{os.sep}economic_policies")
 
 
 class EventPicture(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\event_pictures")
+        self.get_data(f"common{os.sep}event_pictures")
 
 
 class EventTheme(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\event_themes")
+        self.get_data(f"common{os.sep}event_themes")
 
 
 class Government(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\governments")
+        self.get_data(f"common{os.sep}governments")
 
 
 class GovernorPolicy(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\governor_policies")
+        self.get_data(f"common{os.sep}governor_policies")
 
 
 class Heritage(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\heritage")
+        self.get_data(f"common{os.sep}heritage")
 
 
 class Idea(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\ideas")
+        self.get_data(f"common{os.sep}ideas")
 
 
 class Invention(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path, level=1)
-        self.get_data("common\\inventions")
+        self.get_data(f"common{os.sep}inventions")
 
 
 class Law(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path, level=1)
-        self.get_data("common\\laws")
+        self.get_data(f"common{os.sep}laws")
 
 
 class LegionDistinction(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\legion_distinctions")
+        self.get_data(f"common{os.sep}legion_distinctions")
 
 
 class LevyTemplate(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\levy_templates")
+        self.get_data(f"common{os.sep}levy_templates")
 
 
 class Loyalty(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\loyalty")
+        self.get_data(f"common{os.sep}loyalty")
 
 
 class MilitaryTradition(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path, level=1)
-        self.get_data("common\\military_traditions")
+        self.get_data(f"common{os.sep}military_traditions")
 
 
 class Mission(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\missions")
+        self.get_data(f"common{os.sep}missions")
 
 
 class MissionTask(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path, level=1)
-        self.get_data("common\\missions")
+        self.get_data(f"common{os.sep}missions")
 
 
 class Modifier(GameObjectBase):
@@ -170,115 +170,115 @@ class Modifier(GameObjectBase):
             imperator_files_path,
             ignored_files=["00_hardcoded.txt", "00_hardcoded_inv.txt"],
         )
-        self.get_data("common\\modifiers")
+        self.get_data(f"common{os.sep}modifiers")
 
 
 class Opinion(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\opinions")
+        self.get_data(f"common{os.sep}opinions")
 
 
 class Office(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\offices")
+        self.get_data(f"common{os.sep}offices")
 
 
 class Party(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\party_types")
+        self.get_data(f"common{os.sep}party_types")
 
 
 class Pop(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\pop_types")
+        self.get_data(f"common{os.sep}pop_types")
 
 
 class Price(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\prices")
+        self.get_data(f"common{os.sep}prices")
 
 
 class ProvinceRank(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\province_ranks")
+        self.get_data(f"common{os.sep}province_ranks")
 
 
 class Religion(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\religions")
+        self.get_data(f"common{os.sep}religions")
 
 
 class ScriptValue(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\script_values")
+        self.get_data(f"common{os.sep}script_values")
 
 
 class ScriptedEffect(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\scripted_effects")
+        self.get_data(f"common{os.sep}scripted_effects")
 
 
 class ScriptedModifier(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\scripted_modifiers")
+        self.get_data(f"common{os.sep}scripted_modifiers")
 
 
 class ScriptedTrigger(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\scripted_triggers")
+        self.get_data(f"common{os.sep}scripted_triggers")
 
 
 class SubjectType(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\subject_types")
+        self.get_data(f"common{os.sep}subject_types")
 
 
 class TechTable(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\technology_tables")
+        self.get_data(f"common{os.sep}technology_tables")
 
 
 class Terrain(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\terrain_types")
+        self.get_data(f"common{os.sep}terrain_types")
 
 
 class TradeGood(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\trade_goods")
+        self.get_data(f"common{os.sep}trade_goods")
 
 
 class Trait(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\traits")
+        self.get_data(f"common{os.sep}traits")
 
 
 class Unit(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\units")
+        self.get_data(f"common{os.sep}units")
 
 
 class Wargoal(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\wargoals")
+        self.get_data(f"common{os.sep}wargoals")
 
 
 class Area(GameObjectBase):
@@ -300,13 +300,13 @@ class Region(GameObjectBase):
 class ScriptedList(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\scripted_lists")
+        self.get_data(f"common{os.sep}scripted_lists")
 
 
 class ScriptedGui(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data("common\\scripted_guis")
+        self.get_data(f"common{os.sep}scripted_guis")
 
 
 def hsv2rgb(h, s, v):
@@ -412,7 +412,7 @@ def make_named_color_object(objects: dict) -> GameObjectBase:
 class NamedColor(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path, level=1)
-        self.get_data("common\\named_colors")
+        self.get_data(f"common{os.sep}named_colors")
 
     def to_dict(self) -> dict:
         d = dict()

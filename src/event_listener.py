@@ -782,13 +782,13 @@ class ImperatorEventListener(
             view_lines = view.lines(sublime.Region(0, len(view)))
 
             level_1_dirs = {
-                "common\\inventions",
-                "common\\laws",
-                "common\\military_traditions",
-                "common\\missions",
-                "common\\named_colors",
+                f"common{os.sep}inventions",
+                f"common{os.sep}laws",
+                f"common{os.sep}military_traditions",
+                f"common{os.sep}missions",
+                f"common{os.sep}named_colors",
             }
-            level_2_dirs = {"common\\cultures"}
+            level_2_dirs = {"common{os.sep}cultures"}
             if relative_path in level_1_dirs:
                 base_object = GameObjectBase(level=1)
             elif relative_path in level_2_dirs:
