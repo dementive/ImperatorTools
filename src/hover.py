@@ -358,7 +358,8 @@ class Hover:
         in_sublime_args = {"path": full_texture_path, "mode": "in_sublime"}
         inline_args = {"path": full_texture_path, "point": point}
         open_in_sublime_url = sublime.command_url(
-            "open_imperator_texture ", in_sublime_args  # type: ignore
+            "open_imperator_texture ",
+            in_sublime_args,  # type: ignore
         )
         open_inline_url = sublime.command_url("imperator_show_texture ", inline_args)
         hover_body = """

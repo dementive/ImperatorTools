@@ -46,7 +46,9 @@ class GameObjectManager:
         )
         self.heritage = GameObjectData("heritage", Heritage, f"common{os.sep}heritage")
         self.idea = GameObjectData("idea", Idea, f"common{os.sep}ideas")
-        self.invention = GameObjectData("invention", Invention, f"common{os.sep}inventions")
+        self.invention = GameObjectData(
+            "invention", Invention, f"common{os.sep}inventions"
+        )
         self.law = GameObjectData("law", Law, f"common{os.sep}laws")
         self.legion_distinction = GameObjectData(
             "legion_distinction",
@@ -105,8 +107,12 @@ class GameObjectManager:
         self.tech_table = GameObjectData(
             "tech_table", TechTable, f"common{os.sep}technology_tables"
         )
-        self.terrain = GameObjectData("terrain", Terrain, f"common{os.sep}terrain_types")
-        self.trade_good = GameObjectData("trade_good", TradeGood, f"common{os.sep}trade_goods")
+        self.terrain = GameObjectData(
+            "terrain", Terrain, f"common{os.sep}terrain_types"
+        )
+        self.trade_good = GameObjectData(
+            "trade_good", TradeGood, f"common{os.sep}trade_goods"
+        )
         self.trait = GameObjectData("trait", Trait, f"common{os.sep}traits")
         self.unit = GameObjectData("unit", Unit, f"common{os.sep}units")
         self.war_goal = GameObjectData("war_goal", Wargoal, f"common{os.sep}wargoals")

@@ -191,13 +191,13 @@ def write_extra(file):
         "\n    # --------------------------------\n    # -     Manually Added Terms     -\n    # --------------------------------\n\n"
     )
     file.write(
-        f"    # Essential Scipt Functions\n    - match: \\b(texture|icon)\\b\n      scope: constant.numeric\n"
+        "    # Essential Scipt Functions\n    - match: \\b(texture|icon)\\b\n      scope: constant.numeric\n"
     )
     file.write(
-        f"    # Math/Sound\n    - match: \\b(add)\\b\n      scope: variable.language\n"
+        "    # Math/Sound\n    - match: \\b(add)\\b\n      scope: variable.language\n"
     )
     file.write(
-        f"    # Gui Defaults\n    - match: \\b(textbox)\\b\n      scope: keyword.onaction\n"
+        "    # Gui Defaults\n    - match: \\b(textbox)\\b\n      scope: keyword.onaction\n"
     )
 
 
@@ -225,7 +225,6 @@ def create_sublime_syntax(
 
 
 def write_full_descriptions(list1, fd):
-
     descs = parse_logs(f"docs/{fd}.log", "full_descs")
     file = open(f"output_lists/{fd}_dict.txt", "w")
 

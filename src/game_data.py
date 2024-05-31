@@ -1287,7 +1287,6 @@ class GameData:
             "culture": "Input Scopes: country, character, province, pop, country culture<br>Output Scopes: culture",
             "governor": "Input Scopes: province, state, governorship<br>Output Scopes: character",
             "governor_or_ruler": "Input Scopes: province, state, governorship<br>Output Scopes: character",
-            "job": "Requires Data: yes<br>Input Scopes: country, province, state, governorship<br>Output Scopes: job",
             "job_holder": "Requires Data: yes<br>Input Scopes: country, province, state, governorship<br>Output Scopes: character",
             "attacker_warleader": "Input Scopes: war<br>Output Scopes: country",
             "defender_warleader": "Input Scopes: war<br>Output Scopes: country",

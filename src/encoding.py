@@ -5,7 +5,6 @@ Code to handle the UTF8-BOM encoding of imperator script files
 import re
 
 import sublime
-import sublime_plugin
 
 
 def encoding_check(view: sublime.View):

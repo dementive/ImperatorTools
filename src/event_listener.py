@@ -496,7 +496,7 @@ class ImperatorEventListener(
             # For yml only the saved scopes/variables/game objects get hover
             return
 
-        if self.settings.get("DocsHoverEnabled") == True:
+        if self.settings.get("DocsHoverEnabled"):
             if view.match_selector(point, "keyword.effect"):
                 self.show_hover_docs(
                     view,
@@ -530,7 +530,7 @@ class ImperatorEventListener(
                 return
 
         # Texture popups can happen for both script and gui files
-        if self.settings.get("TextureOpenPopup") != True:
+        if not self.settings.get("TextureOpenPopup"):
             return
 
         posLine = view.line(point)
@@ -740,7 +740,7 @@ class ImperatorEventListener(
             return
         if get_syntax_name(view) != "Imperator Script":
             return
-        if self.settings.get("ScriptValidator") == False:
+        if not self.settings.get("ScriptValidator"):
             return
 
         mod_dir = [
