@@ -9,7 +9,7 @@ import Default.exec
 import sublime
 import sublime_plugin
 
-from .css import CSS
+from JominiTools.src import CSS
 from .tiger import TigerJsonObject
 
 css_basic_style = CSS().default

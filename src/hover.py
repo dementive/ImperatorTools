@@ -3,13 +3,13 @@ Various features for showing information to the user when hovering over specific
 Shows documentation for effects/triggers/scopes from the game logs in pop ups.
 Also shows goto definition popups for all game objects as well as saved scopes and variables.
 """
-
 import re
 from typing import Any, Dict
 
 import sublime
 
-from .css import CSS
+from JominiTools.src import CSS
+
 from .imperator_objects import PdxColorObject
 from .jomini import PdxScriptObject
 from .utils import IterViews, get_file_name, get_syntax_name
