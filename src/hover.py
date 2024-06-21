@@ -12,7 +12,7 @@ from JominiTools.src import CSS
 
 from .imperator_objects import PdxColorObject
 from .jomini import PdxScriptObject
-from .utils import IterViews, get_file_name, get_syntax_name
+from JominiTools.src import IterViews, get_file_name, get_syntax_name
 
 css_basic_style = CSS().default
 

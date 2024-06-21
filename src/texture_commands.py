@@ -10,7 +10,7 @@ import sys
 import sublime
 import sublime_plugin
 
-from .utils import get_syntax_name
+from JominiTools.src import get_syntax_name
 
 
 class OpenImperatorTextureCommand(sublime_plugin.WindowCommand):

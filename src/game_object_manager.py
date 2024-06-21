@@ -1,16 +1,8 @@
-from typing import Set
-
 from .imperator_objects import *
+from JominiTools.src import JominiGameObjectManager, GameObjectData
 
 
-class GameObjectData:
-    def __init__(self, name: str, obj: type, path: str):
-        self.name = name
-        self.obj = obj
-        self.path = path
-
-
-class GameObjectManager:
+class GameObjectManager(JominiGameObjectManager):
     def __init__(self):
         self.ambition = GameObjectData("ambition", Ambition, f"common{os.sep}ambitions")
         self.area = GameObjectData("area", Area, "map_data")
@@ -116,13 +108,3 @@ class GameObjectManager:
         self.trait = GameObjectData("trait", Trait, f"common{os.sep}traits")
         self.unit = GameObjectData("unit", Unit, f"common{os.sep}units")
         self.war_goal = GameObjectData("war_goal", Wargoal, f"common{os.sep}wargoals")
-
-    def __iter__(self):
-        for attr in self.__dict__:
-            yield getattr(self, attr)
-
-    def get_objects(self) -> Set[GameObjectData]:
-        objects = set()
-        for i in self:
-            objects.add(i)
-        return objects

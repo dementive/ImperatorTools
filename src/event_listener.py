@@ -11,47 +11,32 @@ from typing import List, Set, Tuple, Union
 import sublime
 import sublime_plugin
 
+from JominiTools.src import encoding_check
+from JominiTools.src import JominiGameObject
 from .autocomplete import AutoComplete
-from .encoding import encoding_check
 from .game_data import GameData
 from .game_object_manager import GameObjectManager
-from .game_objects import (
-    add_color_scheme_scopes,
-    cache_all_objects,
-    check_for_syntax_changes,
-    check_mod_for_changes,
-    get_objects_from_cache,
-    handle_image_cache,
-    load_game_objects_json,
-    write_data_to_syntax,
-)
+from .game_objects import write_data_to_syntax
 from .hover import Hover
 from .imperator_objects import *
 from .jomini import GameObjectBase, PdxScriptObject
-from .scope_match import ScopeMatch
-from .utils import (
-    get_default_game_objects,
-    get_dir_to_game_object_dict,
-    get_file_name,
-    get_game_object_to_class_dict,
-    get_syntax_name,
-    is_file_in_directory,
-)
-
+from JominiTools.src import ScopeMatch, get_file_name, get_syntax_name, is_file_in_directory
 
 class ImperatorEventListener(
     Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
 ):
     def on_init(self, views: List[sublime.View]):
-        self.game_objects = get_default_game_objects()
+        self.manager = GameObjectManager()
+        self.game_objects = self.manager.get_default_game_objects()
         self.GameData = GameData()
         self.settings = sublime.load_settings("Imperator Syntax.sublime-settings")
         self.imperator_files_path = self.settings.get("ImperatorFilesPath")
         self.imperator_mod_files = self.settings.get("PathsToModFiles")
+        self.jomini_game_object = JominiGameObject()
 
-        syntax_changes = check_for_syntax_changes()
-        changed_objects_set = check_mod_for_changes(self.imperator_mod_files)
-        if len(load_game_objects_json()) != len(self.game_objects):
+        syntax_changes = self.jomini_game_object.check_for_syntax_changes()
+        changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs())
+        if len(self.jomini_game_object.load_game_objects_json()) != len(self.game_objects):
             # Create all objects for the first time
             sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")
@@ -60,7 +45,7 @@ class ImperatorEventListener(
             sublime.active_window().run_command("run_tiger")
         else:
             # Load cached objects
-            self.game_objects = get_objects_from_cache()
+            self.game_objects = self.jomini_game_object.get_objects_from_cache(self.manager.get_default_game_objects())
             if syntax_changes:
                 sublime.set_timeout_async(
                     lambda: write_data_to_syntax(self.game_objects), 0
@@ -72,12 +57,12 @@ class ImperatorEventListener(
         #     lambda: print_load_balanced_game_object_creation(self.game_objects), 0
         # )
 
-        handle_image_cache(self.settings)
-        add_color_scheme_scopes()
+        self.jomini_game_object.handle_image_cache(self.settings)
+        self.jomini_game_object.add_color_scheme_scopes()
 
     def load_changed_objects(self, changed_objects_set: Set[str], write_syntax=True):
         # Load objects that have changed since they were last cached
-        self.game_objects = get_objects_from_cache()
+        self.game_objects = self.jomini_game_object.get_objects_from_cache(self.manager.get_default_game_objects())
 
         sublime.set_timeout_async(
             lambda: self.create_game_objects(changed_objects_set), 0
@@ -88,13 +73,13 @@ class ImperatorEventListener(
             )
 
         # Cache created objects
-        sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
+        sublime.set_timeout_async(lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0)
 
     def create_game_objects(
         self,
         changed_objects_set: Set[str],
     ):
-        game_object_to_class_dict = get_game_object_to_class_dict()
+        game_object_to_class_dict = self.manager.get_game_object_to_class_dict()
         for i in changed_objects_set:
             # TODO - threading and load balancing here if the expected number of objects to be created is > 250
             self.game_objects[i] = game_object_to_class_dict[i]()
@@ -102,65 +87,63 @@ class ImperatorEventListener(
     # Game object creation, have to be very careful to balance the load between each function here.
     def create_all_game_objects(self):
         t0 = time.time()
-        manager = GameObjectManager()
-
         def load_first():
-            self.game_objects[manager.modifier.name] = Modifier()
+            self.game_objects[self.manager.modifier.name] = Modifier()
 
         def load_second():
-            self.game_objects[manager.mission_task.name] = MissionTask()
-            self.game_objects[manager.subject_type.name] = SubjectType()
-            self.game_objects[manager.diplo_stance.name] = DiplomaticStance()
-            self.game_objects[manager.province_rank.name] = ProvinceRank()
+            self.game_objects[self.manager.mission_task.name] = MissionTask()
+            self.game_objects[self.manager.subject_type.name] = SubjectType()
+            self.game_objects[self.manager.diplo_stance.name] = DiplomaticStance()
+            self.game_objects[self.manager.province_rank.name] = ProvinceRank()
 
         def load_third():
-            self.game_objects[manager.script_value.name] = ScriptValue()
-            self.game_objects[manager.heritage.name] = Heritage()
-            self.game_objects[manager.mil_tradition.name] = MilitaryTradition()
-            self.game_objects[manager.named_colors.name] = NamedColor()
-            self.game_objects[manager.mission.name] = Mission()
-            self.game_objects[manager.price.name] = Price()
-            self.game_objects[manager.death_reason.name] = DeathReason()
-            self.game_objects[manager.ambition.name] = Ambition()
-            self.game_objects[manager.religion.name] = Religion()
-            self.game_objects[manager.office.name] = Office()
-            self.game_objects[manager.unit.name] = Unit()
-            self.game_objects[manager.party.name] = Party()
+            self.game_objects[self.manager.script_value.name] = ScriptValue()
+            self.game_objects[self.manager.heritage.name] = Heritage()
+            self.game_objects[self.manager.mil_tradition.name] = MilitaryTradition()
+            self.game_objects[self.manager.named_colors.name] = NamedColor()
+            self.game_objects[self.manager.mission.name] = Mission()
+            self.game_objects[self.manager.price.name] = Price()
+            self.game_objects[self.manager.death_reason.name] = DeathReason()
+            self.game_objects[self.manager.ambition.name] = Ambition()
+            self.game_objects[self.manager.religion.name] = Religion()
+            self.game_objects[self.manager.office.name] = Office()
+            self.game_objects[self.manager.unit.name] = Unit()
+            self.game_objects[self.manager.party.name] = Party()
 
         def load_fourth():
-            self.game_objects[manager.deity.name] = Deity()
-            self.game_objects[manager.custom_loc.name] = CustomLoc()
-            self.game_objects[manager.opinion.name] = Opinion()
-            self.game_objects[manager.culture.name] = Culture()
-            self.game_objects[manager.event_pic.name] = EventPicture()
-            self.game_objects[manager.trait.name] = Trait()
-            self.game_objects[manager.law.name] = Law()
-            self.game_objects[manager.scripted_gui.name] = ScriptedGui()
-            self.game_objects[manager.culture_group.name] = CultureGroup()
-            self.game_objects[manager.scripted_modifier.name] = ScriptedModifier()
-            self.game_objects[manager.building.name] = Building()
-            self.game_objects[manager.terrain.name] = Terrain()
-            self.game_objects[manager.econ_policy.name] = EconomicPolicy()
-            self.game_objects[manager.tech_table.name] = TechTable()
-            self.game_objects[manager.war_goal.name] = Wargoal()
+            self.game_objects[self.manager.deity.name] = Deity()
+            self.game_objects[self.manager.custom_loc.name] = CustomLoc()
+            self.game_objects[self.manager.opinion.name] = Opinion()
+            self.game_objects[self.manager.culture.name] = Culture()
+            self.game_objects[self.manager.event_pic.name] = EventPicture()
+            self.game_objects[self.manager.trait.name] = Trait()
+            self.game_objects[self.manager.law.name] = Law()
+            self.game_objects[self.manager.scripted_gui.name] = ScriptedGui()
+            self.game_objects[self.manager.culture_group.name] = CultureGroup()
+            self.game_objects[self.manager.scripted_modifier.name] = ScriptedModifier()
+            self.game_objects[self.manager.building.name] = Building()
+            self.game_objects[self.manager.terrain.name] = Terrain()
+            self.game_objects[self.manager.econ_policy.name] = EconomicPolicy()
+            self.game_objects[self.manager.tech_table.name] = TechTable()
+            self.game_objects[self.manager.war_goal.name] = Wargoal()
 
         def load_fifth():
-            self.game_objects[manager.loyalty.name] = Loyalty()
-            self.game_objects[manager.area.name] = Area()
-            self.game_objects[manager.scripted_effect.name] = ScriptedEffect()
-            self.game_objects[manager.invention.name] = Invention()
-            self.game_objects[manager.scripted_trigger.name] = ScriptedTrigger()
-            self.game_objects[manager.event_theme.name] = EventTheme()
-            self.game_objects[manager.region.name] = Region()
-            self.game_objects[manager.levy_template.name] = LevyTemplate()
-            self.game_objects[manager.trade_good.name] = TradeGood()
-            self.game_objects[manager.idea.name] = Idea()
-            self.game_objects[manager.legion_distinction.name] = LegionDistinction()
-            self.game_objects[manager.government.name] = Government()
-            self.game_objects[manager.governor_policy.name] = GovernorPolicy()
-            self.game_objects[manager.scripted_list_effects.name] = ScriptedList()
-            self.game_objects[manager.scripted_list_triggers.name] = ScriptedList()
-            self.game_objects[manager.pop.name] = Pop()
+            self.game_objects[self.manager.loyalty.name] = Loyalty()
+            self.game_objects[self.manager.area.name] = Area()
+            self.game_objects[self.manager.scripted_effect.name] = ScriptedEffect()
+            self.game_objects[self.manager.invention.name] = Invention()
+            self.game_objects[self.manager.scripted_trigger.name] = ScriptedTrigger()
+            self.game_objects[self.manager.event_theme.name] = EventTheme()
+            self.game_objects[self.manager.region.name] = Region()
+            self.game_objects[self.manager.levy_template.name] = LevyTemplate()
+            self.game_objects[self.manager.trade_good.name] = TradeGood()
+            self.game_objects[self.manager.idea.name] = Idea()
+            self.game_objects[self.manager.legion_distinction.name] = LegionDistinction()
+            self.game_objects[self.manager.government.name] = Government()
+            self.game_objects[self.manager.governor_policy.name] = GovernorPolicy()
+            self.game_objects[self.manager.scripted_list_effects.name] = ScriptedList()
+            self.game_objects[self.manager.scripted_list_triggers.name] = ScriptedList()
+            self.game_objects[self.manager.pop.name] = Pop()
 
             tri_list = []
             for obj in self.game_objects["scripted_list_triggers"]:
@@ -208,9 +191,9 @@ class ImperatorEventListener(
         print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
 
         # Cache created objects
-        sublime.set_timeout_async(lambda: cache_all_objects(self.game_objects), 0)
+        sublime.set_timeout_async(lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0)
         sublime.set_timeout_async(
-            lambda: check_mod_for_changes(self.imperator_mod_files), 0
+            lambda: self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs), 0
         )  # Update hashes for each game object directory
 
     def on_deactivated_async(self, view: sublime.View):
@@ -649,78 +632,78 @@ class ImperatorEventListener(
         manager = GameObjectManager()
         if syntax_name == "Imperator Script":
             hover_objects = [
-                (manager.ambition.name, "Ambition"),
-                (manager.area.name, "Area"),
-                (manager.building.name, "Building"),
-                (manager.culture.name, "Culture"),
-                (manager.culture_group.name, "Culture Group"),
-                (manager.death_reason.name, "Death Reason"),
-                (manager.deity.name, "Deity"),
-                (manager.diplo_stance.name, "Diplomatic Stance"),
-                (manager.econ_policy.name, "Economic Policy"),
-                (manager.event_pic.name, "Event Picture"),
-                (manager.event_theme.name, "Event Theme"),
-                (manager.government.name, "Government"),
-                (manager.governor_policy.name, "Governor Policy"),
-                (manager.heritage.name, "Heritage"),
-                (manager.idea.name, "Idea"),
-                (manager.invention.name, "Invention"),
-                (manager.law.name, "law"),
-                (manager.legion_distinction.name, "Legion Distinction"),
-                (manager.levy_template.name, "Levy Template"),
-                (manager.loyalty.name, "Loyalty"),
-                (manager.mil_tradition.name, "Military Tradition"),
-                (manager.mission.name, "Mission"),
-                (manager.mission_task.name, "Mission Task"),
-                (manager.modifier.name, "Modifier"),
-                (manager.named_colors.name, "Named Color"),
-                (manager.office.name, "Office"),
-                (manager.opinion.name, "Opinion"),
-                (manager.party.name, "Party"),
-                (manager.pop.name, "Pop Type"),
-                (manager.price.name, "Price"),
-                (manager.province_rank.name, "Province Rank"),
-                (manager.region.name, "Region"),
-                (manager.religion.name, "Religion"),
-                (manager.scripted_gui.name, "Scripted Gui"),
-                (manager.script_value.name, "Script Value"),
-                (manager.scripted_effect.name, "Scripted Effect"),
-                (manager.scripted_list_effects.name, "Scripted List"),
-                (manager.scripted_list_triggers.name, "Scripted List"),
-                (manager.scripted_modifier.name, "Scripted Modifier"),
-                (manager.scripted_trigger.name, "Scripted Trigger"),
-                (manager.subject_type.name, "Subject Type"),
-                (manager.tech_table.name, "Technology Table"),
-                (manager.terrain.name, "Terrain"),
-                (manager.trade_good.name, "Trade Good"),
-                (manager.trait.name, "Trait"),
-                (manager.unit.name, "Unit"),
-                (manager.war_goal.name, "War Goal"),
+                (self.manager.ambition.name, "Ambition"),
+                (self.manager.area.name, "Area"),
+                (self.manager.building.name, "Building"),
+                (self.manager.culture.name, "Culture"),
+                (self.manager.culture_group.name, "Culture Group"),
+                (self.manager.death_reason.name, "Death Reason"),
+                (self.manager.deity.name, "Deity"),
+                (self.manager.diplo_stance.name, "Diplomatic Stance"),
+                (self.manager.econ_policy.name, "Economic Policy"),
+                (self.manager.event_pic.name, "Event Picture"),
+                (self.manager.event_theme.name, "Event Theme"),
+                (self.manager.government.name, "Government"),
+                (self.manager.governor_policy.name, "Governor Policy"),
+                (self.manager.heritage.name, "Heritage"),
+                (self.manager.idea.name, "Idea"),
+                (self.manager.invention.name, "Invention"),
+                (self.manager.law.name, "law"),
+                (self.manager.legion_distinction.name, "Legion Distinction"),
+                (self.manager.levy_template.name, "Levy Template"),
+                (self.manager.loyalty.name, "Loyalty"),
+                (self.manager.mil_tradition.name, "Military Tradition"),
+                (self.manager.mission.name, "Mission"),
+                (self.manager.mission_task.name, "Mission Task"),
+                (self.manager.modifier.name, "Modifier"),
+                (self.manager.named_colors.name, "Named Color"),
+                (self.manager.office.name, "Office"),
+                (self.manager.opinion.name, "Opinion"),
+                (self.manager.party.name, "Party"),
+                (self.manager.pop.name, "Pop Type"),
+                (self.manager.price.name, "Price"),
+                (self.manager.province_rank.name, "Province Rank"),
+                (self.manager.region.name, "Region"),
+                (self.manager.religion.name, "Religion"),
+                (self.manager.scripted_gui.name, "Scripted Gui"),
+                (self.manager.script_value.name, "Script Value"),
+                (self.manager.scripted_effect.name, "Scripted Effect"),
+                (self.manager.scripted_list_effects.name, "Scripted List"),
+                (self.manager.scripted_list_triggers.name, "Scripted List"),
+                (self.manager.scripted_modifier.name, "Scripted Modifier"),
+                (self.manager.scripted_trigger.name, "Scripted Trigger"),
+                (self.manager.subject_type.name, "Subject Type"),
+                (self.manager.tech_table.name, "Technology Table"),
+                (self.manager.terrain.name, "Terrain"),
+                (self.manager.trade_good.name, "Trade Good"),
+                (self.manager.trait.name, "Trait"),
+                (self.manager.unit.name, "Unit"),
+                (self.manager.war_goal.name, "War Goal"),
             ]
 
         if syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui":
             hover_objects = [
-                (manager.building.name, "Building"),
-                (manager.culture.name, "Culture"),
-                (manager.culture_group.name, "Culture Group"),
-                (manager.custom_loc.name, "Culture"),
-                (manager.deity.name, "Deity"),
-                (manager.diplo_stance.name, "Diplomatic Stance"),
-                (manager.heritage.name, "Heritage"),
-                (manager.invention.name, "Invention"),
-                (manager.legion_distinction.name, "Legion Distinction"),
-                (manager.loyalty.name, "Loyalty"),
-                (manager.mil_tradition.name, "Military Tradition"),
-                (manager.modifier.name, "Modifier"),
-                (manager.office.name, "Office"),
-                (manager.price.name, "Price"),
-                (manager.province_rank.name, "Province Rank"),
-                (manager.religion.name, "Religion"),
-                (manager.script_value.name, "Script Value"),
-                (manager.scripted_gui.name, "Scripted Gui"),
-                (manager.terrain.name, "Terrain"),
-                (manager.trade_good.name, "Trade Good"),
-                (manager.trait.name, "Trait"),
+                (self.manager.building.name, "Building"),
+                (self.manager.culture.name, "Culture"),
+                (self.manager.culture_group.name, "Culture Group"),
+                (self.manager.custom_loc.name, "Culture"),
+                (self.manager.deity.name, "Deity"),
+                (self.manager.diplo_stance.name, "Diplomatic Stance"),
+                (self.manager.heritage.name, "Heritage"),
+                (self.manager.invention.name, "Invention"),
+                (self.manager.legion_distinction.name, "Legion Distinction"),
+                (self.manager.loyalty.name, "Loyalty"),
+                (self.manager.mil_tradition.name, "Military Tradition"),
+                (self.manager.modifier.name, "Modifier"),
+                (self.manager.office.name, "Office"),
+                (self.manager.price.name, "Price"),
+                (self.manager.province_rank.name, "Province Rank"),
+                (self.manager.religion.name, "Religion"),
+                (self.manager.script_value.name, "Script Value"),
+                (self.manager.scripted_gui.name, "Scripted Gui"),
+                (self.manager.terrain.name, "Terrain"),
+                (self.manager.trade_good.name, "Trade Good"),
+                (self.manager.trait.name, "Trait"),
             ]
 
         # Iterate over the list and call show_popup_default for each game object
@@ -758,7 +741,7 @@ class ImperatorEventListener(
             self.update_saved_game_objects(view, mod_dir)
 
     def update_saved_game_objects(self, view: sublime.View, mod_dir: List[str]):
-        dir_to_game_object_dict = get_dir_to_game_object_dict()
+        dir_to_game_object_dict = self.manager.get_dir_to_game_object_dict()
         filename = get_file_name(view)
         if not filename:
             return
@@ -769,9 +752,9 @@ class ImperatorEventListener(
 
         write_syntax = self.settings.get("UpdateSyntaxOnNewObjectCreation")
         if write_syntax:
-            changed_objects_set = check_mod_for_changes(self.imperator_mod_files)
+            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs)
         else:
-            changed_objects_set = check_mod_for_changes(self.imperator_mod_files, True)
+            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs)
         if changed_objects_set:
             # This checks if an object has actually been added in this save
 
