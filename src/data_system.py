@@ -9,7 +9,7 @@ from JominiTools.src import JominiDataSystemEventListener
 
 class ImperatorDataSystemEventListener(JominiDataSystemEventListener, sublime_plugin.EventListener):
     def __init__(self):
-        settings = sublime.load_settings("Imperator Syntax.sublime-settings")
+        settings = sublime.load_settings("Imperator.sublime-settings")
         super().__init__(settings)
 
     def on_selection_modified_async(self, view):

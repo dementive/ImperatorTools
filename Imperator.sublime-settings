@@ -2,7 +2,7 @@
 {
 	// The path to the Imperator Rome Game files, update if it is not correct. (must use double \\)
 	// This is necessary for several features to work
-	"ImperatorFilesPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ImperatorRome\\game",
+	"GameFilesPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ImperatorRome\\game",
 
 	// The path to your mods files. Should be a mod, not the mod folder (must use double \\)
 	// This is necessary for several features to work
@@ -18,25 +18,25 @@
 	],
 
 	// This is a path to the mod you want imperator-tiger to validate
-	"ImperatorTigerModPath": "C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME",
+	"TigerModPath": "C:\\Users\\ADDYOURUSERNAMEHERE\\Documents\\Paradox Interactive\\Imperator\\mod\\MODNAME",
 
 	/*
 	Should the default imperator-tiger.conf file be used?
-	true = Use the .conf file located in the mod directory that is listed in the ImperatorTigerModPath setting.
+	true = Use the .conf file located in the mod directory that is listed in the TigerModPath setting.
 	If there is no imperator-tiger.conf file in the mod directory the default tiger config will be used instead.
 	false = Use the .conf file included with ImperatorTools.
 	setting to false also allows you to use a common .conf file for all of your mods.
 	if you set this to false you can use the "Edit imperator-tiger.conf" command to change the common .conf file the plugin uses.
 	*/
-	"ImperatorTigerUseDefaultConfig": true,
+	"TigerUseDefaultConfig": true,
 
 	// Should errors that imperator-tiger finds be shown in files when they are loaded?
-	"ImperatorTigerShowErrorsInline": true,
+	"TigerShowErrorsInline": true,
 
 	// Full path to the imperator-tiger.exe
 	// You probably don't need to set this as the plugin comes with a tiger binary
 	// but if it is outdated or not working for some reason you can use a different one with this setting.
-	"ImperatorTigerBinaryPath": "",
+	"TigerBinaryPath": "",
 
 	// Should the game objects the plugin is aware of be updated when you create new game objects in your mod?
 	// If this is set to false game objects will only be updated when sublime is first started.

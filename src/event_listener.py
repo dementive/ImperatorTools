@@ -29,8 +29,8 @@ class ImperatorEventListener(
         self.manager = GameObjectManager()
         self.game_objects = self.manager.get_default_game_objects()
         self.GameData = GameData()
-        self.settings = sublime.load_settings("Imperator Syntax.sublime-settings")
-        self.imperator_files_path = self.settings.get("ImperatorFilesPath")
+        self.settings = sublime.load_settings("Imperator.sublime-settings")
+        self.imperator_files_path = self.settings.get("GameFilesPath")
         self.imperator_mod_files = self.settings.get("PathsToModFiles")
         self.jomini_game_object = JominiGameObject()
 
@@ -193,7 +193,7 @@ class ImperatorEventListener(
         # Cache created objects
         sublime.set_timeout_async(lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0)
         sublime.set_timeout_async(
-            lambda: self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs), 0
+            lambda: self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs()), 0
         )  # Update hashes for each game object directory
 
     def on_deactivated_async(self, view: sublime.View):

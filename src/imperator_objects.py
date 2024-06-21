@@ -15,8 +15,8 @@ imperator_mod_files = []
 
 def plugin_loaded():
     global settings, imperator_files_path, imperator_mod_files
-    settings = sublime.load_settings("Imperator Syntax.sublime-settings")
-    imperator_files_path = settings.get("ImperatorFilesPath")
+    settings = sublime.load_settings("Imperator.sublime-settings")
+    imperator_files_path = settings.get("GameFilesPath")
     imperator_mod_files = settings.get("PathsToModFiles")
     imperator_files_path = str(imperator_files_path)
 

@@ -43,7 +43,7 @@
 	},
 	{
 		"caption": "Imperator: Show Tiger Output",
-		"command": "show_tiger_output",
+		"command": "imperator_tiger_output",
 		"args": {
 
 		},

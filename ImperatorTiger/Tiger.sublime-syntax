@@ -1,8 +1,8 @@
 %YAML 1.2
 ---
-name: Tiger Syntax
+name: Imperator Tiger
 file_extensions: [tiger]
-scope: text.tiger
+scope: imperator.tiger
 
 variables:
   valid_path: '[/\\A-Za-z0-9-\._~!$&()*+,;=@\s]+'

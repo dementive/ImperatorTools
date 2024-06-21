@@ -17,7 +17,7 @@ After installation go to:
 Preferences -> Package Settings -> Imperator Tools -> Settings
 ```
 
-Add the path to your mod folder to the "PathsToModFiles" setting list. Also ensure that the path in the "ImperatorFilesPath" setting is the correct path to the imperator game files on your computer. Without these 2 settings most plugin features will not work.
+Add the path to your mod folder to the "PathsToModFiles" setting list. Also ensure that the path in the "GameFilesPath" setting is the correct path to the imperator game files on your computer. Without these 2 settings most plugin features will not work.
 
 # Features
 
@@ -59,11 +59,11 @@ https://github.com/dementive/Victoria3Tools
 # Imperator-tiger integration
 
 [imperator-tiger](https://github.com/amtep/ck3-tiger) has been fully integrated into the plugin and provides validation for all of your mod files. The imperator-tiger binary comes with the plugin and it's usage within sublime can be configured with the plugin settings. The following settings can be adjusted to change the behavior of imperator-tiger:
-- ImperatorTigerModPath - The path to the mod you are currently working on that you want to be validated. If you do not put a valid path in this setting the plugin will not use imperator-tiger at all and validation will be ignored.
-- ImperatorTigerUseDefaultConfig - By default the plugin will call tiger with the default imperator-tiger.conf file which is located in your mod folder. If you set this setting to 'false' the plugin will instead use a common .conf file between all mods that can be edited with the `Imperator: Edit imperator-tiger.conf` command. For more information about the imperator-tiger.conf read [guide](https://github.com/amtep/ck3-tiger/blob/main/filter.md)
-- ImperatorTigerShowErrorsInline - When you open a new file that tiger has detected errors in a squiggly line will be drawn under all the errors in the file, you can hover over these to get more information about the error. If you want to disable this feature just set this setting to false.
+- TigerModPath - The path to the mod you are currently working on that you want to be validated. If you do not put a valid path in this setting the plugin will not use imperator-tiger at all and validation will be ignored.
+- TigerUseDefaultConfig - By default the plugin will call tiger with the default imperator-tiger.conf file which is located in your mod folder. If you set this setting to 'false' the plugin will instead use a common .conf file between all mods that can be edited with the `Imperator: Edit imperator-tiger.conf` command. For more information about the imperator-tiger.conf read [guide](https://github.com/amtep/ck3-tiger/blob/main/filter.md)
+- TigerShowErrorsInline - When you open a new file that tiger has detected errors in a squiggly line will be drawn under all the errors in the file, you can hover over these to get more information about the error. If you want to disable this feature just set this setting to false.
 
-When you have a valid path defined in the ImperatorTigerModPath setting the plugin will automatically call imperator-tiger when you open sublime if changes have been detected in any of the mods you are currently working on. The following commands can be used to directly interact with imperator-tiger:
+When you have a valid path defined in the TigerModPath setting the plugin will automatically call imperator-tiger when you open sublime if changes have been detected in any of the mods you are currently working on. The following commands can be used to directly interact with imperator-tiger:
 - `Imperator: Reload plugin objects and regenerate syntax` - The imperator-tiger output will be regenerated automatically by the plugin at the same time the syntax definition is. This means changes will only occur when sublime is first opened or when this reload objects command is run. If you have made some changes and you want imperator-tiger to validate them you can run this command to check if you made any mistakes.
 - `Imperator: Show Tiger Output` - You can view the results of the tiger validation directly in sublime in either a panel at the bottom of the screen or in a new tab. This will display the validator output in the same style as tiger which replicated the style of Rust compiler errors. For each error an annotation will be draw that you can click on to open the source of the error in a new tab.
 

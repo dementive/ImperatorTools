@@ -19,8 +19,8 @@
 								"command": "edit_settings",
 								"args":
 								{
-									"base_file": "${packages}/ImperatorTools/Imperator Syntax.sublime-settings",
-									"user_file": "${packages}/User/Imperator Syntax.sublime-settings"
+									"base_file": "${packages}/ImperatorTools/Imperator.sublime-settings",
+									"user_file": "${packages}/User/Imperator.sublime-settings"
 								}
 							}
 						]

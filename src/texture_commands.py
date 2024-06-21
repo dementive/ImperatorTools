@@ -79,7 +79,7 @@ class ImperatorTextureEventListener(sublime_plugin.EventListener):
         if get_syntax_name(view) != "Imperator Script":
             return
 
-        settings = sublime.load_settings("Imperator Syntax.sublime-settings")
+        settings = sublime.load_settings("Imperator.sublime-settings")
 
         if settings.get("ShowInlineTexturesOnLoad"):
             sublime.active_window().run_command("imperator_show_all_textures")
@@ -299,8 +299,8 @@ class ImperatorShowAllTexturesCommand(
             for x in view.lines(sublime.Region(0, view.size()))
             if ".dds" in view.substr(x)
         ]
-        settings = sublime.load_settings("Imperator Syntax.sublime-settings")
-        imperator_files_path = settings.get("ImperatorFilesPath")
+        settings = sublime.load_settings("Imperator.sublime-settings")
+        imperator_files_path = settings.get("GameFilesPath")
 
         for line, i in zip(texture_list, range(settings.get("MaxToggleTextures"))):  # type: ignore
             texture_raw_start = view.find("gfx", line.a)
