@@ -7,3 +7,5 @@
 3. Changed the names of all the Tiger settings keys, removed the Imperator prefix so the interface could be generic. Users may need to update their settings.
 
 4. Changed the `ImperatorFilesPath` setting to `GameFilesPath`. Users will need to update their settings or the plugin will no longer work.
+
+5. Added a dependency to ImageMagick and removed the old ConvertDDS program. Users will need to install ImageMagick on their system's PATH if they want to use the features that allow textures to be opened in sublime.

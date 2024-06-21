@@ -6,9 +6,9 @@ from JominiTools.src import JominiAutoComplete
 from .game_object_manager import GameObjectManager
 
 class AutoComplete(JominiAutoComplete):
-    def __init__(self):
+    def init_autocomplete(self):
         manager = GameObjectManager()
-        auto_complete_fields = {
+        self.auto_complete_fields = {
             manager.ambition.name: [],
             manager.area.name: [],
             manager.building.name: [],
@@ -53,7 +53,7 @@ class AutoComplete(JominiAutoComplete):
             manager.unit.name: [],
             manager.war_goal.name: [],
         }
-        selector_flag_pairs = [
+        self.selector_flag_pairs = [
             ("meta.op.mod.bracket", manager.opinion.name, "modifier = "),
             ("meta.party.bracket", manager.party.name, "party = "),
             ("meta.pop.type.bracket", manager.pop.name, "type = "),
@@ -65,4 +65,4 @@ class AutoComplete(JominiAutoComplete):
             ("meta.invention.bracket", manager.invention.name),
             ("meta.unit.bracket", manager.unit.name, "type = "),
         ]
-        super().__init__(auto_complete_fields, selector_flag_pairs)
+        super().__init__(self.auto_complete_fields, self.selector_flag_pairs)

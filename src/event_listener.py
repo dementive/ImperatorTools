@@ -4,6 +4,7 @@ The init function of the event listener is treated as the main entry point for t
 """
 
 import os
+import re
 import threading
 import time
 from typing import List, Set, Tuple, Union
@@ -17,15 +18,15 @@ from .autocomplete import AutoComplete
 from .game_data import GameData
 from .game_object_manager import GameObjectManager
 from .game_objects import write_data_to_syntax
-from .hover import Hover
 from .imperator_objects import *
-from .jomini import GameObjectBase, PdxScriptObject
-from JominiTools.src import ScopeMatch, get_file_name, get_syntax_name, is_file_in_directory
+from JominiTools.src import ScopeMatch, get_file_name, get_syntax_name, is_file_in_directory, GameObjectBase, PdxScriptObject, Hover
 
 class ImperatorEventListener(
     Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
 ):
     def on_init(self, views: List[sublime.View]):
+        self.init_hover()
+        self.init_autocomplete()
         self.manager = GameObjectManager()
         self.game_objects = self.manager.get_default_game_objects()
         self.GameData = GameData()
@@ -100,7 +101,7 @@ class ImperatorEventListener(
             self.game_objects[self.manager.script_value.name] = ScriptValue()
             self.game_objects[self.manager.heritage.name] = Heritage()
             self.game_objects[self.manager.mil_tradition.name] = MilitaryTradition()
-            self.game_objects[self.manager.named_colors.name] = NamedColor()
+            self.game_objects[self.manager.named_colors.name] = NamedColor(self.imperator_mod_files, self.imperator_files_path)
             self.game_objects[self.manager.mission.name] = Mission()
             self.game_objects[self.manager.price.name] = Price()
             self.game_objects[self.manager.death_reason.name] = DeathReason()
@@ -752,9 +753,9 @@ class ImperatorEventListener(
 
         write_syntax = self.settings.get("UpdateSyntaxOnNewObjectCreation")
         if write_syntax:
-            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs)
+            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs())
         else:
-            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs)
+            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs())
         if changed_objects_set:
             # This checks if an object has actually been added in this save
 
