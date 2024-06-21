@@ -5,10 +5,18 @@ All the code for handling the integration of imperator-tiger into the plugin.
 import sublime
 import sublime_plugin
 
-from JominiTools.src import JominiTigerEventListener, JominiTigerOutputCommand, JominiExecuteTigerCommand, JominiRunTigerCommand, TigerInputHandler
+from JominiTools.src import (
+    JominiTigerEventListener,
+    JominiTigerOutputCommand,
+    JominiExecuteTigerCommand,
+    JominiRunTigerCommand,
+    TigerInputHandler,
+)
 
 
-class ImperatorTigerEventListener(JominiTigerEventListener, sublime_plugin.EventListener):
+class ImperatorTigerEventListener(
+    JominiTigerEventListener, sublime_plugin.EventListener
+):
     def __init__(self):
         super().__init__("ImperatorTools")
 
@@ -20,17 +28,26 @@ class ImperatorTigerEventListener(JominiTigerEventListener, sublime_plugin.Event
         settings = sublime.load_settings("Imperator.sublime-settings")
         self._on_hover(view, point, hover_zone, settings)
 
-class ImperatorTigerOutputCommand(JominiTigerOutputCommand, sublime_plugin.WindowCommand):
+
+class ImperatorTigerOutputCommand(
+    JominiTigerOutputCommand, sublime_plugin.WindowCommand
+):
     def __init__(self, window):
         self.window = window
-        super().__init__("ImperatorTools", sublime.load_settings("Imperator.sublime-settings"), "Imperator Tiger", self.window)
+        super().__init__(
+            "ImperatorTools",
+            sublime.load_settings("Imperator.sublime-settings"),
+            "Imperator Tiger",
+            self.window,
+        )
 
-    def run(self, view_type): # type: ignore
+    def run(self, view_type):  # type: ignore
         self._run(view_type)
 
     def input(self, args):
         if "view_type" not in args:
             return TigerInputHandler()
+
 
 class ExecuteTigerCommand(JominiExecuteTigerCommand, sublime_plugin.WindowCommand):
     def __init__(self, window):
@@ -58,6 +75,7 @@ class ExecuteTigerCommand(JominiExecuteTigerCommand, sublime_plugin.WindowComman
             syntax,
         )
 
+
 class RunTigerCommand(JominiRunTigerCommand, sublime_plugin.WindowCommand):
     def __init__(self, window):
         self.window = window
@@ -65,6 +83,7 @@ class RunTigerCommand(JominiRunTigerCommand, sublime_plugin.WindowCommand):
 
     def run(self):
         self._run()
+
 
 class EditTigerConfigCommand(sublime_plugin.WindowCommand):
     def run(self):

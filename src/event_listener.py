@@ -19,7 +19,16 @@ from .game_data import GameData
 from .game_object_manager import GameObjectManager
 from .game_objects import write_data_to_syntax
 from .imperator_objects import *
-from JominiTools.src import ScopeMatch, get_file_name, get_syntax_name, is_file_in_directory, GameObjectBase, PdxScriptObject, Hover
+from JominiTools.src import (
+    ScopeMatch,
+    get_file_name,
+    get_syntax_name,
+    is_file_in_directory,
+    GameObjectBase,
+    PdxScriptObject,
+    Hover,
+)
+
 
 class ImperatorEventListener(
     Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
@@ -36,8 +45,14 @@ class ImperatorEventListener(
         self.jomini_game_object = JominiGameObject()
 
         syntax_changes = self.jomini_game_object.check_for_syntax_changes()
-        changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs())
-        if len(self.jomini_game_object.load_game_objects_json()) != len(self.game_objects):
+        changed_objects_set = self.jomini_game_object.check_mod_for_changes(
+            self.imperator_mod_files,
+            self.manager.get_dir_to_game_object_dict(),
+            self.manager.get_game_object_dirs(),
+        )
+        if len(self.jomini_game_object.load_game_objects_json()) != len(
+            self.game_objects
+        ):
             # Create all objects for the first time
             sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
             sublime.active_window().run_command("run_tiger")
@@ -46,7 +61,9 @@ class ImperatorEventListener(
             sublime.active_window().run_command("run_tiger")
         else:
             # Load cached objects
-            self.game_objects = self.jomini_game_object.get_objects_from_cache(self.manager.get_default_game_objects())
+            self.game_objects = self.jomini_game_object.get_objects_from_cache(
+                self.manager.get_default_game_objects()
+            )
             if syntax_changes:
                 sublime.set_timeout_async(
                     lambda: write_data_to_syntax(self.game_objects), 0
@@ -63,7 +80,9 @@ class ImperatorEventListener(
 
     def load_changed_objects(self, changed_objects_set: Set[str], write_syntax=True):
         # Load objects that have changed since they were last cached
-        self.game_objects = self.jomini_game_object.get_objects_from_cache(self.manager.get_default_game_objects())
+        self.game_objects = self.jomini_game_object.get_objects_from_cache(
+            self.manager.get_default_game_objects()
+        )
 
         sublime.set_timeout_async(
             lambda: self.create_game_objects(changed_objects_set), 0
@@ -74,7 +93,9 @@ class ImperatorEventListener(
             )
 
         # Cache created objects
-        sublime.set_timeout_async(lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0)
+        sublime.set_timeout_async(
+            lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0
+        )
 
     def create_game_objects(
         self,
@@ -88,6 +109,7 @@ class ImperatorEventListener(
     # Game object creation, have to be very careful to balance the load between each function here.
     def create_all_game_objects(self):
         t0 = time.time()
+
         def load_first():
             self.game_objects[self.manager.modifier.name] = Modifier()
 
@@ -101,7 +123,9 @@ class ImperatorEventListener(
             self.game_objects[self.manager.script_value.name] = ScriptValue()
             self.game_objects[self.manager.heritage.name] = Heritage()
             self.game_objects[self.manager.mil_tradition.name] = MilitaryTradition()
-            self.game_objects[self.manager.named_colors.name] = NamedColor(self.imperator_mod_files, self.imperator_files_path)
+            self.game_objects[self.manager.named_colors.name] = NamedColor(
+                self.imperator_mod_files, self.imperator_files_path
+            )
             self.game_objects[self.manager.mission.name] = Mission()
             self.game_objects[self.manager.price.name] = Price()
             self.game_objects[self.manager.death_reason.name] = DeathReason()
@@ -139,7 +163,9 @@ class ImperatorEventListener(
             self.game_objects[self.manager.levy_template.name] = LevyTemplate()
             self.game_objects[self.manager.trade_good.name] = TradeGood()
             self.game_objects[self.manager.idea.name] = Idea()
-            self.game_objects[self.manager.legion_distinction.name] = LegionDistinction()
+            self.game_objects[self.manager.legion_distinction.name] = (
+                LegionDistinction()
+            )
             self.game_objects[self.manager.government.name] = Government()
             self.game_objects[self.manager.governor_policy.name] = GovernorPolicy()
             self.game_objects[self.manager.scripted_list_effects.name] = ScriptedList()
@@ -192,9 +218,16 @@ class ImperatorEventListener(
         print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
 
         # Cache created objects
-        sublime.set_timeout_async(lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0)
         sublime.set_timeout_async(
-            lambda: self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs()), 0
+            lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0
+        )
+        sublime.set_timeout_async(
+            lambda: self.jomini_game_object.check_mod_for_changes(
+                self.imperator_mod_files,
+                self.manager.get_dir_to_game_object_dict(),
+                self.manager.get_game_object_dirs(),
+            ),
+            0,
         )  # Update hashes for each game object directory
 
     def on_deactivated_async(self, view: sublime.View):
@@ -630,7 +663,6 @@ class ImperatorEventListener(
 
         hover_objects = list()
         syntax_name = get_syntax_name(view)
-        manager = GameObjectManager()
         if syntax_name == "Imperator Script":
             hover_objects = [
                 (self.manager.ambition.name, "Ambition"),
@@ -753,9 +785,17 @@ class ImperatorEventListener(
 
         write_syntax = self.settings.get("UpdateSyntaxOnNewObjectCreation")
         if write_syntax:
-            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs())
+            changed_objects_set = self.jomini_game_object.check_mod_for_changes(
+                self.imperator_mod_files,
+                self.manager.get_dir_to_game_object_dict(),
+                self.manager.get_game_object_dirs(),
+            )
         else:
-            changed_objects_set = self.jomini_game_object.check_mod_for_changes(self.imperator_mod_files, self.manager.get_dir_to_game_object_dict(), self.manager.get_game_object_dirs())
+            changed_objects_set = self.jomini_game_object.check_mod_for_changes(
+                self.imperator_mod_files,
+                self.manager.get_dir_to_game_object_dict(),
+                self.manager.get_game_object_dirs(),
+            )
         if changed_objects_set:
             # This checks if an object has actually been added in this save
 

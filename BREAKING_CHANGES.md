@@ -9,3 +9,8 @@
 4. Changed the `ImperatorFilesPath` setting to `GameFilesPath`. Users will need to update their settings or the plugin will no longer work.
 
 5. Added a dependency to ImageMagick and removed the old ConvertDDS program. Users will need to install ImageMagick on their system's PATH if they want to use the features that allow textures to be opened in sublime.
+
+
+# Regressions
+
+1. I broke the Show Inline part of the show textures command, it works but the toggle doesn't work properly. Also the delay on textures seems to not be working anymore...

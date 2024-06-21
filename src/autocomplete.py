@@ -5,6 +5,7 @@ Code for the autocomplete features of the plugin
 from JominiTools.src import JominiAutoComplete
 from .game_object_manager import GameObjectManager
 
+
 class AutoComplete(JominiAutoComplete):
     def init_autocomplete(self):
         manager = GameObjectManager()

@@ -9,6 +9,7 @@ from typing import Any, Dict, List
 import sublime
 import sublime_plugin
 
+
 class ImpMissionNameInputHandler(sublime_plugin.TextInputHandler):
     def name(self):
         return "name"

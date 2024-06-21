@@ -6,9 +6,16 @@ from typing import List
 import sublime
 import sublime_plugin
 
-from JominiTools.src import JominiShowAllTexturesCommand, JominiTextureEventListener, JominiToggleAllTexturesCommand
+from JominiTools.src import (
+    JominiShowAllTexturesCommand,
+    JominiTextureEventListener,
+    JominiToggleAllTexturesCommand,
+)
 
-class ImperatorTextureEventListener(JominiTextureEventListener, sublime_plugin.EventListener):
+
+class ImperatorTextureEventListener(
+    JominiTextureEventListener, sublime_plugin.EventListener
+):
     def on_init(self, views: List[sublime.View]):
         settings = sublime.load_settings("Imperator.sublime-settings")
         self.init(settings)
@@ -20,7 +27,9 @@ class ImperatorTextureEventListener(JominiTextureEventListener, sublime_plugin.E
         self._on_load_async(view)
 
 
-class ImperatorToggleAllTexturesCommand(JominiToggleAllTexturesCommand, sublime_plugin.ApplicationCommand):
+class ImperatorToggleAllTexturesCommand(
+    JominiToggleAllTexturesCommand, sublime_plugin.ApplicationCommand
+):
     def __init__(self):
         super().__init__()
 
