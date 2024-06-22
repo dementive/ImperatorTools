@@ -18,6 +18,7 @@ from .game_data import GameData
 from .game_object_manager import GameObjectManager
 from .game_objects import ImperatorGameObject
 from .imperator_objects import *
+from .plugin import ImperatorPlugin
 from libjomini.src import (
     ScopeMatch,
     get_file_name,
@@ -30,7 +31,7 @@ from libjomini.src import (
 )
 
 
-class ImperatorEventListener(
+class ImperatorEventListener( # type: ignore
     ImperatorGameObject,
     Hover,
     AutoComplete,
@@ -39,7 +40,8 @@ class ImperatorEventListener(
     sublime_plugin.EventListener,
 ):
     def on_init(self, views):
-        self.init()
+        plugin = ImperatorPlugin()
+        self.init(plugin)
 
     def init_game_object_manager(self):
         self.manager = GameObjectManager()
@@ -155,10 +157,10 @@ class ImperatorEventListener(
         print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
 
     def on_deactivated_async(self, view):
-        self._on_deactivated_async(view)
+        super().on_deactivated_async(view)
 
     def on_activated_async(self, view):
-        self._on_activated_async(view)
+        super().on_activated_async(view)
 
     def on_query_completions(
         self, view: sublime.View, prefix: str, locations: List[int]
@@ -395,6 +397,7 @@ class ImperatorEventListener(
             return
 
         # Do everything that requires fetching GameObjects in non-blocking thread
+        hover_objects = []
         if syntax_name == "Imperator Script":
             hover_objects = [
                 (self.manager.ambition.name, "Ambition"),
