@@ -13,11 +13,10 @@ import sublime
 import sublime_plugin
 
 from JominiTools.src import encoding_check
-from JominiTools.src import JominiGameObject
 from .autocomplete import AutoComplete
 from .game_data import GameData
 from .game_object_manager import GameObjectManager
-from .game_objects import write_data_to_syntax
+from .game_objects import ImperatorGameObject
 from .imperator_objects import *
 from JominiTools.src import (
     ScopeMatch,
@@ -27,86 +26,22 @@ from JominiTools.src import (
     GameObjectBase,
     PdxScriptObject,
     Hover,
+    JominiEventListener
 )
 
 
 class ImperatorEventListener(
-    Hover, AutoComplete, ScopeMatch, sublime_plugin.EventListener
+    ImperatorGameObject, Hover, AutoComplete, ScopeMatch, JominiEventListener, sublime_plugin.EventListener
 ):
-    def on_init(self, views: List[sublime.View]):
-        self.init_hover()
-        self.init_autocomplete()
+    def on_init(self, views):
+        self.init()
+
+    def init_game_object_manager(self):
         self.manager = GameObjectManager()
-        self.game_objects = self.manager.get_default_game_objects()
+
+    def init_game_data(self):
         self.GameData = GameData()
-        self.settings = sublime.load_settings("Imperator.sublime-settings")
-        self.imperator_files_path = self.settings.get("GameFilesPath")
-        self.imperator_mod_files = self.settings.get("PathsToModFiles")
-        self.jomini_game_object = JominiGameObject()
 
-        syntax_changes = self.jomini_game_object.check_for_syntax_changes()
-        changed_objects_set = self.jomini_game_object.check_mod_for_changes(
-            self.imperator_mod_files,
-            self.manager.get_dir_to_game_object_dict(),
-            self.manager.get_game_object_dirs(),
-        )
-        if len(self.jomini_game_object.load_game_objects_json()) != len(
-            self.game_objects
-        ):
-            # Create all objects for the first time
-            sublime.set_timeout_async(lambda: self.create_all_game_objects(), 0)
-            sublime.active_window().run_command("run_tiger")
-        elif changed_objects_set:
-            self.load_changed_objects(changed_objects_set)
-            sublime.active_window().run_command("run_tiger")
-        else:
-            # Load cached objects
-            self.game_objects = self.jomini_game_object.get_objects_from_cache(
-                self.manager.get_default_game_objects()
-            )
-            if syntax_changes:
-                sublime.set_timeout_async(
-                    lambda: write_data_to_syntax(self.game_objects), 0
-                )
-
-        # Uncomment this and use the output to balance the load between the threads in create_all_game_objects
-        # from .utils import print_load_balanced_game_object_creation
-        # sublime.set_timeout_async(
-        #     lambda: print_load_balanced_game_object_creation(self.game_objects), 0
-        # )
-
-        self.jomini_game_object.handle_image_cache(self.settings)
-        self.jomini_game_object.add_color_scheme_scopes()
-
-    def load_changed_objects(self, changed_objects_set: Set[str], write_syntax=True):
-        # Load objects that have changed since they were last cached
-        self.game_objects = self.jomini_game_object.get_objects_from_cache(
-            self.manager.get_default_game_objects()
-        )
-
-        sublime.set_timeout_async(
-            lambda: self.create_game_objects(changed_objects_set), 0
-        )
-        if write_syntax:
-            sublime.set_timeout_async(
-                lambda: write_data_to_syntax(self.game_objects), 0
-            )
-
-        # Cache created objects
-        sublime.set_timeout_async(
-            lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0
-        )
-
-    def create_game_objects(
-        self,
-        changed_objects_set: Set[str],
-    ):
-        game_object_to_class_dict = self.manager.get_game_object_to_class_dict()
-        for i in changed_objects_set:
-            # TODO - threading and load balancing here if the expected number of objects to be created is > 250
-            self.game_objects[i] = game_object_to_class_dict[i]()
-
-    # Game object creation, have to be very careful to balance the load between each function here.
     def create_all_game_objects(self):
         t0 = time.time()
 
@@ -124,7 +59,7 @@ class ImperatorEventListener(
             self.game_objects[self.manager.heritage.name] = Heritage()
             self.game_objects[self.manager.mil_tradition.name] = MilitaryTradition()
             self.game_objects[self.manager.named_colors.name] = NamedColor(
-                self.imperator_mod_files, self.imperator_files_path
+                self.mod_files, self.game_files_path
             )
             self.game_objects[self.manager.mission.name] = Mission()
             self.game_objects[self.manager.price.name] = Price()
@@ -211,66 +146,14 @@ class ImperatorEventListener(
         thread4.join()
         thread5.join()
 
-        # Write syntax data after creating objects so they actually exist when writing
-        sublime.set_timeout_async(lambda: write_data_to_syntax(self.game_objects), 0)
-
         t1 = time.time()
         print("Time to load Imperator Rome objects: {:.3f} seconds".format(t1 - t0))
 
-        # Cache created objects
-        sublime.set_timeout_async(
-            lambda: self.jomini_game_object.cache_all_objects(self.game_objects), 0
-        )
-        sublime.set_timeout_async(
-            lambda: self.jomini_game_object.check_mod_for_changes(
-                self.imperator_mod_files,
-                self.manager.get_dir_to_game_object_dict(),
-                self.manager.get_game_object_dirs(),
-            ),
-            0,
-        )  # Update hashes for each game object directory
+    def on_deactivated_async(self, view):
+        self._on_deactivated_async(view)
 
-    def on_deactivated_async(self, view: sublime.View):
-        """
-        Remove field states when view loses focus
-        if cursor was in a field in the old view but not the new view the completions will still be accurate
-        save the id of the view so it can be readded when it regains focus
-        """
-        vid = view.id()
-        for field, views in self.auto_complete_fields.items():
-            if getattr(self, field):
-                setattr(self, field, False)
-                views.append(vid)
-
-    def on_activated_async(self, view: sublime.View):
-        vid = view.id()
-        for field, views in self.auto_complete_fields.items():
-            if vid in views:
-                setattr(self, field, True)
-                views.remove(vid)
-
-    def create_completion_list(self, flag_name: str, completion_kind: str):
-        if not getattr(self, flag_name, False):
-            return None
-
-        completions = self.game_objects[flag_name].keys()
-        completions = sorted(completions)
-        return sublime.CompletionList(
-            [
-                sublime.CompletionItem(
-                    trigger=key,
-                    completion_format=sublime.COMPLETION_FORMAT_TEXT,
-                    kind=completion_kind,
-                    details=" ",
-                )
-                # Calling sorted() twice makes it so completions are ordered by
-                # 1. the number of times they appear in the current buffer
-                # 2. if they dont appear they show up alphabetically
-                for key in sorted(completions)
-            ],
-            flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-            | sublime.INHIBIT_WORD_COMPLETIONS,
-        )
+    def on_activated_async(self, view):
+        self._on_activated_async(view)
 
     def on_query_completions(
         self, view: sublime.View, prefix: str, locations: List[int]
@@ -507,162 +390,6 @@ class ImperatorEventListener(
             return
 
         # Do everything that requires fetching GameObjects in non-blocking thread
-        sublime.set_timeout_async(lambda: self.do_hover_async(view, point), 0)
-
-        if syntax_name != "Imperator Script":
-            # For yml only the saved scopes/variables/game objects get hover
-            return
-
-        if self.settings.get("DocsHoverEnabled"):
-            if view.match_selector(point, "keyword.effect"):
-                self.show_hover_docs(
-                    view,
-                    point,
-                    "keyword.effect",
-                    self.GameData.EffectsList,
-                    self.settings,
-                )
-                return
-
-            if view.match_selector(point, "string.trigger"):
-                self.GameData.TriggersList.update(self.GameData.CustomTriggersList)
-                self.show_hover_docs(
-                    view,
-                    point,
-                    "string.trigger",
-                    self.GameData.TriggersList,
-                    self.settings,
-                )
-                return
-
-            if view.match_selector(point, "storage.type.scope"):
-                self.GameData.ScopesList.update(self.GameData.CustomScopesList)
-                self.show_hover_docs(
-                    view,
-                    point,
-                    "storage.type.scope",
-                    self.GameData.ScopesList,
-                    self.settings,
-                )
-                return
-
-        # Texture popups can happen for both script and gui files
-        if not self.settings.get("TextureOpenPopup"):
-            return
-
-        posLine = view.line(point)
-        if ".dds" not in view.substr(posLine):
-            return
-
-        texture_raw_start = view.find("gfx", posLine.a)
-        texture_raw_end = view.find(".dds", posLine.a)
-        texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
-        texture_raw_path = view.substr(texture_raw_region)
-        full_texture_path = os.path.join(self.imperator_files_path, texture_raw_path)  # type: ignore
-
-        if os.path.exists(full_texture_path):
-            texture_name = view.substr(view.word(texture_raw_end.a - 1))
-            self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
-            return
-
-        # Check mod paths if it's not vanilla
-        for mod in self.imperator_mod_files:  # type: ignore
-            if os.path.exists(mod) and mod.endswith("mod"):
-                # if it is the path to the mod directory, get all directories in it
-                for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
-                    mod_path = os.path.join(directory, texture_raw_path)
-                    if os.path.exists(mod_path):
-                        full_texture_path = mod_path
-            else:
-                mod_path = os.path.join(mod, texture_raw_path)
-                if os.path.exists(mod_path):
-                    full_texture_path = mod_path
-
-        # The path exists and the point in the view is inside of the path
-        if texture_raw_region.contains(point):
-            texture_name = view.substr(view.word(texture_raw_end.a - 1))
-            self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
-
-    def do_hover_async(self, view: sublime.View, point: int):
-        word_region = view.word(point)
-        word = view.substr(word_region)
-        fname = get_file_name(view)
-        current_line_num = view.rowcol(point)[0] + 1
-
-        if view.match_selector(point, "comment.line"):
-            return
-
-        if (
-            view.match_selector(point, "variable.parameter.scope.usage")
-            or view.match_selector(point, "variable.parameter.remove.var")
-            or view.match_selector(point, "variable.parameter.trigger.usage")
-            or view.match_selector(point, "variable.parameter.var.usage")
-        ):
-            if fname and (
-                "scripted_triggers" in fname
-                or "scripted_effects" in fname
-                or "scripted_modifiers" in fname
-            ):
-                word = self.handle_scripted_args(view, point)
-
-            if view.match_selector(point, "variable.parameter.scope.usage"):
-                self.show_popup_default(
-                    view,
-                    point,
-                    PdxScriptObject(word, fname, current_line_num),  # type: ignore
-                    "Saved Scope",
-                )
-            else:
-                self.show_popup_default(
-                    view,
-                    point,
-                    PdxScriptObject(word, fname, current_line_num),  # type: ignore
-                    "Saved Variable",
-                )
-            return
-
-        if view.match_selector(point, "entity.name.function.var.declaration"):
-            if fname and (
-                "scripted_triggers" in fname
-                or "scripted_effects" in fname
-                or "scripted_modifiers" in fname
-            ):
-                word = self.handle_scripted_args(view, point)
-            self.show_popup_default(
-                view,
-                point,
-                PdxScriptObject(word, fname, current_line_num),  # type: ignore
-                "Saved Variable",
-            )
-            return
-        if view.match_selector(point, "entity.name.function.scope.declaration"):
-            if fname and (
-                "scripted_triggers" in fname
-                or "scripted_effects" in fname
-                or "scripted_modifiers" in fname
-            ):
-                word = self.handle_scripted_args(view, point)
-            self.show_popup_default(
-                view,
-                point,
-                PdxScriptObject(word, fname, current_line_num),  # type: ignore
-                "Saved Scope",
-            )
-            return
-
-        if view.match_selector(
-            point, "entity.name.scripted.arg"
-        ) or view.match_selector(point, "variable.language.scripted.arg"):
-            self.show_popup_default(
-                view,
-                point,
-                PdxScriptObject(word, fname, current_line_num),
-                "Scripted Argument",
-            )
-            return
-
-        hover_objects = list()
-        syntax_name = get_syntax_name(view)
         if syntax_name == "Imperator Script":
             hover_objects = [
                 (self.manager.ambition.name, "Ambition"),
@@ -738,18 +465,81 @@ class ImperatorEventListener(
                 (self.manager.trade_good.name, "Trade Good"),
                 (self.manager.trait.name, "Trait"),
             ]
+        sublime.set_timeout_async(lambda: self.do_hover_async(view, point, hover_objects), 0)
 
-        # Iterate over the list and call show_popup_default for each game object
-        for hover_object, name in hover_objects:
-            game_object = self.game_objects[hover_object].access(word)
-            if game_object:
-                self.show_popup_default(
+        if syntax_name != "Imperator Script":
+            # For yml only the saved scopes/variables/game objects get hover
+            return
+
+        if self.settings.get("DocsHoverEnabled"):
+            if view.match_selector(point, "keyword.effect"):
+                self.show_hover_docs(
                     view,
                     point,
-                    game_object,
-                    name,
+                    "keyword.effect",
+                    self.GameData.EffectsList,
+                    self.settings,
                 )
-                break
+                return
+
+            if view.match_selector(point, "string.trigger"):
+                self.GameData.TriggersList.update(self.GameData.CustomTriggersList)
+                self.show_hover_docs(
+                    view,
+                    point,
+                    "string.trigger",
+                    self.GameData.TriggersList,
+                    self.settings,
+                )
+                return
+
+            if view.match_selector(point, "storage.type.scope"):
+                self.GameData.ScopesList.update(self.GameData.CustomScopesList)
+                self.show_hover_docs(
+                    view,
+                    point,
+                    "storage.type.scope",
+                    self.GameData.ScopesList,
+                    self.settings,
+                )
+                return
+
+        # Texture popups can happen for both script and gui files
+        if not self.settings.get("TextureOpenPopup"):
+            return
+
+        posLine = view.line(point)
+        if ".dds" not in view.substr(posLine):
+            return
+
+        texture_raw_start = view.find("gfx", posLine.a)
+        texture_raw_end = view.find(".dds", posLine.a)
+        texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
+        texture_raw_path = view.substr(texture_raw_region)
+        full_texture_path = os.path.join(self.game_files_path, texture_raw_path)  # type: ignore
+
+        if os.path.exists(full_texture_path):
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
+            return
+
+        # Check mod paths if it's not vanilla
+        for mod in self.mod_files:  # type: ignore
+            if os.path.exists(mod) and mod.endswith("mod"):
+                # if it is the path to the mod directory, get all directories in it
+                for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
+                    mod_path = os.path.join(directory, texture_raw_path)
+                    if os.path.exists(mod_path):
+                        full_texture_path = mod_path
+            else:
+                mod_path = os.path.join(mod, texture_raw_path)
+                if os.path.exists(mod_path):
+                    full_texture_path = mod_path
+
+        # The path exists and the point in the view is inside of the path
+        if texture_raw_region.contains(point):
+            texture_name = view.substr(view.word(texture_raw_end.a - 1))
+            self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
 
     def on_post_save_async(self, view: sublime.View):
         if view is None:
@@ -761,7 +551,7 @@ class ImperatorEventListener(
 
         mod_dir = [
             x
-            for x in self.imperator_mod_files  # type: ignore
+            for x in self.mod_files  # type: ignore
             if is_file_in_directory(get_file_name(view), x)
         ]
         in_mod_dir = any(mod_dir)
@@ -786,13 +576,13 @@ class ImperatorEventListener(
         write_syntax = self.settings.get("UpdateSyntaxOnNewObjectCreation")
         if write_syntax:
             changed_objects_set = self.jomini_game_object.check_mod_for_changes(
-                self.imperator_mod_files,
+                self.mod_files,
                 self.manager.get_dir_to_game_object_dict(),
                 self.manager.get_game_object_dirs(),
             )
         else:
             changed_objects_set = self.jomini_game_object.check_mod_for_changes(
-                self.imperator_mod_files,
+                self.mod_files,
                 self.manager.get_dir_to_game_object_dict(),
                 self.manager.get_game_object_dirs(),
             )
