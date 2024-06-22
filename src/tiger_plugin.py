@@ -5,7 +5,7 @@ All the code for handling the integration of imperator-tiger into the plugin.
 import sublime
 import sublime_plugin
 
-from JominiTools.src import (
+from libjomini.src import (
     JominiTigerEventListener,
     JominiTigerOutputCommand,
     JominiExecuteTigerCommand,

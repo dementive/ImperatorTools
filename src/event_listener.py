@@ -7,18 +7,18 @@ import os
 import re
 import threading
 import time
-from typing import List, Set, Tuple, Union
+from typing import List, Tuple, Union
 
 import sublime
 import sublime_plugin
 
-from JominiTools.src import encoding_check
+from libjomini.src import encoding_check
 from .autocomplete import AutoComplete
 from .game_data import GameData
 from .game_object_manager import GameObjectManager
 from .game_objects import ImperatorGameObject
 from .imperator_objects import *
-from JominiTools.src import (
+from libjomini.src import (
     ScopeMatch,
     get_file_name,
     get_syntax_name,
@@ -26,12 +26,17 @@ from JominiTools.src import (
     GameObjectBase,
     PdxScriptObject,
     Hover,
-    JominiEventListener
+    JominiEventListener,
 )
 
 
 class ImperatorEventListener(
-    ImperatorGameObject, Hover, AutoComplete, ScopeMatch, JominiEventListener, sublime_plugin.EventListener
+    ImperatorGameObject,
+    Hover,
+    AutoComplete,
+    ScopeMatch,
+    JominiEventListener,
+    sublime_plugin.EventListener,
 ):
     def on_init(self, views):
         self.init()
@@ -465,7 +470,9 @@ class ImperatorEventListener(
                 (self.manager.trade_good.name, "Trade Good"),
                 (self.manager.trait.name, "Trait"),
             ]
-        sublime.set_timeout_async(lambda: self.do_hover_async(view, point, hover_objects), 0)
+        sublime.set_timeout_async(
+            lambda: self.do_hover_async(view, point, hover_objects), 0
+        )
 
         if syntax_name != "Imperator Script":
             # For yml only the saved scopes/variables/game objects get hover

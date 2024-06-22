@@ -3,7 +3,8 @@ from typing import Dict
 
 from .game_object_manager import GameObjectManager
 from .imperator_objects import ImperatorObject
-from JominiTools.src import write_syntax
+from libjomini.src import write_syntax
+
 
 class ImperatorGameObject:
     def write_data_to_syntax(self, game_objects: Dict[str, ImperatorObject]):
@@ -79,7 +80,9 @@ class ImperatorGameObject:
             "entity.name.imperator.death.reason",
         )
         lines += write_syntax(
-            game_objects[manager.deity.name].keys(), "Deity", "entity.name.imperator.deity"
+            game_objects[manager.deity.name].keys(),
+            "Deity",
+            "entity.name.imperator.deity",
         )
         lines += write_syntax(
             game_objects[manager.diplo_stance.name].keys(),
@@ -168,13 +171,19 @@ class ImperatorGameObject:
             "entity.name.imperator.office",
         )
         lines += write_syntax(
-            game_objects[manager.party.name].keys(), "Party", "entity.name.imperator.party"
+            game_objects[manager.party.name].keys(),
+            "Party",
+            "entity.name.imperator.party",
         )
         lines += write_syntax(
-            game_objects[manager.pop.name].keys(), "Pop Type", "entity.name.imperator.pop"
+            game_objects[manager.pop.name].keys(),
+            "Pop Type",
+            "entity.name.imperator.pop",
         )
         lines += write_syntax(
-            game_objects[manager.price.name].keys(), "Price", "entity.name.imperator.price"
+            game_objects[manager.price.name].keys(),
+            "Price",
+            "entity.name.imperator.price",
         )
         lines += write_syntax(
             game_objects[manager.province_rank.name].keys(),
@@ -207,7 +216,9 @@ class ImperatorGameObject:
             "entity.name.imperator.trade.good",
         )
         lines += write_syntax(
-            game_objects[manager.trait.name].keys(), "Trait", "entity.name.imperator.trait"
+            game_objects[manager.trait.name].keys(),
+            "Trait",
+            "entity.name.imperator.trait",
         )
         lines += write_syntax(
             game_objects[manager.unit.name].keys(), "Unit", "entity.name.imperator.unit"

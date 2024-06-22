@@ -1,5 +1,5 @@
 from .imperator_objects import *
-from JominiTools.src import JominiGameObjectManager, GameObjectData
+from libjomini.src import JominiGameObjectManager, GameObjectData
 
 
 class GameObjectManager(JominiGameObjectManager):

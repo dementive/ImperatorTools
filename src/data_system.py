@@ -6,7 +6,7 @@ Data system features that are not coupled to game objects should go here.
 from typing import List
 import sublime
 import sublime_plugin
-from JominiTools.src import JominiDataSystemEventListener
+from libjomini.src import JominiDataSystemEventListener
 
 
 class ImperatorDataSystemEventListener(

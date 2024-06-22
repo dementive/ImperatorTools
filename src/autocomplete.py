@@ -2,7 +2,7 @@
 Code for the autocomplete features of the plugin
 """
 
-from JominiTools.src import JominiAutoComplete
+from libjomini.src import JominiAutoComplete
 from .game_object_manager import GameObjectManager
 
 

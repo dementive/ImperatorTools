@@ -5,7 +5,7 @@ from typing import Union
 
 import sublime
 
-from JominiTools.src import GameObjectBase, NamedColor
+from libjomini.src import GameObjectBase, NamedColor
 
 imperator_files_path = ""
 imperator_mod_files = []
