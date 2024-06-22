@@ -2,42 +2,14 @@
 
 import sublime
 
+from libjomini.src import JominiGameData
 from .game_object_manager import GameObjectManager
 
-country_event = """
-${1:NAMESPACE}.${2:NUM} = {
-    type = country_event
-    title = ${1:NAMESPACE}.${2:NUM}.t
-    desc = ${1:NAMESPACE}.${2:NUM}.desc
-    picture = aqueducts
-    
-    left_portrait = current_ruler
+manager = GameObjectManager()
 
-    trigger = {
-    
-    }
-
-    immediate = {
-
-    }
-
-    option = {      
-        name = ${1:NAMESPACE}.${2:NUM}.a
-    }
-    option = {      
-        name = ${1:NAMESPACE}.${2:NUM}.b
-    }
-}
-"""
-
-
-class GameData:
-    """Class to hold all data generated from the base game logs"""
-
+class ImperatorGameData(JominiGameData):
     def __init__(self):
         # Manually added lists, add custom stuff here
-        # TODO - make these actually work
-        manager = GameObjectManager()
         self.CustomTriggersList = {}
         self.CustomEffectsList = {}
         self.CustomScopesList = {
@@ -64,125 +36,17 @@ class GameData:
             "military_experience": "Ex: military_experience = 50",
             "war_exhaustion": "Ex: war_exhaustion = 10",
         }
-        self.EventsList = {
-            1: {
-                "trigger": "country_event",
-                "completion": country_event,
-                "kind": (sublime.KIND_ID_SNIPPET, "S", "Country Event"),
-                "annotation": "Event Template",
-                "details": "Create a basic country event",
-            },
-            2: {
-                "trigger": "type",
-                "completion": "type" + " = ${1:country_event}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Event Type",
-                "details": "Defines the root scope the event fires in",
-            },
-            3: {
-                "trigger": "title",
-                "completion": "title" + " = ${1:event_title}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Title",
-                "details": "The title to show in the event window",
-            },
-            4: {
-                "trigger": "desc",
-                "completion": "desc" + " = ${1:event_desc}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Description",
-                "details": "The description to show in the event window",
-            },
-            5: {
-                "trigger": "desc_extended",
-                "completion": "desc = {\n\t"
-                + "first_valid = {\n\t\t"
-                + 'triggered_desc = {\n\t\t\ttrigger = { always = yes }\n\t\t\tdesc = "desc_1"\n\t\t}\n\t\ttriggered_desc = {\n\t\t\ttrigger = { treasury > 50 }\n\t\t\tdesc = "desc_2"\n\t\t}\n\t}\n}',
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Multiple Descriptions",
-                "details": "Show 1 description from many descriptions based on a trigger",
-            },
-            6: {
-                "trigger": "picture",
-                "completion": "picture" + " = ${1:aqueducts}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Picture",
-                "details": "Picture to show in the event window, keys from event_pictures",
-            },
-            7: {
-                "trigger": "hidden",
-                "completion": "hidden" + " = ${1:yes}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Hidden",
-                "details": "Hides an event from the player",
-            },
-            8: {
-                "trigger": "goto_location",
-                "completion": "goto_location" + " = ${1:capital_scope}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Goto Location",
-                "details": "Adds a button that pans to a location to an event",
-            },
-            9: {
-                "trigger": "left_portrait",
-                "completion": "left_portrait" + " = ${1:current_ruler}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Left Portrait",
-                "details": "Shows a character in an event on the left",
-            },
-            10: {
-                "trigger": "right_portrait",
-                "completion": "right_portrait" + " = ${1:current_ruler}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Right Portrait",
-                "details": "Shows a character in an event on the right",
-            },
-            11: {
-                "trigger": "fire_only_once",
-                "completion": "fire_only_once" + " = ${1:yes}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Fire Only Once",
-                "details": "Makes it so an event can only fire one time",
-            },
-            12: {
-                "trigger": "weight_multiplier",
-                "completion": "weight_multiplier"
-                + " = {\n\tmodifier = {\n\t\tfactor = 2\n\t\tnum_of_cities &ge; 20\n\t}\n\tmodifier = {\n\t\tfactor = 2\n\t\tnum_of_cities &ge; 30\n\t}\n}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Weight",
-                "details": "Weight for a event to fire, uses MTTH syntax",
-            },
-            13: {
-                "trigger": "trigger",
-                "completion": "trigger" + " = {\n\t${1:}\n}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Trigger",
-                "details": "Trigger that is checked to see if event should be fired",
-            },
-            14: {
-                "trigger": "immediate",
-                "completion": "immediate" + " = {\n\t${1:}\n}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Immediate",
-                "details": "Effects to run as soon as the event fires, save scopes and set variables here.",
-            },
-            15: {
-                "trigger": "option",
-                "completion": "option" + " = {\n\tname = ${1:option_name.a}\n}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "Option",
-                "details": "Option that the player can pick to resolve an event",
-            },
-            16: {
-                "trigger": "after",
-                "completion": "after" + " = {\n\t${1:}\n}",
-                "kind": (sublime.KIND_ID_TYPE, "E", "Event Parameter"),
-                "annotation": "After",
-                "details": "Effects to run after an option has been picked",
-            },
-        }
-        # Everything below this is generated, don't change without scripts
-        self.EffectsList = {
+        self.MtthList = self.game_triggers
+        self.MtthList["factor"] = "Mean time to happen factor"
+        self.MtthList["base"] = "Base mean time to happen factor"
+
+        self.game_triggers.update(self.CustomEffectsList)
+        self.game_triggers.update(self.CustomTriggersList)
+        self.game_scopes.update(self.CustomScopesList)
+
+    @property
+    def game_effects(self):
+        return {
             "add_trade_route": '"adds an import trade route. For example:<br>add_trade_route = {<br>   target = state # The exporting state<br>    goods = grain # The goods to trade<br>}"<br>Supported Scopes: state',
             "remove_trade_route": '"removes a trade route. For example:<br>remove_trade_route = {<br>  target = state # The exporting state<br>    goods = grain # The goods of the trade route<br>}"<br>Supported Scopes: state',
             "set_automated_trading": "enables/disables state automated trading<br>Supported Scopes: state",
@@ -662,11 +526,13 @@ class GameData:
             "set_local_variable": "Sets a variable<br>set_variable = { name = X value = Y days = Z }<br>Where X is the name of the variable used to then access it<br>Where Y is any event target, bool, value, script value or flag (flag:W)<br>An optional days where Z is the number of days or script value<br>This variable will be accessible with var:X. With type being in a scope object or in a top scope<br>Supported Scopes: none",
             "set_variable": "Sets a variable<br>set_variable = { name = X value = Y days = Z }<br>Where X is the name of the variable used to then access it<br>Where Y is any event target, bool, value, script value or flag (flag:W)<br>An optional days where Z is the number of days or script value<br>This variable will be accessible with var:X. With type being in a scope object or in a top scope<br>Supported Scopes: none",
             "show_as_tooltip": "Effect only shown in tooltips (but not executed)<br>Supported Scopes: none",
-            "switch": "Switch on a trigger for the evaluation of another trigger with an optional fallback trigger.<br>switch = {<br>	trigger = simple_assign_trigger<br>	case_1 = { [effects] }<br>	case_2 = { [effects] }<br>	case_n = { [effects] }<br>	fallback = { [effects] }<br>Supported Scopes: none",
+            "switch": "Switch on a trigger for the evaluation of another trigger with an optional fallback trigger.<br>switch = {<br>   trigger = simple_assign_trigger<br> case_1 = { [effects] }<br>  case_2 = { [effects] }<br>  case_n = { [effects] }<br>  fallback = { [effects] }<br>Supported Scopes: none",
             "trigger_event": 'triggers an event or on_action<br>trigger_event = { id = X days/months/years = Y } (for events)<br>or<br>trigger_event = { on_action = X days/months/years = Y } (for on_actions)<br>Days/months/years are optional and equal to 0 if not specified. If specified, Y can be a value or an inclusive interval "{ A B }" from which the duration will be picked randomly.<br>Supported Scopes: none',
             "while": "Repeats enclosed effects while limit criteria are met or until set iteration count is reached<br>while = { limit = { [triggers] } [effects] }<br> while = { count = 3 [effects] }<br>Default max of 1000.<br>Supported Scopes: none",
         }
-        self.TriggersList = {
+    @property
+    def game_triggers(self):
+        return {
             "can_create_trade_route": '"can create an import trade route. For example<br>can_create_trade_route = {<br>    target = p:1.state<br>  goods = grain<br>}<br>"<br>Supported Scopes: state',
             "has_capital_bonus_for_trade_good": "Checks if a state's capital has a bonus for the specific trade good. Example has_capital_bonus_for_trade_good = grain<br>Supported Scopes: state",
             "has_capital_surplus": "Does the state's capital have a trade surplus?<br>Traits: yes/no <br>Supported Scopes: state",
@@ -1182,7 +1048,7 @@ class GameData:
             "calc_true_if": "Returns true if the specified number of sub-triggers return true<br>calc_true_if = { amount = 2 <trigger> <trigger> <trigger> }<br>Supported Scopes: none",
             "culture_pops_in_country": "The percentage of pops in country matching this country culture<br>Supported Scopes: none",
             "current_date": "Compare the current date.<br>Traits: &lt;, =,&gt; valid date<br>Supported Scopes: none",
-            "custom_tooltip": "Replaces the tooltips for the enclosed triggers with a custom text<br>custom_tooltip = {<br>	text = <text><br>	<trigger><br>}<br>Supported Scopes: none",
+            "custom_tooltip": "Replaces the tooltips for the enclosed triggers with a custom text<br>custom_tooltip = {<br> text = <text><br>   <trigger><br>}<br>Supported Scopes: none",
             "debug_only": "Checks if the game is in debug mode or not.<br>Traits: yes/no <br>Supported Scopes: none",
             "exists": "Checks whether the specified socope target exists (check for not being the null object)<br>exists = from.owner.var:cool_var.mother<br>Supported Scopes: none",
             "game_start_date": "Compare the date of the bookmarked game launched.<br>Traits: &lt;, =, &gt; valid date<br>Supported Scopes: none",
@@ -1212,7 +1078,7 @@ class GameData:
             "or": "at least one entry inside trigger must be true<br>Supported Scopes: none",
             "religion_pops_in_country": "The percentage of pops in country matching this religion<br>Supported Scopes: none",
             "save_temporary_scope_as": "Saves a temporary target for use during the trigger execution<br>Supported Scopes: none",
-            "switch": "Switch on a trigger for the evaluation of another trigger with an optional fallback trigger.<br>switch = {<br>	trigger = simple_assign_trigger<br>	case_1 = { [triggers] }<br>	case_2 = { [triggers] }<br>	case_n = { [triggers] }<br>	fallback = { [triggers] }<br>Supported Scopes: none",
+            "switch": "Switch on a trigger for the evaluation of another trigger with an optional fallback trigger.<br>switch = {<br>   trigger = simple_assign_trigger<br> case_1 = { [triggers] }<br> case_2 = { [triggers] }<br> case_n = { [triggers] }<br> fallback = { [triggers] }<br>Supported Scopes: none",
             "target_is_valid_character": "Checks whether the specified scope target is a valid character<br>Traits: character scope<br>Supported Scopes: none<br>Supported Targets: character",
             "trigger_else": "Evaluates the triggers if the display_triggers of preceding 'trigger_if' or 'trigger_else_if' is not mettrigger_if = { limit = { <display_triggers> } [triggers] }<br> trigger_else = { [triggers] }<br>Supported Scopes: none",
             "trigger_else_if": "Evaluates the enclosed triggers if the display_triggers of the preceding `trigger_if` or `trigger_else_if` is not met and its own display_trigger of the limit is mettrigger_if = { limit = { <display_triggers> } [triggers] }<br>trigger_else_if = { limit = { <display_triggers> } [triggers] }<br>Supported Scopes: none",
@@ -1223,10 +1089,9 @@ class GameData:
             "is_color": "Check if the scoped color is the same as another color. The right hand side can be either a hex, rgb, or hsv color,  or a named color, or another color scope.<br>Supported Scopes: color",
             "is_pop_type_right": "Does this country culture have this poptype right<br>Traits: class CPopTypeDataBase key<br>Supported Scopes: poptype",
         }
-        self.MtthList = self.TriggersList
-        self.MtthList["factor"] = "Mean time to happen factor"
-        self.MtthList["base"] = "Base mean time to happen factor"
-        self.ScopesList = {
+    @property
+    def game_scopes(self):
+        return {
             "character_party": "Scope to a characters party<br>Input Scopes: character<br>Output Scopes: party",
             "employer": "Scope to a character's employing country<br>Input Scopes: character<br>Output Scopes: country",
             "family": "Scope to a character's family<br>Input Scopes: character<br>Output Scopes: family",
@@ -1321,7 +1186,9 @@ class GameData:
             "siege": "Input Scopes: province, unit<br>Output Scopes: siege",
             "capital_scope": "Scope to the capital of a country, state, or governorship<br>Input Scopes: country, state, governorship<br>Output Scopes: province",
         }
-        self.ModifersList = {
+    @property
+    def game_modifiers(self):
+        return {
             "build_cost": "Category: country",
             "build_time": "Category: country",
             "minimum_unrest": "Category: province",
@@ -2178,8 +2045,9 @@ class GameData:
             "local_happiness_for_wrong_religion_modifier": "Categories: province",
             "cultural_assimilation_speed_modifier": "Categories: country",
         }
-
-        self.simple_completion_pattern_flag_pairs = [
+    @property
+    def simple_completion_pattern_flag_pairs(self):
+        return [
             (
                 ["color", "color1", "color2", "color3", "color4", "color5"],
                 manager.named_colors.name,
@@ -2365,8 +2233,9 @@ class GameData:
                 manager.region.name,
             ),
         ]
-
-        self.simple_completion_scope_pattern_flag_pairs = [
+    @property
+    def simple_completion_scope_pattern_flag_pairs(self):
+        return [
             ("area:", manager.area.name),
             ("culture:", manager.culture.name),
             ("culture_group:", manager.culture_group.name),
@@ -2375,77 +2244,9 @@ class GameData:
             ("region:", manager.region.name),
             ("religion:", manager.religion.name),
         ]
-
-        self.data_system_completion_flag_pairs = [
-            (
-                manager.mil_tradition.name,
-                (sublime.KIND_ID_VARIABLE, "L", "Military Traditions"),
-            ),
-            (manager.scripted_gui.name, (sublime.KIND_ID_SNIPPET, "S", "Scripted Gui")),
-            (manager.building.name, (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
-            (manager.culture.name, (sublime.KIND_ID_TYPE, "C", "Cultures")),
-            (
-                manager.culture_group.name,
-                (sublime.KIND_ID_VARIABLE, "C", "Culture Groups"),
-            ),
-            (
-                manager.custom_loc.name,
-                (sublime.KIND_ID_VARIABLE, "C", "Custom Localization"),
-            ),
-            (manager.deity.name, (sublime.KIND_ID_TYPE, "D", "Deities")),
-            (
-                manager.diplo_stance.name,
-                (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances"),
-            ),
-            (manager.heritage.name, (sublime.KIND_ID_VARIABLE, "G", "Heritages")),
-            (manager.invention.name, (sublime.KIND_ID_MARKUP, "H", "Inventions")),
-            (
-                manager.legion_distinction.name,
-                (sublime.KIND_ID_TYPE, "I", "Legion Distinction"),
-            ),
-            (manager.loyalty.name, (sublime.KIND_ID_VARIABLE, "L", "Loyalties")),
-            (manager.modifier.name, (sublime.KIND_ID_MARKUP, "M", "Modifiers")),
-            (manager.office.name, (sublime.KIND_ID_NAMESPACE, "O", "Offices")),
-            (manager.price.name, (sublime.KIND_ID_NAVIGATION, "P", "Prices")),
-            (
-                manager.province_rank.name,
-                (sublime.KIND_ID_VARIABLE, "P", "Province Ranks"),
-            ),
-            (manager.religion.name, (sublime.KIND_ID_VARIABLE, "R", "Religions")),
-            (manager.terrain.name, (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
-            (manager.trade_good.name, (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),
-            (manager.trait.name, (sublime.KIND_ID_VARIABLE, "T", "Traits")),
-            (
-                manager.script_value.name,
-                (sublime.KIND_ID_NAMESPACE, "S", "Script Value"),
-            ),
-        ]
-
-        self.data_system_completion_functions = [
-            (manager.building.name, "GetBuilding"),
-            (manager.culture.name, "GetCulture"),
-            (manager.culture_group.name, "GetCultureGroup"),
-            (manager.custom_loc.name, "Custom"),
-            (manager.deity.name, "GetDeityDefinition"),
-            (manager.diplo_stance.name, "GetDiplomaticStance"),
-            (manager.heritage.name, "GetHeritage"),
-            (manager.invention.name, "GetInvention"),
-            (manager.legion_distinction.name, "GetLegionDistinction"),
-            (manager.loyalty.name, "GetLoyaltyEntry"),
-            (manager.mil_tradition.name, "GetMilitaryBonus"),
-            (manager.modifier.name, "GetModifier"),
-            (manager.office.name, "GetOffice"),
-            (manager.price.name, "GetPrice"),
-            (manager.province_rank.name, "GetProvinceRank"),
-            (manager.script_value.name, "ScriptValue"),
-            (manager.religion.name, "GetReligion"),
-            (manager.scripted_gui.name, "GetScriptedGui"),
-            (manager.terrain.name, "GetTerrainType"),
-            (manager.trade_good.name, "GetTradeGood"),
-            (manager.trait.name, "GetTrait"),
-        ]
-
-        self.completion_flag_pairs = [
+    @property
+    def completion_flag_pairs(self):
+        return [
             (manager.ambition.name, (sublime.KIND_ID_FUNCTION, "A", "Ambitions")),
             (manager.area.name, (sublime.KIND_ID_SNIPPET, "A", "Areas")),
             (manager.building.name, (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
@@ -2524,3 +2325,135 @@ class GameData:
             (manager.unit.name, (sublime.KIND_ID_FUNCTION, "U", "Units")),
             (manager.war_goal.name, (sublime.KIND_ID_FUNCTION, "W", "War Goals")),
         ]
+    @property
+    def data_system_completion_flag_pairs(self):
+        return [
+            (
+                manager.mil_tradition.name,
+                (sublime.KIND_ID_VARIABLE, "L", "Military Traditions"),
+            ),
+            (manager.scripted_gui.name, (sublime.KIND_ID_SNIPPET, "S", "Scripted Gui")),
+            (manager.building.name, (sublime.KIND_ID_FUNCTION, "B", "Buildings")),
+            (manager.culture.name, (sublime.KIND_ID_TYPE, "C", "Cultures")),
+            (
+                manager.culture_group.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Culture Groups"),
+            ),
+            (
+                manager.custom_loc.name,
+                (sublime.KIND_ID_VARIABLE, "C", "Custom Localization"),
+            ),
+            (manager.deity.name, (sublime.KIND_ID_TYPE, "D", "Deities")),
+            (
+                manager.diplo_stance.name,
+                (sublime.KIND_ID_SNIPPET, "D", "Diplo Stances"),
+            ),
+            (manager.heritage.name, (sublime.KIND_ID_VARIABLE, "G", "Heritages")),
+            (manager.invention.name, (sublime.KIND_ID_MARKUP, "H", "Inventions")),
+            (
+                manager.legion_distinction.name,
+                (sublime.KIND_ID_TYPE, "I", "Legion Distinction"),
+            ),
+            (manager.loyalty.name, (sublime.KIND_ID_VARIABLE, "L", "Loyalties")),
+            (manager.modifier.name, (sublime.KIND_ID_MARKUP, "M", "Modifiers")),
+            (manager.office.name, (sublime.KIND_ID_NAMESPACE, "O", "Offices")),
+            (manager.price.name, (sublime.KIND_ID_NAVIGATION, "P", "Prices")),
+            (
+                manager.province_rank.name,
+                (sublime.KIND_ID_VARIABLE, "P", "Province Ranks"),
+            ),
+            (manager.religion.name, (sublime.KIND_ID_VARIABLE, "R", "Religions")),
+            (manager.terrain.name, (sublime.KIND_ID_SNIPPET, "T", "Terrains")),
+            (manager.trade_good.name, (sublime.KIND_ID_KEYWORD, "T", "Trade Goods")),
+            (manager.trait.name, (sublime.KIND_ID_VARIABLE, "T", "Traits")),
+            (
+                manager.script_value.name,
+                (sublime.KIND_ID_NAMESPACE, "S", "Script Value"),
+            ),
+        ]
+    @property
+    def data_system_completion_functions(self):
+        return [
+            (manager.building.name, "GetBuilding"),
+            (manager.culture.name, "GetCulture"),
+            (manager.culture_group.name, "GetCultureGroup"),
+            (manager.custom_loc.name, "Custom"),
+            (manager.deity.name, "GetDeityDefinition"),
+            (manager.diplo_stance.name, "GetDiplomaticStance"),
+            (manager.heritage.name, "GetHeritage"),
+            (manager.invention.name, "GetInvention"),
+            (manager.legion_distinction.name, "GetLegionDistinction"),
+            (manager.loyalty.name, "GetLoyaltyEntry"),
+            (manager.mil_tradition.name, "GetMilitaryBonus"),
+            (manager.modifier.name, "GetModifier"),
+            (manager.office.name, "GetOffice"),
+            (manager.price.name, "GetPrice"),
+            (manager.province_rank.name, "GetProvinceRank"),
+            (manager.script_value.name, "ScriptValue"),
+            (manager.religion.name, "GetReligion"),
+            (manager.scripted_gui.name, "GetScriptedGui"),
+            (manager.terrain.name, "GetTerrainType"),
+            (manager.trade_good.name, "GetTradeGood"),
+            (manager.trait.name, "GetTrait"),
+        ]
+    @property
+    def auto_complete_selector_flag_pairs(self):
+        return [
+            ("meta.op.mod.bracket", manager.opinion.name, "modifier = "),
+            ("meta.party.bracket", manager.party.name, "party = "),
+            ("meta.pop.type.bracket", manager.pop.name, "type = "),
+            ("meta.subject.type.bracket", manager.subject_type.name, "type = "),
+            ("meta.tech.table.bracket", manager.tech_table.name, "technology = "),
+            ("meta.trade.good.target.bracket", manager.trade_good.name, "target = "),
+            ("meta.trade.good.bracket", manager.trade_good.name, "goods = "),
+            ("meta.trait.bracket", manager.trait.name),
+            ("meta.invention.bracket", manager.invention.name),
+            ("meta.unit.bracket", manager.unit.name, "type = "),
+        ]
+    @property
+    def auto_complete_fields(self):
+        return {
+            manager.ambition.name: [],
+            manager.area.name: [],
+            manager.building.name: [],
+            manager.culture.name: [],
+            manager.culture_group.name: [],
+            manager.custom_loc.name: [],
+            manager.death_reason.name: [],
+            manager.deity.name: [],
+            manager.diplo_stance.name: [],
+            manager.econ_policy.name: [],
+            manager.event_pic.name: [],
+            manager.event_theme.name: [],
+            manager.government.name: [],
+            manager.governor_policy.name: [],
+            manager.heritage.name: [],
+            manager.idea.name: [],
+            manager.invention.name: [],
+            manager.law.name: [],
+            manager.legion_distinction.name: [],
+            manager.levy_template.name: [],
+            manager.loyalty.name: [],
+            manager.mil_tradition.name: [],
+            manager.mission.name: [],
+            manager.mission_task.name: [],
+            manager.modifier.name: [],
+            manager.named_colors.name: [],
+            manager.office.name: [],
+            manager.opinion.name: [],
+            manager.party.name: [],
+            manager.pop.name: [],
+            manager.price.name: [],
+            manager.province_rank.name: [],
+            manager.region.name: [],
+            manager.religion.name: [],
+            manager.script_value.name: [],
+            manager.scripted_gui.name: [],
+            manager.subject_type.name: [],
+            manager.tech_table.name: [],
+            manager.terrain.name: [],
+            manager.trade_good.name: [],
+            manager.trait.name: [],
+            manager.unit.name: [],
+            manager.war_goal.name: [],
+        }

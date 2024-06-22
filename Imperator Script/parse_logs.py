@@ -130,7 +130,7 @@ def create_sublime_completions(
 		}},"""
         )
 
-    # file.write("ModifersList = {")
+    # file.write("game_modifiers = {")
     # for i in modifiers:
     #     regex = re.search(r"[^C]*$", i)
     #     cat_out = regex[0].replace("ategories", "Category")

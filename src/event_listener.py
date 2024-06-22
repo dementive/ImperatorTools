@@ -14,7 +14,7 @@ import sublime_plugin
 
 from libjomini.src import encoding_check
 from .autocomplete import AutoComplete
-from .game_data import GameData
+from .game_data import ImperatorGameData
 from .game_object_manager import GameObjectManager
 from .game_objects import ImperatorGameObject
 from .imperator_objects import *
@@ -40,14 +40,13 @@ class ImperatorEventListener( # type: ignore
     sublime_plugin.EventListener,
 ):
     def on_init(self, views):
-        plugin = ImperatorPlugin()
-        self.init(plugin)
+        self.init(ImperatorPlugin())
 
     def init_game_object_manager(self):
         self.manager = GameObjectManager()
 
     def init_game_data(self):
-        self.GameData = GameData()
+        self.game_data = ImperatorGameData()
 
     def create_all_game_objects(self):
         t0 = time.time()
@@ -133,9 +132,9 @@ class ImperatorEventListener( # type: ignore
             for i in ef_list:
                 self.game_objects["scripted_list_effects"].add(i)
             for i in self.game_objects["scripted_list_effects"].keys():
-                self.GameData.EffectsList[i] = "Scripted list effect"
+                self.game_data.game_effects[i] = "Scripted list effect"
             for i in self.game_objects["scripted_list_triggers"].keys():
-                self.GameData.TriggersList[i] = "Scripted list trigger"
+                self.game_data.game_triggers[i] = "Scripted list trigger"
 
         thread1 = threading.Thread(target=load_first)
         thread2 = threading.Thread(target=load_second)
@@ -191,13 +190,13 @@ class ImperatorEventListener( # type: ignore
             return
 
         if syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui":
-            for flag, completion in self.GameData.data_system_completion_flag_pairs:
+            for flag, completion in self.game_data.data_system_completion_flag_pairs:
                 completion_list = self.create_completion_list(flag, completion)
                 if completion_list is not None:
                     return completion_list
             return  # Don't need to check anything else for data system
 
-        for flag, completion in self.GameData.completion_flag_pairs:
+        for flag, completion in self.game_data.completion_flag_pairs:
             completion_list = self.create_completion_list(flag, completion)
             if completion_list is not None:
                 return completion_list
@@ -208,23 +207,23 @@ class ImperatorEventListener( # type: ignore
 
         if "script_values" in fname:
             e_list = []
-            for i in self.GameData.EffectsList:
+            for i in self.game_data.game_effects:
                 e_list.append(
                     sublime.CompletionItem(
                         trigger=i,
                         completion_format=sublime.COMPLETION_FORMAT_TEXT,
                         kind=(sublime.KIND_ID_FUNCTION, "E", "Effect"),
-                        details=self.GameData.EffectsList[i].split("<br>")[0],
+                        details=self.game_data.game_effects[i].split("<br>")[0],
                     )
                 )
             t_list = []
-            for i in self.GameData.TriggersList:
+            for i in self.game_data.game_triggers:
                 t_list.append(
                     sublime.CompletionItem(
                         trigger=i,
                         completion_format=sublime.COMPLETION_FORMAT_TEXT,
                         kind=(sublime.KIND_ID_NAVIGATION, "T", "Trigger"),
-                        details=self.GameData.TriggersList[i].split("<br>")[0],
+                        details=self.game_data.game_triggers[i].split("<br>")[0],
                     )
                 )
 
@@ -238,9 +237,9 @@ class ImperatorEventListener( # type: ignore
                         completion_format=sublime.COMPLETION_FORMAT_SNIPPET,
                         kind=(sublime.KIND_ID_NAVIGATION, "P", "Price"),
                         annotation=" " + key.replace("_", " ").title(),
-                        details=self.GameData.PricesDict[key],
+                        details=self.game_data.PricesDict[key],
                     )
-                    for key in sorted(self.GameData.PricesDict)
+                    for key in sorted(self.game_data.PricesDict)
                 ],
                 flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
                 | sublime.INHIBIT_WORD_COMPLETIONS,
@@ -256,9 +255,9 @@ class ImperatorEventListener( # type: ignore
                         trigger=key,
                         completion_format=sublime.COMPLETION_FORMAT_TEXT,
                         kind=(sublime.KIND_ID_NAVIGATION, "T", "Trigger"),
-                        details=self.GameData.TriggersList[key].split("<br>")[0],
+                        details=self.game_data.game_triggers[key].split("<br>")[0],
                     )
-                    for key in sorted(self.GameData.TriggersList)
+                    for key in sorted(self.game_data.game_triggers)
                 ]
             )
         if self.mtth_field:
@@ -268,9 +267,9 @@ class ImperatorEventListener( # type: ignore
                         trigger=key,
                         completion_format=sublime.COMPLETION_FORMAT_TEXT,
                         kind=(sublime.KIND_ID_NAVIGATION, "T", "Trigger"),
-                        details=self.GameData.MtthList[key].split("<br>")[0],
+                        details=self.game_data.MtthList[key].split("<br>")[0],
                     )
-                    for key in sorted(self.GameData.MtthList)
+                    for key in sorted(self.game_data.MtthList)
                 ]
             )
         if self.effect_field or "scripted_effects" in fname:
@@ -280,9 +279,9 @@ class ImperatorEventListener( # type: ignore
                         trigger=key,
                         completion_format=sublime.COMPLETION_FORMAT_TEXT,
                         kind=(sublime.KIND_ID_FUNCTION, "E", "Effect"),
-                        details=self.GameData.EffectsList[key].split("<br>")[0],
+                        details=self.game_data.game_effects[key].split("<br>")[0],
                     )
-                    for key in sorted(self.GameData.EffectsList)
+                    for key in sorted(self.game_data.game_effects)
                 ]
             )
         if self.modifier_field or re.search(
@@ -294,27 +293,12 @@ class ImperatorEventListener( # type: ignore
                         trigger=key,
                         completion_format=sublime.COMPLETION_FORMAT_TEXT,
                         kind=(sublime.KIND_ID_MARKUP, "M", "Modifier"),
-                        details=self.GameData.ModifersList[key],
-                        annotation=self.GameData.ModifersList[key].replace(
+                        details=self.game_data.game_modifiers[key],
+                        annotation=self.game_data.game_modifiers[key].replace(
                             "Category: ", ""
                         ),
                     )
-                    for key in sorted(self.GameData.ModifersList)
-                ],
-                flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
-                | sublime.INHIBIT_WORD_COMPLETIONS,
-            )
-        if "/events/" in fname:
-            return sublime.CompletionList(
-                [
-                    sublime.CompletionItem(
-                        trigger=self.GameData.EventsList[key]["trigger"],
-                        completion_format=sublime.COMPLETION_FORMAT_TEXT,
-                        kind=self.GameData.EventsList[key]["kind"],
-                        details=self.GameData.EventsList[key]["details"],
-                        annotation=self.GameData.EventsList[key]["annotation"],
-                    )
-                    for key in sorted(self.GameData.EventsList)
+                    for key in sorted(self.game_data.game_modifiers)
                 ],
                 flags=sublime.INHIBIT_EXPLICIT_COMPLETIONS
                 | sublime.INHIBIT_WORD_COMPLETIONS,
@@ -349,7 +333,7 @@ class ImperatorEventListener( # type: ignore
             if (
                 syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui"
             ) and view.substr(point) == "'":
-                for i in self.GameData.data_system_completion_functions:
+                for i in self.game_data.data_system_completion_functions:
                     function_start = point - len(i[1] + "('")
                     if view.substr(view.word(function_start)) == i[1]:
                         setattr(self, i[0], True)
@@ -370,11 +354,11 @@ class ImperatorEventListener( # type: ignore
 
         line = view.substr(view.line(point))
 
-        for patterns, flag in self.GameData.simple_completion_pattern_flag_pairs:
+        for patterns, flag in self.game_data.simple_completion_pattern_flag_pairs:
             if self.check_for_patterns_and_set_flag(patterns, flag, view, line, point):
                 return
 
-        for pattern, flag in self.GameData.simple_completion_scope_pattern_flag_pairs:
+        for pattern, flag in self.game_data.simple_completion_scope_pattern_flag_pairs:
             self.check_pattern_and_set_flag(pattern, flag, view, line, point)
 
     def on_hover(self, view: sublime.View, point: int, hover_zone: sublime.HoverZone):
@@ -487,29 +471,27 @@ class ImperatorEventListener( # type: ignore
                     view,
                     point,
                     "keyword.effect",
-                    self.GameData.EffectsList,
+                    self.game_data.game_effects,
                     self.settings,
                 )
                 return
 
             if view.match_selector(point, "string.trigger"):
-                self.GameData.TriggersList.update(self.GameData.CustomTriggersList)
                 self.show_hover_docs(
                     view,
                     point,
                     "string.trigger",
-                    self.GameData.TriggersList,
+                    self.game_data.game_triggers,
                     self.settings,
                 )
                 return
 
             if view.match_selector(point, "storage.type.scope"):
-                self.GameData.ScopesList.update(self.GameData.CustomScopesList)
                 self.show_hover_docs(
                     view,
                     point,
                     "storage.type.scope",
-                    self.GameData.ScopesList,
+                    self.game_data.game_scopes,
                     self.settings,
                 )
                 return
