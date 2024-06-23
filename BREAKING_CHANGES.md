@@ -14,3 +14,5 @@
 # Regressions
 
 1. I broke the "Show Inline" part of the show textures command, it works but the toggle doesn't work properly so the view has to be closed for them to go away. Also the delay on textures seems to not be working anymore...
+
+2. Documentation popups are shown on top of validator popups, which makes the error message impossible to see.

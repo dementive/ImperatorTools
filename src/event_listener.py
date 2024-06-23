@@ -15,10 +15,11 @@ import sublime_plugin
 from libjomini.src import encoding_check
 from .autocomplete import AutoComplete
 from .game_data import ImperatorGameData
+from .game_objects import write_data_to_syntax
 from .game_object_manager import GameObjectManager
-from .game_objects import ImperatorGameObject
 from .imperator_objects import *
 from .plugin import ImperatorPlugin
+from libjomini.src.jomini_objects import *
 from libjomini.src import (
     ScopeMatch,
     get_file_name,
@@ -32,13 +33,13 @@ from libjomini.src import (
 
 
 class ImperatorEventListener( # type: ignore
-    ImperatorGameObject,
     Hover,
     AutoComplete,
     ScopeMatch,
     JominiEventListener,
     sublime_plugin.EventListener,
 ):
+    write_data_to_syntax = write_data_to_syntax
     def on_init(self, views):
         self.init(ImperatorPlugin())
 
@@ -61,7 +62,7 @@ class ImperatorEventListener( # type: ignore
             self.game_objects[self.manager.province_rank.name] = ProvinceRank()
 
         def load_third():
-            self.game_objects[self.manager.script_value.name] = ScriptValue()
+            self.game_objects[self.manager.script_value.name] = ScriptValue(self.mod_files, self.game_files_path)
             self.game_objects[self.manager.heritage.name] = Heritage()
             self.game_objects[self.manager.mil_tradition.name] = MilitaryTradition()
             self.game_objects[self.manager.named_colors.name] = NamedColor(
@@ -84,9 +85,9 @@ class ImperatorEventListener( # type: ignore
             self.game_objects[self.manager.event_pic.name] = EventPicture()
             self.game_objects[self.manager.trait.name] = Trait()
             self.game_objects[self.manager.law.name] = Law()
-            self.game_objects[self.manager.scripted_gui.name] = ScriptedGui()
+            self.game_objects[self.manager.scripted_gui.name] = ScriptedGui(self.mod_files, self.game_files_path)
             self.game_objects[self.manager.culture_group.name] = CultureGroup()
-            self.game_objects[self.manager.scripted_modifier.name] = ScriptedModifier()
+            self.game_objects[self.manager.scripted_modifier.name] = ScriptedModifier(self.mod_files, self.game_files_path)
             self.game_objects[self.manager.building.name] = Building()
             self.game_objects[self.manager.terrain.name] = Terrain()
             self.game_objects[self.manager.econ_policy.name] = EconomicPolicy()
@@ -96,9 +97,9 @@ class ImperatorEventListener( # type: ignore
         def load_fifth():
             self.game_objects[self.manager.loyalty.name] = Loyalty()
             self.game_objects[self.manager.area.name] = Area()
-            self.game_objects[self.manager.scripted_effect.name] = ScriptedEffect()
+            self.game_objects[self.manager.scripted_effect.name] = ScriptedEffect(self.mod_files, self.game_files_path)
             self.game_objects[self.manager.invention.name] = Invention()
-            self.game_objects[self.manager.scripted_trigger.name] = ScriptedTrigger()
+            self.game_objects[self.manager.scripted_trigger.name] = ScriptedTrigger(self.mod_files, self.game_files_path)
             self.game_objects[self.manager.event_theme.name] = EventTheme()
             self.game_objects[self.manager.region.name] = Region()
             self.game_objects[self.manager.levy_template.name] = LevyTemplate()
@@ -109,8 +110,8 @@ class ImperatorEventListener( # type: ignore
             )
             self.game_objects[self.manager.government.name] = Government()
             self.game_objects[self.manager.governor_policy.name] = GovernorPolicy()
-            self.game_objects[self.manager.scripted_list_effects.name] = ScriptedList()
-            self.game_objects[self.manager.scripted_list_triggers.name] = ScriptedList()
+            self.game_objects[self.manager.scripted_list_effects.name] = ScriptedList(self.mod_files, self.game_files_path)
+            self.game_objects[self.manager.scripted_list_triggers.name] = ScriptedList(self.mod_files, self.game_files_path)
             self.game_objects[self.manager.pop.name] = Pop()
 
             tri_list = []

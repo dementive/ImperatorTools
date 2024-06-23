@@ -5,7 +5,8 @@ from typing import Union
 
 import sublime
 
-from libjomini.src import GameObjectBase, NamedColor
+from libjomini.src import GameObjectBase
+from libjomini.src.jomini_objects import JominiObject
 
 imperator_files_path = ""
 imperator_mod_files = []
@@ -213,30 +214,6 @@ class Religion(GameObjectBase):
         self.get_data(f"common{os.sep}religions")
 
 
-class ScriptValue(GameObjectBase):
-    def __init__(self):
-        super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data(f"common{os.sep}script_values")
-
-
-class ScriptedEffect(GameObjectBase):
-    def __init__(self):
-        super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data(f"common{os.sep}scripted_effects")
-
-
-class ScriptedModifier(GameObjectBase):
-    def __init__(self):
-        super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data(f"common{os.sep}scripted_modifiers")
-
-
-class ScriptedTrigger(GameObjectBase):
-    def __init__(self):
-        super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data(f"common{os.sep}scripted_triggers")
-
-
 class SubjectType(GameObjectBase):
     def __init__(self):
         super().__init__(imperator_mod_files, imperator_files_path)
@@ -295,20 +272,9 @@ class Region(GameObjectBase):
         self.get_data("map_data")
 
 
-class ScriptedList(GameObjectBase):
-    def __init__(self):
-        super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data(f"common{os.sep}scripted_lists")
-
-
-class ScriptedGui(GameObjectBase):
-    def __init__(self):
-        super().__init__(imperator_mod_files, imperator_files_path)
-        self.get_data(f"common{os.sep}scripted_guis")
-
-
 ImperatorObject = Union[
     GameObjectBase,
+    JominiObject,
     Ambition,
     Building,
     CultureGroup,
@@ -340,10 +306,6 @@ ImperatorObject = Union[
     Price,
     ProvinceRank,
     Religion,
-    ScriptValue,
-    ScriptedEffect,
-    ScriptedModifier,
-    ScriptedTrigger,
     SubjectType,
     TechTable,
     Terrain,
@@ -352,8 +314,5 @@ ImperatorObject = Union[
     Unit,
     Wargoal,
     Area,
-    Region,
-    ScriptedList,
-    ScriptedGui,
-    NamedColor,
+    Region
 ]
