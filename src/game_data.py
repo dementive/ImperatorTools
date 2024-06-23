@@ -7,6 +7,7 @@ from .game_object_manager import GameObjectManager
 
 manager = GameObjectManager()
 
+
 class ImperatorGameData(JominiGameData):
     def __init__(self):
         # Manually added lists, add custom stuff here
@@ -530,6 +531,7 @@ class ImperatorGameData(JominiGameData):
             "trigger_event": 'triggers an event or on_action<br>trigger_event = { id = X days/months/years = Y } (for events)<br>or<br>trigger_event = { on_action = X days/months/years = Y } (for on_actions)<br>Days/months/years are optional and equal to 0 if not specified. If specified, Y can be a value or an inclusive interval "{ A B }" from which the duration will be picked randomly.<br>Supported Scopes: none',
             "while": "Repeats enclosed effects while limit criteria are met or until set iteration count is reached<br>while = { limit = { [triggers] } [effects] }<br> while = { count = 3 [effects] }<br>Default max of 1000.<br>Supported Scopes: none",
         }
+
     @property
     def game_triggers(self):
         return {
@@ -1089,6 +1091,7 @@ class ImperatorGameData(JominiGameData):
             "is_color": "Check if the scoped color is the same as another color. The right hand side can be either a hex, rgb, or hsv color,  or a named color, or another color scope.<br>Supported Scopes: color",
             "is_pop_type_right": "Does this country culture have this poptype right<br>Traits: class CPopTypeDataBase key<br>Supported Scopes: poptype",
         }
+
     @property
     def game_scopes(self):
         return {
@@ -1186,6 +1189,7 @@ class ImperatorGameData(JominiGameData):
             "siege": "Input Scopes: province, unit<br>Output Scopes: siege",
             "capital_scope": "Scope to the capital of a country, state, or governorship<br>Input Scopes: country, state, governorship<br>Output Scopes: province",
         }
+
     @property
     def game_modifiers(self):
         return {
@@ -2045,6 +2049,7 @@ class ImperatorGameData(JominiGameData):
             "local_happiness_for_wrong_religion_modifier": "Categories: province",
             "cultural_assimilation_speed_modifier": "Categories: country",
         }
+
     @property
     def simple_completion_pattern_flag_pairs(self):
         return [
@@ -2233,6 +2238,7 @@ class ImperatorGameData(JominiGameData):
                 manager.region.name,
             ),
         ]
+
     @property
     def simple_completion_scope_pattern_flag_pairs(self):
         return [
@@ -2244,6 +2250,7 @@ class ImperatorGameData(JominiGameData):
             ("region:", manager.region.name),
             ("religion:", manager.religion.name),
         ]
+
     @property
     def completion_flag_pairs(self):
         return [
@@ -2325,6 +2332,7 @@ class ImperatorGameData(JominiGameData):
             (manager.unit.name, (sublime.KIND_ID_FUNCTION, "U", "Units")),
             (manager.war_goal.name, (sublime.KIND_ID_FUNCTION, "W", "War Goals")),
         ]
+
     @property
     def data_system_completion_flag_pairs(self):
         return [
@@ -2371,6 +2379,7 @@ class ImperatorGameData(JominiGameData):
                 (sublime.KIND_ID_NAMESPACE, "S", "Script Value"),
             ),
         ]
+
     @property
     def data_system_completion_functions(self):
         return [
@@ -2396,6 +2405,7 @@ class ImperatorGameData(JominiGameData):
             (manager.trade_good.name, "GetTradeGood"),
             (manager.trait.name, "GetTrait"),
         ]
+
     @property
     def auto_complete_selector_flag_pairs(self):
         return [
@@ -2410,6 +2420,7 @@ class ImperatorGameData(JominiGameData):
             ("meta.invention.bracket", manager.invention.name),
             ("meta.unit.bracket", manager.unit.name, "type = "),
         ]
+
     @property
     def auto_complete_fields(self):
         return {
@@ -2457,3 +2468,81 @@ class ImperatorGameData(JominiGameData):
             manager.unit.name: [],
             manager.war_goal.name: [],
         }
+
+    @property
+    def script_hover_objects(self):
+        return [
+            (manager.ambition.name, "Ambition"),
+            (manager.area.name, "Area"),
+            (manager.building.name, "Building"),
+            (manager.culture.name, "Culture"),
+            (manager.culture_group.name, "Culture Group"),
+            (manager.death_reason.name, "Death Reason"),
+            (manager.deity.name, "Deity"),
+            (manager.diplo_stance.name, "Diplomatic Stance"),
+            (manager.econ_policy.name, "Economic Policy"),
+            (manager.event_pic.name, "Event Picture"),
+            (manager.event_theme.name, "Event Theme"),
+            (manager.government.name, "Government"),
+            (manager.governor_policy.name, "Governor Policy"),
+            (manager.heritage.name, "Heritage"),
+            (manager.idea.name, "Idea"),
+            (manager.invention.name, "Invention"),
+            (manager.law.name, "law"),
+            (manager.legion_distinction.name, "Legion Distinction"),
+            (manager.levy_template.name, "Levy Template"),
+            (manager.loyalty.name, "Loyalty"),
+            (manager.mil_tradition.name, "Military Tradition"),
+            (manager.mission.name, "Mission"),
+            (manager.mission_task.name, "Mission Task"),
+            (manager.modifier.name, "Modifier"),
+            (manager.named_colors.name, "Named Color"),
+            (manager.office.name, "Office"),
+            (manager.opinion.name, "Opinion"),
+            (manager.party.name, "Party"),
+            (manager.pop.name, "Pop Type"),
+            (manager.price.name, "Price"),
+            (manager.province_rank.name, "Province Rank"),
+            (manager.region.name, "Region"),
+            (manager.religion.name, "Religion"),
+            (manager.scripted_gui.name, "Scripted Gui"),
+            (manager.script_value.name, "Script Value"),
+            (manager.scripted_effect.name, "Scripted Effect"),
+            (manager.scripted_list_effects.name, "Scripted List"),
+            (manager.scripted_list_triggers.name, "Scripted List"),
+            (manager.scripted_modifier.name, "Scripted Modifier"),
+            (manager.scripted_trigger.name, "Scripted Trigger"),
+            (manager.subject_type.name, "Subject Type"),
+            (manager.tech_table.name, "Technology Table"),
+            (manager.terrain.name, "Terrain"),
+            (manager.trade_good.name, "Trade Good"),
+            (manager.trait.name, "Trait"),
+            (manager.unit.name, "Unit"),
+            (manager.war_goal.name, "War Goal"),
+        ]
+
+    @property
+    def data_system_hover_objects(self):
+        return [
+            (manager.building.name, "Building"),
+            (manager.culture.name, "Culture"),
+            (manager.culture_group.name, "Culture Group"),
+            (manager.custom_loc.name, "Culture"),
+            (manager.deity.name, "Deity"),
+            (manager.diplo_stance.name, "Diplomatic Stance"),
+            (manager.heritage.name, "Heritage"),
+            (manager.invention.name, "Invention"),
+            (manager.legion_distinction.name, "Legion Distinction"),
+            (manager.loyalty.name, "Loyalty"),
+            (manager.mil_tradition.name, "Military Tradition"),
+            (manager.modifier.name, "Modifier"),
+            (manager.office.name, "Office"),
+            (manager.price.name, "Price"),
+            (manager.province_rank.name, "Province Rank"),
+            (manager.religion.name, "Religion"),
+            (manager.script_value.name, "Script Value"),
+            (manager.scripted_gui.name, "Scripted Gui"),
+            (manager.terrain.name, "Terrain"),
+            (manager.trade_good.name, "Trade Good"),
+            (manager.trait.name, "Trait"),
+        ]

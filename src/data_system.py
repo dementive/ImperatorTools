@@ -15,8 +15,7 @@ class ImperatorDataSystemEventListener(
     JominiDataSystemEventListener, sublime_plugin.EventListener
 ):
     def __init__(self):
-        plugin = ImperatorPlugin()
-        super().__init__(plugin.settings, plugin.script_syntax_name, plugin.localization_syntax_name)
+        super().__init__(ImperatorPlugin())
 
     def on_selection_modified_async(self, view):
         super().on_selection_modified_async(view)

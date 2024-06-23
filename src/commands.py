@@ -155,7 +155,7 @@ class ImperatorModdingIndexCommand(sublime_plugin.WindowCommand):
 
 class ImpClearImageCacheCommand(sublime_plugin.WindowCommand):
     def run(self):
-        dir_name = sublime.packages_path() + "/ImperatorTools/Convert DDS/cache/"
+        dir_name = os.path.join(sublime.cache_path(), "ImperatorTools", "image_cache")
         ld = os.listdir(dir_name)
         for item in ld:
             if item.endswith(".png"):

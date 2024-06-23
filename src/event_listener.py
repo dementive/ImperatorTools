@@ -32,7 +32,7 @@ from libjomini.src import (
 )
 
 
-class ImperatorEventListener( # type: ignore
+class ImperatorEventListener(  # type: ignore
     Hover,
     AutoComplete,
     ScopeMatch,
@@ -40,6 +40,7 @@ class ImperatorEventListener( # type: ignore
     sublime_plugin.EventListener,
 ):
     write_data_to_syntax = write_data_to_syntax
+
     def on_init(self, views):
         self.init(ImperatorPlugin())
 
@@ -62,7 +63,9 @@ class ImperatorEventListener( # type: ignore
             self.game_objects[self.manager.province_rank.name] = ProvinceRank()
 
         def load_third():
-            self.game_objects[self.manager.script_value.name] = ScriptValue(self.mod_files, self.game_files_path)
+            self.game_objects[self.manager.script_value.name] = ScriptValue(
+                self.mod_files, self.game_files_path
+            )
             self.game_objects[self.manager.heritage.name] = Heritage()
             self.game_objects[self.manager.mil_tradition.name] = MilitaryTradition()
             self.game_objects[self.manager.named_colors.name] = NamedColor(
@@ -85,9 +88,13 @@ class ImperatorEventListener( # type: ignore
             self.game_objects[self.manager.event_pic.name] = EventPicture()
             self.game_objects[self.manager.trait.name] = Trait()
             self.game_objects[self.manager.law.name] = Law()
-            self.game_objects[self.manager.scripted_gui.name] = ScriptedGui(self.mod_files, self.game_files_path)
+            self.game_objects[self.manager.scripted_gui.name] = ScriptedGui(
+                self.mod_files, self.game_files_path
+            )
             self.game_objects[self.manager.culture_group.name] = CultureGroup()
-            self.game_objects[self.manager.scripted_modifier.name] = ScriptedModifier(self.mod_files, self.game_files_path)
+            self.game_objects[self.manager.scripted_modifier.name] = ScriptedModifier(
+                self.mod_files, self.game_files_path
+            )
             self.game_objects[self.manager.building.name] = Building()
             self.game_objects[self.manager.terrain.name] = Terrain()
             self.game_objects[self.manager.econ_policy.name] = EconomicPolicy()
@@ -97,9 +104,13 @@ class ImperatorEventListener( # type: ignore
         def load_fifth():
             self.game_objects[self.manager.loyalty.name] = Loyalty()
             self.game_objects[self.manager.area.name] = Area()
-            self.game_objects[self.manager.scripted_effect.name] = ScriptedEffect(self.mod_files, self.game_files_path)
+            self.game_objects[self.manager.scripted_effect.name] = ScriptedEffect(
+                self.mod_files, self.game_files_path
+            )
             self.game_objects[self.manager.invention.name] = Invention()
-            self.game_objects[self.manager.scripted_trigger.name] = ScriptedTrigger(self.mod_files, self.game_files_path)
+            self.game_objects[self.manager.scripted_trigger.name] = ScriptedTrigger(
+                self.mod_files, self.game_files_path
+            )
             self.game_objects[self.manager.event_theme.name] = EventTheme()
             self.game_objects[self.manager.region.name] = Region()
             self.game_objects[self.manager.levy_template.name] = LevyTemplate()
@@ -110,8 +121,12 @@ class ImperatorEventListener( # type: ignore
             )
             self.game_objects[self.manager.government.name] = Government()
             self.game_objects[self.manager.governor_policy.name] = GovernorPolicy()
-            self.game_objects[self.manager.scripted_list_effects.name] = ScriptedList(self.mod_files, self.game_files_path)
-            self.game_objects[self.manager.scripted_list_triggers.name] = ScriptedList(self.mod_files, self.game_files_path)
+            self.game_objects[self.manager.scripted_list_effects.name] = ScriptedList(
+                self.mod_files, self.game_files_path
+            )
+            self.game_objects[self.manager.scripted_list_triggers.name] = ScriptedList(
+                self.mod_files, self.game_files_path
+            )
             self.game_objects[self.manager.pop.name] = Pop()
 
             tri_list = []
@@ -178,19 +193,10 @@ class ImperatorEventListener( # type: ignore
 
         syntax_name = get_syntax_name(view)
 
-        if (
-            syntax_name != "Imperator Script"
-            and syntax_name != "Imperator Localization"
-            and syntax_name != "Jomini Gui"
-        ):
+        if not self.plugin.valid_syntax(syntax_name):
             return None
 
-        if syntax_name == "Jomini Gui" and not self.settings.get(
-            "ImperatorGuiFeatures"
-        ):
-            return
-
-        if syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui":
+        if self.plugin.is_data_system_syntax(syntax_name):
             for flag, completion in self.game_data.data_system_completion_flag_pairs:
                 completion_list = self.create_completion_list(flag, completion)
                 if completion_list is not None:
@@ -312,28 +318,18 @@ class ImperatorEventListener( # type: ignore
 
         syntax_name = get_syntax_name(view)
 
-        if (
-            syntax_name != "Imperator Script"
-            and syntax_name != "Imperator Localization"
-            and syntax_name != "Jomini Gui"
-        ):
+        if not self.plugin.valid_syntax(syntax_name):
             return
 
-        if (
-            syntax_name == "Jomini Gui"
-            and self.settings.get("ImperatorGuiFeatures") is not True
-        ):
-            return
-
-        if syntax_name != "Imperator Localization" and syntax_name != "Jomini Gui":
+        if not self.plugin.is_data_system_syntax(syntax_name):
             self.simple_scope_match(view)
 
         # Only do when there is 1 selections, doens't make sense with multiple selections
         if len(view.sel()) == 1:
             point = view.sel()[0].a
-            if (
-                syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui"
-            ) and view.substr(point) == "'":
+            if (self.plugin.is_data_system_syntax(syntax_name)) and view.substr(
+                point
+            ) == "'":
                 for i in self.game_data.data_system_completion_functions:
                     function_start = point - len(i[1] + "('")
                     if view.substr(view.word(function_start)) == i[1]:
@@ -368,101 +364,22 @@ class ImperatorEventListener( # type: ignore
 
         syntax_name = get_syntax_name(view)
 
-        if (
-            syntax_name != "Imperator Script"
-            and syntax_name != "Imperator Localization"
-            and syntax_name != "Jomini Gui"
-        ):
-            return
-
-        if (
-            syntax_name == "Jomini Gui"
-            and self.settings.get("ImperatorGuiFeatures") is not True
-        ):
+        if not self.plugin.valid_syntax(syntax_name):
             return
 
         # Do everything that requires fetching GameObjects in non-blocking thread
         hover_objects = []
-        if syntax_name == "Imperator Script":
-            hover_objects = [
-                (self.manager.ambition.name, "Ambition"),
-                (self.manager.area.name, "Area"),
-                (self.manager.building.name, "Building"),
-                (self.manager.culture.name, "Culture"),
-                (self.manager.culture_group.name, "Culture Group"),
-                (self.manager.death_reason.name, "Death Reason"),
-                (self.manager.deity.name, "Deity"),
-                (self.manager.diplo_stance.name, "Diplomatic Stance"),
-                (self.manager.econ_policy.name, "Economic Policy"),
-                (self.manager.event_pic.name, "Event Picture"),
-                (self.manager.event_theme.name, "Event Theme"),
-                (self.manager.government.name, "Government"),
-                (self.manager.governor_policy.name, "Governor Policy"),
-                (self.manager.heritage.name, "Heritage"),
-                (self.manager.idea.name, "Idea"),
-                (self.manager.invention.name, "Invention"),
-                (self.manager.law.name, "law"),
-                (self.manager.legion_distinction.name, "Legion Distinction"),
-                (self.manager.levy_template.name, "Levy Template"),
-                (self.manager.loyalty.name, "Loyalty"),
-                (self.manager.mil_tradition.name, "Military Tradition"),
-                (self.manager.mission.name, "Mission"),
-                (self.manager.mission_task.name, "Mission Task"),
-                (self.manager.modifier.name, "Modifier"),
-                (self.manager.named_colors.name, "Named Color"),
-                (self.manager.office.name, "Office"),
-                (self.manager.opinion.name, "Opinion"),
-                (self.manager.party.name, "Party"),
-                (self.manager.pop.name, "Pop Type"),
-                (self.manager.price.name, "Price"),
-                (self.manager.province_rank.name, "Province Rank"),
-                (self.manager.region.name, "Region"),
-                (self.manager.religion.name, "Religion"),
-                (self.manager.scripted_gui.name, "Scripted Gui"),
-                (self.manager.script_value.name, "Script Value"),
-                (self.manager.scripted_effect.name, "Scripted Effect"),
-                (self.manager.scripted_list_effects.name, "Scripted List"),
-                (self.manager.scripted_list_triggers.name, "Scripted List"),
-                (self.manager.scripted_modifier.name, "Scripted Modifier"),
-                (self.manager.scripted_trigger.name, "Scripted Trigger"),
-                (self.manager.subject_type.name, "Subject Type"),
-                (self.manager.tech_table.name, "Technology Table"),
-                (self.manager.terrain.name, "Terrain"),
-                (self.manager.trade_good.name, "Trade Good"),
-                (self.manager.trait.name, "Trait"),
-                (self.manager.unit.name, "Unit"),
-                (self.manager.war_goal.name, "War Goal"),
-            ]
+        if self.plugin.script_syntax_name == syntax_name:
+            hover_objects = self.game_data.script_hover_objects
 
-        if syntax_name == "Imperator Localization" or syntax_name == "Jomini Gui":
-            hover_objects = [
-                (self.manager.building.name, "Building"),
-                (self.manager.culture.name, "Culture"),
-                (self.manager.culture_group.name, "Culture Group"),
-                (self.manager.custom_loc.name, "Culture"),
-                (self.manager.deity.name, "Deity"),
-                (self.manager.diplo_stance.name, "Diplomatic Stance"),
-                (self.manager.heritage.name, "Heritage"),
-                (self.manager.invention.name, "Invention"),
-                (self.manager.legion_distinction.name, "Legion Distinction"),
-                (self.manager.loyalty.name, "Loyalty"),
-                (self.manager.mil_tradition.name, "Military Tradition"),
-                (self.manager.modifier.name, "Modifier"),
-                (self.manager.office.name, "Office"),
-                (self.manager.price.name, "Price"),
-                (self.manager.province_rank.name, "Province Rank"),
-                (self.manager.religion.name, "Religion"),
-                (self.manager.script_value.name, "Script Value"),
-                (self.manager.scripted_gui.name, "Scripted Gui"),
-                (self.manager.terrain.name, "Terrain"),
-                (self.manager.trade_good.name, "Trade Good"),
-                (self.manager.trait.name, "Trait"),
-            ]
+        if self.plugin.is_data_system_syntax(syntax_name):
+            hover_objects = self.game_data.data_system_hover_objects
+
         sublime.set_timeout_async(
             lambda: self.do_hover_async(view, point, hover_objects), 0
         )
 
-        if syntax_name != "Imperator Script":
+        if syntax_name != self.plugin.script_syntax_name:
             # For yml only the saved scopes/variables/game objects get hover
             return
 
@@ -537,7 +454,7 @@ class ImperatorEventListener( # type: ignore
     def on_post_save_async(self, view: sublime.View):
         if view is None:
             return
-        if get_syntax_name(view) != "Imperator Script":
+        if get_syntax_name(view) != self.game_data.script_hover_objects:
             return
         if not self.settings.get("ScriptValidator"):
             return
