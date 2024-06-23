@@ -57,9 +57,6 @@ else:
         plugin_repository_path, plugin_repository_url
     )
 
-    print(f"THE JOMINI PATH IS: {jomini_repository_path}")
-    print(f"THE IMPERATOR PATH IS: {plugin_repository_path}")
-
     sublime.set_timeout_async(lambda: jomini_tools_manager.auto_update_plugin(), 0)
     sublime.set_timeout_async(lambda: imperator_tools_manager.auto_update_plugin(), 0)
 
