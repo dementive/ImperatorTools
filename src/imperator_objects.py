@@ -314,5 +314,5 @@ ImperatorObject = Union[
     Unit,
     Wargoal,
     Area,
-    Region
+    Region,
 ]

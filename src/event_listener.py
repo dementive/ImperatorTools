@@ -32,7 +32,7 @@ from libjomini.src import (
 )
 
 
-class ImperatorEventListener(  # type: ignore
+class ImperatorEventListener(
     Hover,
     AutoComplete,
     ScopeMatch,
@@ -198,13 +198,13 @@ class ImperatorEventListener(  # type: ignore
 
         if self.plugin.is_data_system_syntax(syntax_name):
             for flag, completion in self.game_data.data_system_completion_flag_pairs:
-                completion_list = self.create_completion_list(flag, completion)
+                completion_list = self.create_completion_list(flag, completion)  # type: ignore
                 if completion_list is not None:
                     return completion_list
             return  # Don't need to check anything else for data system
 
         for flag, completion in self.game_data.completion_flag_pairs:
-            completion_list = self.create_completion_list(flag, completion)
+            completion_list = self.create_completion_list(flag, completion)  # type: ignore
             if completion_list is not None:
                 return completion_list
 
@@ -434,7 +434,7 @@ class ImperatorEventListener(  # type: ignore
             return
 
         # Check mod paths if it's not vanilla
-        for mod in self.mod_files:  # type: ignore
+        for mod in self.mod_files:
             if os.path.exists(mod) and mod.endswith("mod"):
                 # if it is the path to the mod directory, get all directories in it
                 for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
@@ -460,9 +460,7 @@ class ImperatorEventListener(  # type: ignore
             return
 
         mod_dir = [
-            x
-            for x in self.mod_files  # type: ignore
-            if is_file_in_directory(get_file_name(view), x)
+            x for x in self.mod_files if is_file_in_directory(get_file_name(view), x)
         ]
         in_mod_dir = any(mod_dir)
         if not in_mod_dir:
