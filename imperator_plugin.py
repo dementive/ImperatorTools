@@ -26,7 +26,10 @@ def clone_jomini_repo(destination_dir):
 
 
 if not jomini_repo_exists(sublime.packages_path()):
-    clone_jomini_repo(os.path.join(sublime.packages_path(), "JominiTools"))
+    jomini_repo_path = os.path.join(sublime.packages_path(), "JominiTools")
+    if not os.path.exists(jomini_repo_path):
+        os.makedirs(jomini_repo_path)
+    clone_jomini_repo(jomini_repo_path)
 else:
     from JominiTools.src.plugin_manager import PluginManager
 
