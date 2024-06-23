@@ -2,7 +2,6 @@
 Miscellaneous imperator tools commands
 """
 
-import os
 import webbrowser
 from typing import Any, Dict, List
 
@@ -151,13 +150,3 @@ class ImperatorModdingIndexCommand(sublime_plugin.WindowCommand):
         webbrowser.open_new_tab(
             "https://forum.paradoxplaza.com/forum/threads/imperator-modding-guide-index.1274242/"
         )
-
-
-class ImpClearImageCacheCommand(sublime_plugin.WindowCommand):
-    def run(self):
-        dir_name = os.path.join(sublime.cache_path(), "ImperatorTools", "image_cache")
-        ld = os.listdir(dir_name)
-        for item in ld:
-            if item.endswith(".png"):
-                os.remove(os.path.join(dir_name, item))
-        sublime.status_message("Cleared Image Cache")
