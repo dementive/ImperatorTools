@@ -73,13 +73,13 @@ When you have a valid path defined in the TigerModPath setting the plugin will a
 
 Only 1 dependency is absolutely necessary for the plugin to work:
 
-The [JominiTools]([JominiTools](https://github.com/dementive/JominiTools)) package. All of the core plugin functionality comes from JominiTools and the plugin will not work at all without it.
+The [JominiTools](https://github.com/dementive/JominiTools) package. All of the core plugin functionality comes from JominiTools and the plugin will not work at all without it.
 
 There are 2 additional dependencies that will add more functionality but are not necessary for the core features to work
 
-- [Git]((https://git-scm.com/downloads)) - Git is used to automatically update the plugin whenever any changes are made. Without git you'll have to pull all changes manually which is not recommended because you may miss out on essential bug fixes.
+- [Git](https://git-scm.com/downloads) - Git is used to automatically update the plugin whenever any changes are made. Without git you'll have to pull all changes manually which is not recommended because you may miss out on essential bug fixes.
 
-- ImageMagick(https://imagemagick.org/script/download.php) - ImageMagick has to be installed on your system PATH, it is used to convert dds files to png so they can be displayed in sublime. This is only used when showing textures in sublime so if you don't use this feature it won't be necessary to install image magick.
+- [ImageMagick](https://imagemagick.org/script/download.php) - ImageMagick has to be installed on your system PATH, it is used to convert dds files to png so they can be displayed in sublime. This is only used when showing textures in sublime so if you don't use this feature it won't be necessary to install image magick.
 
 
 # Images
