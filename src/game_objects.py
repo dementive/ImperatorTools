@@ -3,7 +3,7 @@ from typing import Dict
 
 from .game_object_manager import GameObjectManager
 from .imperator_objects import ImperatorObject
-from libjomini.src import write_syntax
+from JominiTools.src import write_syntax
 
 
 def write_data_to_syntax(self, game_objects: Dict[str, ImperatorObject]):

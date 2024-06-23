@@ -12,15 +12,15 @@ from typing import List, Tuple, Union
 import sublime
 import sublime_plugin
 
-from libjomini.src import encoding_check
+from JominiTools.src import encoding_check
 from .autocomplete import AutoComplete
 from .game_data import ImperatorGameData
 from .game_objects import write_data_to_syntax
 from .game_object_manager import GameObjectManager
 from .imperator_objects import *
 from .plugin import ImperatorPlugin
-from libjomini.src.jomini_objects import *
-from libjomini.src import (
+from JominiTools.src.jomini_objects import *
+from JominiTools.src import (
     ScopeMatch,
     get_file_name,
     get_syntax_name,

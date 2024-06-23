@@ -5,8 +5,8 @@ from typing import Union
 
 import sublime
 
-from libjomini.src import GameObjectBase
-from libjomini.src.jomini_objects import JominiObject
+from JominiTools.src import GameObjectBase
+from JominiTools.src.jomini_objects import JominiObject
 
 imperator_files_path = ""
 imperator_mod_files = []

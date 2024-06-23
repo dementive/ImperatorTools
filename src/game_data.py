@@ -2,7 +2,7 @@
 
 import sublime
 
-from libjomini.src import JominiGameData
+from JominiTools.src import JominiGameData
 from .game_object_manager import GameObjectManager
 
 manager = GameObjectManager()

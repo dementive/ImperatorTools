@@ -1,6 +1,1 @@
-*.vs
-/Convert DDS/cache/*.png
-tiger.json
-mod_cache.json
-object_cache.json
 ImperatorSyntax.sublime-syntax

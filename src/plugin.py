@@ -1,6 +1,6 @@
 import sublime
 
-from libjomini.src import JominiPlugin
+from JominiTools.src import JominiPlugin
 from .game_object_manager import GameObjectManager
 
 manager = GameObjectManager()

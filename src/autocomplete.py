@@ -2,7 +2,7 @@
 Code for the autocomplete features of the plugin
 """
 
-from libjomini.src import JominiAutoComplete
+from JominiTools.src import JominiAutoComplete
 
 
 class AutoComplete(JominiAutoComplete):

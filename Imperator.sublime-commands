@@ -28,13 +28,6 @@
 		},
 	},
 	{
-		"caption": "Imperator: Clear Image Cache",
-		"command": "imp_clear_image_cache",
-		"args": {
-
-		},
-	},
-	{
 		"caption": "Imperator: Toggle All Textures",
 		"command": "imperator_toggle_all_textures",
 		"args": {

@@ -6,7 +6,7 @@ from typing import List
 import sublime
 import sublime_plugin
 
-from libjomini.src import (
+from JominiTools.src import (
     JominiShowAllTexturesCommand,
     JominiTextureEventListener,
     JominiToggleAllTexturesCommand,
