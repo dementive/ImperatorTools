@@ -1,11 +1,13 @@
 import os
 import sys
 import subprocess
+import shutil
 
+# Assuming sublime is imported correctly elsewhere in your code
 import sublime
 
-# clear modules cache if package is reloaded
-prefix = __package__ + ".src"  # don't clear the base package
+# Clear modules cache if package is reloaded
+prefix = __package__ + ".src"  # Don't clear the base package
 for module_name in [
     module_name for module_name in sys.modules if module_name.startswith(prefix)
 ]:
@@ -18,11 +20,22 @@ def jomini_repo_exists(destination_dir):
 
 
 def clone_jomini_repo(destination_dir):
-    # Clone the JominiTools dependency
-    repository_url = "https://github.com/dementive/JominiTools"
-    subprocess.run(["git", "clone", repository_url, destination_dir], check=True)
-    subprocess.run(["git", "-C", destination_dir, "checkout", "main"], check=True)
-    subprocess.run(["git", "-C", destination_dir, "pull"], check=True)
+    temp_dir = os.path.join(destination_dir, "a.tmp")
+    subprocess.run(
+        [
+            "git",
+            "clone",
+            "--no-checkout",
+            "--no-hardlinks",
+            "https://github.com/dementive/JominiTools",
+            temp_dir,
+        ],
+        check=True,
+    )
+    subprocess.run(["mv", os.path.join(temp_dir, ".git"), destination_dir], check=True)
+
+    shutil.rmtree(temp_dir)
+    subprocess.run(["git", "-C", destination_dir, "unstage", "all"], check=True)
 
 
 if not jomini_repo_exists(sublime.packages_path()):
