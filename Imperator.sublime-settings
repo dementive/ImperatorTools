@@ -68,10 +68,16 @@
 	// false = won't show docs
 	"DocsHoverEnabled": true,
 
+	// Same as above but for gui
+	"GuiDocsHoverEnabled": true,
+
 	// Should hovering over a gfx file show a popup that will allow the file to be opened?
 	"TextureOpenPopup": true,
 
 	// Max number of images that can be shown when using show all textures command
 	// too many can make sublime unresponsive
-	"MaxToggleTextures": 150
+	"MaxToggleTextures": 150,
+
+	// Doc hover for PdxShader syntax
+	"IntrinsicHoverEnabled": true,
 }

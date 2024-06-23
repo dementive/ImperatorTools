@@ -109,3 +109,5 @@ class GameObjectManager(JominiGameObjectManager):
         self.trait = GameObjectData("trait", Trait, f"common{os.sep}traits")
         self.unit = GameObjectData("unit", Unit, f"common{os.sep}units")
         self.war_goal = GameObjectData("war_goal", Wargoal, f"common{os.sep}wargoals")
+        self.gui_templates = GameObjectData("gui_templates", GuiTemplate, "gui")
+        self.gui_types = GameObjectData("gui_types", GuiType, "gui")

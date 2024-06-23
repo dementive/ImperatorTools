@@ -20,6 +20,7 @@ from .game_object_manager import GameObjectManager
 from .imperator_objects import *
 from .plugin import ImperatorPlugin
 from JominiTools.src.jomini_objects import *
+from JominiTools.src.shaders import on_hover_shaders
 from JominiTools.src import (
     ScopeMatch,
     get_file_name,
@@ -33,8 +34,8 @@ from JominiTools.src import (
 
 
 class ImperatorEventListener(
-    Hover,
     AutoComplete,
+    Hover,
     ScopeMatch,
     JominiEventListener,
     sublime_plugin.EventListener,
@@ -79,6 +80,19 @@ class ImperatorEventListener(
             self.game_objects[self.manager.office.name] = Office()
             self.game_objects[self.manager.unit.name] = Unit()
             self.game_objects[self.manager.party.name] = Party()
+            self.game_objects[self.manager.gui_types.name] = GuiType(
+                self.mod_files, self.game_files_path
+            )
+            self.game_objects[self.manager.gui_templates.name] = GuiTemplate(
+                self.mod_files, self.game_files_path
+            )
+            self.game_objects[self.manager.gui_templates.name].remove("inside")
+            self.game_objects[self.manager.gui_templates.name].remove("you")
+            self.game_objects[self.manager.gui_templates.name].remove("can")
+            self.game_objects[self.manager.gui_templates.name].remove("but")
+            self.game_objects[self.manager.gui_templates.name].remove("on")
+            self.game_objects[self.manager.gui_templates.name].remove("within")
+            self.game_objects[self.manager.gui_templates.name].remove("names")
 
         def load_fourth():
             self.game_objects[self.manager.deity.name] = Deity()
@@ -339,33 +353,31 @@ class ImperatorEventListener(
             self.check_for_simple_completions(view, point)
             self.check_for_complex_completions(view, point)
 
-    def check_for_simple_completions(self, view: sublime.View, point: int):
-        """
-        Check if the current cursor position should trigger a autocompletion item
-        this is for simple declarations like: remove_building = CursorHere
-        """
-        self.reset_shown()
-
-        if view.substr(point) == "=":
-            return
-
-        line = view.substr(view.line(point))
-
-        for patterns, flag in self.game_data.simple_completion_pattern_flag_pairs:
-            if self.check_for_patterns_and_set_flag(patterns, flag, view, line, point):
-                return
-
-        for pattern, flag in self.game_data.simple_completion_scope_pattern_flag_pairs:
-            self.check_pattern_and_set_flag(pattern, flag, view, line, point)
-
     def on_hover(self, view: sublime.View, point: int, hover_zone: sublime.HoverZone):
         if not view:
             return
+
+        on_hover_shaders(view, point, self.settings)
 
         syntax_name = get_syntax_name(view)
 
         if not self.plugin.valid_syntax(syntax_name):
             return
+
+        if view.match_selector(point, "comment.line"):
+            return
+
+        if syntax_name == "Jomini Gui":
+            sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
+            item = view.substr(view.word(point))
+            if (
+                self.settings.get("GuiDocsHoverEnabled") is True
+                and item in self.game_data.gui_content
+            ):
+                sublime.set_timeout_async(
+                    lambda: self.show_gui_docs_popup(view, point, item, self.game_data),
+                    0,
+                )
 
         # Do everything that requires fetching GameObjects in non-blocking thread
         hover_objects = []
@@ -419,11 +431,16 @@ class ImperatorEventListener(
             return
 
         posLine = view.line(point)
-        if ".dds" not in view.substr(posLine):
+        linestr = view.substr(posLine)
+        if ".dds" not in linestr and ".tga" not in linestr:
             return
 
         texture_raw_start = view.find("gfx", posLine.a)
-        texture_raw_end = view.find(".dds", posLine.a)
+        texture_raw_end = (
+            view.find(".dds", posLine.a)
+            if ".dds" in linestr
+            else view.find(".tga", posLine.a)
+        )
         texture_raw_region = sublime.Region(texture_raw_start.a, texture_raw_end.b)
         texture_raw_path = view.substr(texture_raw_region)
         full_texture_path = os.path.join(self.game_files_path, texture_raw_path)  # type: ignore
@@ -434,7 +451,7 @@ class ImperatorEventListener(
             return
 
         # Check mod paths if it's not vanilla
-        for mod in self.mod_files:
+        for mod in [m for m in self.mod_files if os.path.exists(m)]:
             if os.path.exists(mod) and mod.endswith("mod"):
                 # if it is the path to the mod directory, get all directories in it
                 for directory in [f.path for f in os.scandir(mod) if f.is_dir()]:
@@ -454,7 +471,7 @@ class ImperatorEventListener(
     def on_post_save_async(self, view: sublime.View):
         if view is None:
             return
-        if get_syntax_name(view) != self.game_data.script_hover_objects:
+        if get_syntax_name(view) != self.plugin.script_syntax_name:
             return
         if not self.settings.get("ScriptValidator"):
             return
@@ -510,7 +527,7 @@ class ImperatorEventListener(
                 f"common{os.sep}missions",
                 f"common{os.sep}named_colors",
             }
-            level_2_dirs = {"common{os.sep}cultures"}
+            level_2_dirs = {f"common{os.sep}cultures"}
             if relative_path in level_1_dirs:
                 base_object = GameObjectBase(level=1)
             elif relative_path in level_2_dirs:

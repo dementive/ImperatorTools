@@ -53,6 +53,8 @@ Several commands have also been added to the command palette. Open it with `ctrl
 - Clear Image Cache - If you have images set to open in sublime they get cached so they open faster, this command clears the cache
 - Toggle All Textures - This will show/hide all textures as inline right below the texture path. For example if you have a event pictures file open and use this command it will show all of the event pictures directly in the editor. The ShowInlineTexturesOnLoad setting can be set to `true` to automatically show all textures whenever a new file is opened.
 
+The plugin now updates itself automatically via git pull.
+
 # GUI and Shader Modding
 
 The .gui, .shader, and .fxh syntaxes are part of the Victoria 3 sublime tools so to get them working you will need to download it and enable the `VictoriaGui` and `PdxShader` syntaxes found here:  
