@@ -367,7 +367,7 @@ class ImperatorEventListener(
         if view.match_selector(point, "comment.line"):
             return
 
-        if syntax_name == "Jomini Gui":
+        if syntax_name == self.plugin.gui_syntax_name:
             sublime.set_timeout_async(lambda: self.do_gui_hover_async(view, point), 0)
             item = view.substr(view.word(point))
             if (
@@ -391,11 +391,13 @@ class ImperatorEventListener(
             lambda: self.do_hover_async(view, point, hover_objects), 0
         )
 
-        if syntax_name != self.plugin.script_syntax_name:
+        if syntax_name == self.plugin.localization_syntax_name:
             # For yml only the saved scopes/variables/game objects get hover
             return
 
-        if self.settings.get("DocsHoverEnabled"):
+        if syntax_name == self.plugin.script_syntax_name and self.settings.get(
+            "DocsHoverEnabled"
+        ):
             if view.match_selector(point, "keyword.effect"):
                 self.show_hover_docs(
                     view,
@@ -467,6 +469,28 @@ class ImperatorEventListener(
         if texture_raw_region.contains(point):
             texture_name = view.substr(view.word(texture_raw_end.a - 1))
             self.show_texture_hover_popup(view, point, texture_name, full_texture_path)
+
+    def do_gui_hover_async(self, view: sublime.View, point: int):
+        word = view.substr(view.word(point))
+
+        if view.match_selector(point, "comment.line"):
+            return
+
+        if gtemplate := self.game_objects["gui_templates"].access(word):
+            self.show_gui_popup(
+                view,
+                point,
+                gtemplate,
+                "Gui Template",
+            )
+
+        if gtype := self.game_objects["gui_types"].access(word):
+            self.show_gui_popup(
+                view,
+                point,
+                gtype,
+                "Gui Type",
+            )
 
     def on_post_save_async(self, view: sublime.View):
         if view is None:

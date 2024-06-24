@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Imperator Gui</string>
+	<key>scope</key>
+	<string>text.imperator.gui variable.parameter.gui entity.name.type.gui</string>
+	<key>settings</key>
+	<dict>
+		<key>showInSymbolList</key>
+		<integer>1</integer>
+		<key>showInIndexedSymbolList</key>
+		<integer>1</integer>
+	</dict>
+</dict>
+</plist>
