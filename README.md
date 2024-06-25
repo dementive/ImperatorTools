@@ -30,6 +30,9 @@ main menu -> view -> syntax -> Open All with current extention as... -> Imperato
 Select ```Imperator Rome Scripting``` as the default syntax for .txt. 
 For .yml files use ``` Imperator Localization ```.
 For .log files use ```Imperator Log Syntax```.
+For .gui files use ```Imperator Gui```.
+For .asset files use ```Jomini Asset```.
+For .shader and .fxh files use ```PdxShader```.
 
 In addition to syntax highlighting all effects, triggers, and scopes have been added to autocompletion.  
 At any time you can press ```ctrl+space``` and start typing and autocompletion will open, autocomplete.  
@@ -54,11 +57,6 @@ Several commands have also been added to the command palette. Open it with `ctrl
 - Toggle All Textures - This will show/hide all textures as inline right below the texture path. For example if you have a event pictures file open and use this command it will show all of the event pictures directly in the editor. The ShowInlineTexturesOnLoad setting can be set to `true` to automatically show all textures whenever a new file is opened.
 
 The plugin now updates itself automatically via git pull.
-
-# GUI and Shader Modding
-
-The .gui, .shader, and .fxh syntaxes are part of the Victoria 3 sublime tools so to get them working you will need to download it and enable the `VictoriaGui` and `PdxShader` syntaxes found here:  
-https://github.com/dementive/Victoria3Tools
 
 # Imperator-tiger integration
 
