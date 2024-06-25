@@ -330,7 +330,7 @@ contexts:
         - include: line_ending
         - include: equal_sign
         - match: \{|"
-          scope: meta.ai.bracket
+          scope: meta.value.bracket
           pop: true
 
   trait-block-start:
