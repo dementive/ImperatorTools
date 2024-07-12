@@ -50,7 +50,7 @@
 	},
 	{
 		"caption": "Imperator: Run Tiger",
-		"command": "run_tiger",
+		"command": "imperator_run_tiger",
 		"args": {
 
 		},

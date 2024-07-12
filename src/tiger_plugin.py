@@ -76,7 +76,7 @@ class ExecuteTigerCommand(JominiExecuteTigerCommand, sublime_plugin.WindowComman
         )
 
 
-class RunTigerCommand(JominiRunTigerCommand, sublime_plugin.WindowCommand):
+class ImperatorRunTigerCommand(JominiRunTigerCommand, sublime_plugin.WindowCommand):
     def __init__(self, window):
         self.window = window
         super().__init__(sublime.load_settings("Imperator.sublime-settings"))
